@@ -1,0 +1,11 @@
+= Changelog
+
+== v2025.xx.xx
+
+=== Dependency update
+
+=== New features
+
+=== Improvements
+
+=== Bug fixes

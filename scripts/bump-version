@@ -1,0 +1,4 @@
+#!/bin/sh
+
+VERSION="$1"
+mvn versions:set -DgroupId=ontology -DartifactId="*" -DoldVersion="*" -DnewVersion="$VERSION" -f packages/pom.xml

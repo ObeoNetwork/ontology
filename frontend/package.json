@@ -1,0 +1,29 @@
+{
+  "name": "@ObeoNetwork/ontology",
+  "version": "2025.3.0",
+  "author": "Obeo",
+  "license": "EPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ObeoNetwork/ontology"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "workspaces": [
+    "ontology-web"
+  ],
+  "engines": {
+    "node": "18.7.0",
+    "npm": "8.15.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "format": "prettier --write \"*/src/**/*.{js,ts,tsx,css}\"",
+    "format-lint": "prettier --list-different \"*/src/**/*.{js,ts,tsx,css}\""
+  },
+  "devDependencies": {
+    "turbo": "1.13.3"
+  }
+}
