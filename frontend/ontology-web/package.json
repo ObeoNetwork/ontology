@@ -1,0 +1,94 @@
+{
+  "name": "@ObeoNetwork/ontology",
+  "author": "Obeo",
+  "version": "2025.3.0",
+  "license": "EPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ObeoNetwork/ontology"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "private": true,
+  "dependencies": {
+    "@obeo/obeo-cloud-platform": "2025.2.1",
+    "@apollo/client": "3.10.4",
+    "@eclipse-sirius/sirius-components-charts": "2025.2.1",
+    "@eclipse-sirius/sirius-components-core": "2025.2.1",
+    "@eclipse-sirius/sirius-components-deck": "2025.2.1",
+    "@eclipse-sirius/sirius-components-diagrams": "2025.2.1",
+    "@eclipse-sirius/sirius-components-formdescriptioneditors": "2025.2.1",
+    "@eclipse-sirius/sirius-components-forms": "2025.2.1",
+    "@eclipse-sirius/sirius-components-gantt": "2025.2.1",
+    "@eclipse-sirius/sirius-components-omnibox": "2025.2.1",
+    "@eclipse-sirius/sirius-components-portals": "2025.2.1",
+    "@eclipse-sirius/sirius-components-selection": "2025.2.1",
+    "@eclipse-sirius/sirius-components-tables": "2025.2.1",
+    "@eclipse-sirius/sirius-components-trees": "2025.2.1",
+    "@eclipse-sirius/sirius-components-validation": "2025.2.1",
+    "@eclipse-sirius/sirius-components-widget-reference": "2025.2.1",
+    "@eclipse-sirius/sirius-web-application": "2025.2.1",
+    "@mui/icons-material": "5.15.19",
+    "@mui/material": "5.15.19",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/react-router-dom": "5.3.3",
+    "@xstate/react": "3.0.0",
+    "@xyflow/react": "12.2.1",
+    "d3": "7.0.0",
+    "elkjs": "0.8.2",
+    "export-to-csv": "1.3.0",
+    "fontsource-roboto": "4.0.0",
+    "graphql": "16.8.1",
+    "html-to-image": "1.11.11",
+    "material-react-table": "2.13.3",
+    "notistack": "3.0.1",
+    "pathfinding": "0.4.18",
+    "prop-types": "15.8.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-draggable": "4.4.6",
+    "react-router-dom": "6.26.0",
+    "reactflow": "11.10.1",
+    "subscriptions-transport-ws": "0.11.0",
+    "svg-path-parser": "1.1.0",
+    "tss-react": "4.9.7",
+    "xstate": "4.32.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "5.14.1",
+    "@testing-library/react": "12.1.2",
+    "@testing-library/user-event": "13.2.1",
+    "@types/d3": "7.0.0",
+    "@types/jest": "27.0.0",
+    "@types/node": "20.12.12",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/react-router-dom": "5.3.3",
+    "@vitejs/plugin-react": "4.3.0",
+    "jest-junit-reporter": "1.1.0",
+    "prettier": "2.7.1",
+    "typescript": "5.4.5",
+    "vite": "5.2.11",
+    "vitest": "1.6.0"
+  },
+  "overrides": {
+    "@types/react-router-dom": {
+      "@types/history": "4.7.11"
+    }
+  },
+  "scripts": {
+    "start": "tsc && vite --host",
+    "build": "vite build && tsc",
+    "test": "vitest --run --config vite.config.js",
+    "format": "prettier --write \"src/**/*.{js,ts,tsx,css}\"",
+    "format-lint": "prettier --list-different \"src/**/*.{js,ts,tsx,css}\""
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

@@ -1,0 +1,4 @@
+= ontology Frontend
+
+This project contains the frontend of the ontology application.
+This frontend relies on Sirius-Web and Obeo Enterprise for Sirius frontends

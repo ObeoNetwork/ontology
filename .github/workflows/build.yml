@@ -1,0 +1,126 @@
+name: Continuous integration
+
+on:
+  push:
+    paths-ignore:
+      - "CHANGELOG.adoc"
+      - "README.adoc"
+      - "doc/**"
+    branches:
+      - "**"
+    tags:
+      - "*"
+  pull_request:
+  workflow_dispatch:
+
+env:
+  AWS_DEFAULT_REGION: eu-west-3
+  AWS_ACCOUNT: 307946679637
+  AWS_ROLE: github-actions-ontology
+  DOCKER_IMAGE: ontology
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        if: github.event_name != 'pull_request'
+        with:
+          fetch-depth: 0
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        if: github.event_name == 'pull_request'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node SDK
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.7
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Setup Java SDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: "temurin"
+
+      - name: Setup some global environment variables
+        run: |
+          echo "git_describe=$(git describe)" >> $GITHUB_ENV
+          echo "app_version_latest=$(grep version frontend/package.json | awk -F \" '{print $4}')" >> $GITHUB_ENV
+
+      - name: Build the frontend packages
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.OBEO_TOKEN }}" >> .npmrc
+          echo "CI=true" >> $GITHUB_ENV
+          npm ci
+          npm run build
+        working-directory: frontend
+
+      - name: Copy frontend artifacts
+        run: |
+          mkdir -p backend/ontology-frontend/src/main/resources/static
+          cp -R frontend/ontology-web/dist/* backend/ontology-frontend/src/main/resources/static
+
+      - name: Build the backend
+        env:
+          USERNAME: ${{ github.actor }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: mvn -U -B -e clean verify  -f backend/pom.xml --settings settings.xml
+
+      - name: Publish the backend
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          USERNAME: ${{ github.actor }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mvn -B deploy -DskipTests -f backend/pom.xml --settings settings.xml
+
+      - name: Store the fat jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: application fat jar
+          path: backend/ontology-application/target/ontology-application-${{ env.app_version_latest }}.jar
+
+      - name: Configure AWS CLI
+        if: github.event_name != 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{env.AWS_ACCOUNT}}:role/${{env.AWS_ROLE}}
+          aws-region: ${{env.AWS_DEFAULT_REGION}}
+
+      - name: Login to Amazon Elastic Container Registry
+        if: github.event_name != 'pull_request'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Extract metadata (tags, labels) for Docker
+        if: github.event_name != 'pull_request'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{env.DOCKER_IMAGE}}
+
+      - name: Set up Docker Build to use cache feature
+        if: github.event_name != 'pull_request'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        if: github.event_name != 'pull_request'
+        id: build-push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: backend/ontology-application
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

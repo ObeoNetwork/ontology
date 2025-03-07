@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2025 Obeo.
+ This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v2.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/legal/epl-2.0/
+
+ * SPDX-License-Identifier: EPL-2.0
+
+ Contributors:
+     Obeo - initial API and implementation
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>ontology</groupId>
+    <artifactId>ontology-parent</artifactId>
+    <version>2025.3.0</version>
+    <name>ontology-parent</name>
+    <description>Parent Pom for ontology modules</description>
+    <packaging>pom</packaging>
+
+
+    <properties>
+        <java.version>17</java.version>
+        <sirius.web.version>2025.2.1</sirius.web.version>
+        <sirius.version>7.2.0-SNAPSHOT</sirius.version>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>github-ontology</id>
+            <name>Ontology</name>
+            <url>https://github.com/ObeoNetwork/ontology</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>Central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>github-sirius-web</id>
+            <url>https://maven.pkg.github.com/eclipse-web/sirius-web</url>
+        </repository>
+        <repository>
+            <id>github-sirius-emfjson</id>
+            <url>https://maven.pkg.github.com/eclipse-sirius/sirius-emf-json</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Sirius Components -->
+
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-forms</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-web-tests</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-form-edit</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-builder</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-trees</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-web-domain</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-diagram-customnodes</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-diagrams</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-representations</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-formdescriptioneditors</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-emf</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-interpreter</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-emf-widget-reference</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-emf-forms</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-web-starter</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-collaborative-widget-reference</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-annotations-spring</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-events</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-web-application</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-trees-tests</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-domain-emf</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-collaborative</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-collaborative-trees</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>
+                    sirius-components-collaborative-formdescriptioneditors
+                </artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-collaborative-selection</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-spring-tests</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-annotations</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-diagrams-layout</artifactId>
+                <version>${sirius.web.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis-ext</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-widget-reference</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-graphiql</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-graphql-voyager</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-domain-edit</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-core</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-representations</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-graphql-api</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-graphql</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-diagram</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-diagram-edit</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-edit</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-tests</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-collaborative-diagrams</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-widget-reference-view</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-widget-reference-view-edit</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-collaborative-forms</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-view-form</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-diagrams-tests</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-emf</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-components-forms-tests</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>sirius-web</artifactId>
+                <version>${sirius.web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sirius</groupId>
+                <artifactId>org.eclipse.sirius.ext.emf.edit</artifactId>
+                <version>${sirius.version}</version>
+            </dependency>
+
+            <!-- Others -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>1.17.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>1.17.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.mapping.ecore2xml</artifactId>
+                <version>2.11.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.common</artifactId>
+                <version>2.21.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.ecore</artifactId>
+                <version>2.23.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.edit</artifactId>
+                <version>2.16.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-shade-plugin</artifactId>-->
+            <!--                <version>3.5.0</version> &lt;!&ndash; Use the latest version &ndash;&gt;-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <phase>package</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>shade</goal>-->
+            <!--                        </goals>-->
+            <!--                        <configuration>-->
+            <!--                            <createDependencyReducedPom>true</createDependencyReducedPom>-->
+
+            <!--                            <filters>-->
+
+            <!--                                <filter>-->
+            <!--                                    <artifact>org.obeonetwork.dsl.entity:org.obeonetwork.dsl.entity</artifact> &lt;!&ndash; Include all dependencies &ndash;&gt;-->
+            <!--                                </filter>-->
+            <!--                            </filters>-->
+            <!--                            <artifactSet>-->
+            <!--                                <excludes>-->
+            <!--                                    <exclude>*:*:*:*</exclude>-->
+            <!--                                </excludes>-->
+            <!--                                <extraJars>org.obeonetwork.dsl.entity:org.obeonetwork.dsl.entity</extraJars>-->
+            <!--                                &lt;!&ndash;                                <additionalClasspath>&ndash;&gt;-->
+            <!--                                &lt;!&ndash;                                    <additionalClasspathElement>${project.basedir}/libs/org.eclipse.emf.cdo.common_4.20.1.v20230831-2127.jar</additionalClasspathElement>&ndash;&gt;-->
+            <!--                                &lt;!&ndash;                                </additionalClasspath>&ndash;&gt;-->
+            <!--                            </artifactSet>-->
+            <!--                        </configuration>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
+
+
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-source-plugin</artifactId>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <id>attach-sources</id>-->
+            <!--                        <goals>-->
+            <!--                            <goal>jar</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
+        </plugins>
+    </build>
+
+
+</project>
