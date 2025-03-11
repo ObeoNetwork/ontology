@@ -43,7 +43,8 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
         if (object instanceof MetaDataContainer metaDataContainer) {
             styledString = StyledString.of(COMMENTS);
         } else if (object instanceof Annotation annotation) {
-            styledString = StyledString.of(annotation.getTitle());
+            String title = Optional.ofNullable(annotation.getTitle()).map(Object::toString).orElse("");
+            styledString = StyledString.of(title);
         } else {
             styledString = this.defaultLabelService.getStyledLabel(object);
         }
