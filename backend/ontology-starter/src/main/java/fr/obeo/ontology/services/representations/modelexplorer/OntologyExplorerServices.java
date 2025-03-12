@@ -27,7 +27,6 @@ import org.eclipse.sirius.components.core.api.IEditService;
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.IObjectService;
-import org.eclipse.sirius.web.application.UUIDParser;
 import org.eclipse.sirius.web.application.editingcontext.EditingContext;
 import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerServices;
 import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.services.api.IProjectSemanticDataSearchService;
@@ -35,7 +34,6 @@ import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.services
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.StructuredType;
-import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Service;
 
 /**
@@ -88,8 +86,8 @@ public class OntologyExplorerServices {
 
     public String getTreeItemId(Object self) {
         String id = null;
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            id = entityTreeItemElement.getTreeItemId();
+        if (self instanceof TreeItemFragment treeItemFragment) {
+            id = treeItemFragment.getTreeItemId();
         } else {
             id = this.explorerServices.getTreeItemId(self);
         }
@@ -97,13 +95,19 @@ public class OntologyExplorerServices {
     }
 
     public String getKind(Object self) {
-        return this.explorerServices.getKind(self);
+        String kind = "";
+        if (self instanceof TreeItemFragment treeItemFragment) {
+            kind = treeItemFragment.getKind();
+        } else {
+            kind = this.explorerServices.getKind(self);
+        }
+        return kind;
     }
 
     public String getLabel(Object self) {
         String label = "";
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            label = entityTreeItemElement.getLabel();
+        if (self instanceof TreeItemFragment treeItemFragment) {
+            label = treeItemFragment.getLabel();
         } else {
             label = this.explorerServices.getLabel(self);
         }
@@ -112,8 +116,8 @@ public class OntologyExplorerServices {
 
     public List<String> getImageURL(Object self) {
         List<String> result = List.of();
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            result = entityTreeItemElement.getIconURL();
+        if (self instanceof TreeItemFragment treeItemFragment) {
+            result = treeItemFragment.getIconURL();
         } else {
             result = this.explorerServices.getImageURL(self);
         }
@@ -122,8 +126,8 @@ public class OntologyExplorerServices {
 
     public boolean hasChildren(Object self, IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
         boolean hasChildren = false;
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            hasChildren = entityTreeItemElement.hasChildren(editingContext, expandedIds, activeFilterIds) || this.hasRepresentation(entityTreeItemElement.getEntity(), editingContext);
+        if (self instanceof TreeItemFragment treeItemFragment) {
+            hasChildren = treeItemFragment.hasChildren(editingContext, expandedIds, activeFilterIds);
         } else if (self instanceof Resource resource) {
             hasChildren = !resource.getContents().isEmpty();
         } else if (self instanceof Namespace) {
@@ -134,19 +138,12 @@ public class OntologyExplorerServices {
         return hasChildren;
     }
 
-    private boolean hasRepresentation(EObject self, IEditingContext editingContext) {
-        String id = this.objectService.getId(self);
-        return new UUIDParser().parse(editingContext.getId())
-                .map(uuid -> this.representationMetadataSearchService.existAnyRepresentationMetadataForSemanticDataAndTargetObjectId(AggregateReference.to(uuid), id))
-                .orElse(false);
-    }
-
     public List<Object> getChildren(Object self, IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
         List<Object> result = new ArrayList<>();
         String id = this.getTreeItemId(self);
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
+        if (self instanceof TreeItemFragment treeItemFragment) {
             if (expandedIds.contains(id)) {
-                result.addAll(entityTreeItemElement.getChildren(editingContext, expandedIds, activeFilterIds));
+                result.addAll(treeItemFragment.getChildren(editingContext, expandedIds, activeFilterIds));
             }
         } else if (self instanceof Resource resource) {
             result.addAll(StreamSupport.stream(Spliterators.spliteratorUnknownSize(resource.getAllContents(), Spliterator.ORDERED), false)
@@ -155,15 +152,6 @@ public class OntologyExplorerServices {
                     .filter(entity -> entity.getSupertype() == null)
                     .map(e -> new EntityTreeItemElement(e, projectSemanticDataSearchService, representationMetadataSearchService, objectService, explorerServices))
                     .toList());
-        } else if (self instanceof Entity entity) {
-            if (entity.eContainer() instanceof Namespace namespace) {
-                result.addAll(namespace.eContents().stream()
-                        .filter(Entity.class::isInstance)
-                        .map(Entity.class::cast)
-                        .filter(e -> entity.equals(e.getSupertype()))
-                        .map(entity1 -> new EntityTreeItemElement(entity1, projectSemanticDataSearchService, representationMetadataSearchService, objectService, explorerServices))
-                        .toList());
-            }
         } else {
             result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds));
         }
@@ -181,8 +169,8 @@ public class OntologyExplorerServices {
 
     public boolean isEditable(Object self) {
         boolean result = true;
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            result = entityTreeItemElement.isEditable();
+        if (self instanceof TreeItemFragment treeItemFragment) {
+            result = treeItemFragment.isEditable();
         } else {
             result = this.explorerServices.isEditable(self);
         }
@@ -191,8 +179,8 @@ public class OntologyExplorerServices {
 
     public boolean isDeletable(Object self) {
         boolean result = true;
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            result = entityTreeItemElement.isDeletable();
+        if (self instanceof TreeItemFragment treeItemFragment) {
+            result = treeItemFragment.isDeletable();
         } else {
             result = this.explorerServices.isDeletable(self);
         }
