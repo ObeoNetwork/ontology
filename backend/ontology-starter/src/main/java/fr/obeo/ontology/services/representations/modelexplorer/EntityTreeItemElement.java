@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IObjectService;
 import org.eclipse.sirius.web.application.UUIDParser;
@@ -34,7 +35,7 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
  *
  * @author lfasani
  */
-public class EntityTreeItemElement {
+public class EntityTreeItemElement implements TreeItemFragment {
 
     private final Entity entity;
 
@@ -46,10 +47,6 @@ public class EntityTreeItemElement {
 
     private final IExplorerServices explorerServices;
 
-    public Entity getEntity() {
-        return entity;
-    }
-
     public EntityTreeItemElement(Entity entity, IProjectSemanticDataSearchService projectSemanticDataSearchService, IRepresentationMetadataSearchService representationMetadataSearchService,
             IObjectService objectService, IExplorerServices explorerServices) {
         this.entity = Objects.requireNonNull(entity);
@@ -57,6 +54,10 @@ public class EntityTreeItemElement {
         this.representationMetadataSearchService = representationMetadataSearchService;
         this.objectService = objectService;
         this.explorerServices = explorerServices;
+    }
+
+    public Entity getEntity() {
+        return entity;
     }
 
     public String getId() {
@@ -71,8 +72,12 @@ public class EntityTreeItemElement {
         return this.explorerServices.getImageURL(this.entity);
     }
 
+    @Override
     public boolean hasChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
-        boolean result = Optional.ofNullable(entity.eContainer())
+        boolean result =
+                !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) || !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID);
+
+        result = result || Optional.ofNullable(entity.eContainer())
                 .filter(Namespace.class::isInstance)
                 .stream()
                 .flatMap(namespace -> ((Namespace) namespace).getTypes().stream())
@@ -81,7 +86,16 @@ public class EntityTreeItemElement {
                 .filter(entity -> this.entity.equals(entity.getSupertype()))
                 .findFirst()
                 .isPresent();
+
+        result = result || this.hasRepresentation(entity, editingContext);
         return result;
+    }
+
+    private boolean hasRepresentation(EObject self, IEditingContext editingContext) {
+        String id = this.objectService.getId(self);
+        return new UUIDParser().parse(editingContext.getId())
+                .map(uuid -> this.representationMetadataSearchService.existAnyRepresentationMetadataForSemanticDataAndTargetObjectId(AggregateReference.to(uuid), id))
+                .orElse(false);
     }
 
     public List<Object> getChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
@@ -96,6 +110,14 @@ public class EntityTreeItemElement {
                 representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
                 result.addAll(representationMetadata);
             }
+        }
+
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID)) {
+            result.add(new CommentsTreeItemFragment(entity, objectService, explorerServices));
+        }
+
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)) {
+            result.add(new AttributesTreeItemFragment(entity, objectService, explorerServices));
         }
 
         result.addAll(Optional.ofNullable(entity.eContainer())
@@ -126,5 +148,10 @@ public class EntityTreeItemElement {
 
     public boolean isSelectable() {
         return true;
+    }
+
+    @Override
+    public String getKind() {
+        return this.explorerServices.getKind(entity);
     }
 }
