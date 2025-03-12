@@ -51,6 +51,8 @@ public class ViewDiagramDescriptionBuilder {
 
     public static final String BLUE = "lightBlue 500";
 
+    public static final String TRANSPARENT = "transparent";
+
     private final DefaultColorProvider colorProvider;
 
     private final View view;
@@ -61,12 +63,12 @@ public class ViewDiagramDescriptionBuilder {
     }
 
     public void addRepresentationDescription() {
-        DiagramDescription ontologyDiagramDescription = this.createCapaciteMetierDiagramDescription();
+        DiagramDescription ontologyDiagramDescription = this.createOntologyDiagramDescription();
 
         view.getDescriptions().add(ontologyDiagramDescription);
     }
 
-    private DiagramDescription createCapaciteMetierDiagramDescription() {
+    private DiagramDescription createOntologyDiagramDescription() {
         List<NodeDescription> nodeDescriptions = new ArrayList<>();
         NodeDescription coreEntityNodeDescription = this.createCoreEntityNodeDescription();
         nodeDescriptions.add(coreEntityNodeDescription);
@@ -154,7 +156,7 @@ public class ViewDiagramDescriptionBuilder {
                     .name(String.format("Level%sToLevel%sEdge", level + 1, level + 2))
                     .domainType(ENTITY_ENTITY)
                     .semanticCandidatesExpression(AQL_SELF)
-                    .sourceNodeDescriptions(levelContainerDescriptions.get(level).getChildrenDescriptions().get(0))
+                    .sourceNodeDescriptions(levelContainerDescriptions.get(level).getChildrenDescriptions().get(0).getBorderNodesDescriptions().get(1))
                     .targetNodeDescriptions(levelContainerDescriptions.get(level + 1).getChildrenDescriptions().get(0).getBorderNodesDescriptions().get(0))
                     .sourceNodesExpression(AQL_SELF)
                     .targetNodesExpression("aql:self.getSubEntities()")
@@ -239,7 +241,7 @@ public class ViewDiagramDescriptionBuilder {
                 .domainType(ENTITY_ENTITY)
                 .semanticCandidatesExpression(String.format("aql:self.getEntitiesOfLevel(%s)", level))
                 .style(rectangularNodeStyleDescription)
-                .borderNodesDescriptions(this.createBorderNodeDescription(level))
+                .borderNodesDescriptions(this.createBorderNodeDescription(level), createFakeBorderNodeDescription(level))
                 .insideLabel(insideLabelDescription)
                 .defaultWidthExpression("0")
                 .defaultHeightExpression("0")
@@ -260,6 +262,24 @@ public class ViewDiagramDescriptionBuilder {
                 .style(imageNodeStyleDescription)
                 .defaultHeightExpression("20")
                 .defaultWidthExpression("20")
+                .keepAspectRatio(true)
+                .userResizable(UserResizableDirection.NONE)
+                .build();
+    }
+
+    private NodeDescription createFakeBorderNodeDescription(int level) {
+        RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
+                .background(colorProvider.getColor(TRANSPARENT))
+                .borderColor(colorProvider.getColor(TRANSPARENT))
+                .build();
+
+        return new DiagramBuilders().newNodeDescription()
+                .name("FakeBorderNodeLevel" + level)
+                .domainType(ENTITY_ENTITY)
+                .semanticCandidatesExpression(AQL_SELF)
+                .style(rectangularNodeStyleDescription)
+                .defaultHeightExpression("1")
+                .defaultWidthExpression("1")
                 .keepAspectRatio(true)
                 .userResizable(UserResizableDirection.NONE)
                 .build();
