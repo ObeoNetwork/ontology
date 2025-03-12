@@ -59,6 +59,8 @@ public class RepresentationEventConsumer {
 
     private final IRepresentationContentUpdateService representationContentUpdateService;
 
+    private Map<String, NodeLayoutData> idToNodeLayoutDataMap;
+
     private final ObjectMapper objectMapper;
 
     private final Logger logger = LoggerFactory.getLogger(RepresentationEventConsumer.class);
@@ -127,6 +129,8 @@ public class RepresentationEventConsumer {
     }
 
     private Diagram updateLayout(Diagram diagram) {
+        idToNodeLayoutDataMap = diagram.getLayoutData().nodeLayoutData();
+
         diagram = updateDiagramWithPinnedNodes(diagram);
         updateContainerLayout(diagram);
         updateContainerContentLayout(diagram);
@@ -147,7 +151,6 @@ public class RepresentationEventConsumer {
                 .map(Node::getId)
                 .toList();
 
-        Map<String, NodeLayoutData> idToNodeLayoutDataMap = diagram.getLayoutData().nodeLayoutData();
         idToNodeLayoutDataMap.forEach((id, nodeLayoutData) -> {
             if (nodeIds.contains(id)) {
                 int index = nodeIds.indexOf(id);
@@ -175,7 +178,7 @@ public class RepresentationEventConsumer {
                         .flatMap(parentNodes -> parentNodes.stream())
                         .forEach(parentNode -> {
                             nodesToReorder.addAll(diagram.getEdges().stream()
-                                    .filter(edge -> edge.getSourceId().equals(parentNode.getId()))
+                                    .filter(edge -> edge.getSourceId().equals(parentNode.getBorderNodes().get(1).getId()))
                                     .map(edge -> borderNodeToOwningNode.get(idToNode.get(edge.getTargetId())))
                                     .toList());
                         });
@@ -196,10 +199,19 @@ public class RepresentationEventConsumer {
 
         //update border node position
         for (Node borderNode : borderNodeToOwningNode.keySet()) {
-            boolean isCoreEntityBorderNode = borderNodeToOwningNode.get(borderNode).equals(diagram.getNodes().get(0));
+            Node parentNode = borderNodeToOwningNode.get(borderNode);
+            boolean isCoreEntityBorderNode = parentNode.equals(diagram.getNodes().get(0));
             if (!isCoreEntityBorderNode) {
-                Size size = Optional.ofNullable(nodeLayoutDataMap.get(borderNode.getId())).map(NodeLayoutData::size).orElse(new Size(20, 20));
-                nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(-15, 8), size, false));
+                List<Node> borderNodes = parentNode.getBorderNodes();
+                boolean isIncomingBorderNode = borderNodes.size() == 2 && borderNode == borderNodes.get(0);
+                if (isIncomingBorderNode) {
+                    Size size = Optional.ofNullable(nodeLayoutDataMap.get(borderNode.getId())).map(NodeLayoutData::size).orElse(new Size(20, 20));
+                    nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(-15, 8), size, false));
+                } else {
+                    Double parentWidth = Optional.ofNullable(idToNodeLayoutDataMap.get(parentNode.getId())).map(NodeLayoutData::size).map(Size::width).orElse(0.);
+                    Size size = new Size(1, 1);
+                    nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(parentWidth - 1, 10), size, false));
+                }
             }
         }
     }
@@ -222,23 +234,6 @@ public class RepresentationEventConsumer {
             initializeDataForNodes(borderNode, idToNode, borderNodeToOwningNode);
         });
     }
-
-//    private Diagram createUpdatedDiagram(Diagram diagram) {
-//
-//        List<String> nodeIds = new ArrayList<>();
-//        List<Node> nodes = diagram.getNodes().stream()
-//                .map(node -> {
-//                    nodeIds.add(node.getId());
-//                    return Node.newNode(node)
-//                            .pinned(true)
-//                            .build();
-//                })
-//                .toList();
-//
-//        return Diagram.newDiagram(diagram)
-//                .nodes(nodes)
-//                .build();
-//    }
 
     private Diagram updateDiagramWithPinnedNodes(Diagram diagram) {
         List<Node> nodes = diagram.getNodes().stream()
