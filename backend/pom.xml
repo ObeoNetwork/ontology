@@ -42,6 +42,7 @@
         <module>ontology-starter</module>
         <module>ontology-application</module>
         <module>ontology-frontend</module>
+        <module>ontology-model</module>
 
     </modules>
 

@@ -41,20 +41,4 @@ public class OntologyEMFConfiguration {
     public AdapterFactory technicalidAdapterFactory() {
         return new TechnicalIDItemProviderAdapterFactory();
     }
-//
-//    @Bean
-//    public EPackage entityEPackage() {
-//        return EntityPackage.eINSTANCE;
-//    }
-//
-//    @Bean
-//    public EPackage environmentEPackage() {
-//        return EnvironmentPackage.eINSTANCE;
-//    }
-//
-//    @Bean
-//    public EPackage technicalIDEPackage() {
-//        return TechnicalIDPackage.eINSTANCE;
-//    }
-
 }
