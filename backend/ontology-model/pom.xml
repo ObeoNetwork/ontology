@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2025 Obeo.
+ This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v2.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/legal/epl-2.0/
+
+ * SPDX-License-Identifier: EPL-2.0
+
+ Contributors:
+     Obeo - initial API and implementation
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ontology</groupId>
+        <artifactId>ontology-parent</artifactId>
+        <version>2025.3.0</version>
+        <relativePath>../ontology-parent</relativePath>
+    </parent>
+    <artifactId>ontology-model</artifactId>
+    <name>ontology-model</name>
+    <description>Ontology Meta-model</description>
+
+    <repositories>
+        <repository>
+            <id>in-project-mm-repository</id>
+            <name>in-project-mm-repository</name>
+            <url>file://${project.basedir}/libs/local-repository</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.common</artifactId>
+            <version>2.21.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.ecore</artifactId>
+            <version>2.23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.edit</artifactId>
+            <version>2.16.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.obeonetwork.dsl</groupId>
+            <artifactId>org.obeonetwork.dsl.entity</artifactId>
+            <version>${entity.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.obeonetwork.dsl</groupId>
+            <artifactId>org.obeonetwork.dsl.entity.edit</artifactId>
+            <version>${entity.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.obeonetwork.dsl</groupId>
+            <artifactId>org.obeonetwork.dsl.environment</artifactId>
+            <version>${entity.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.obeonetwork.dsl</groupId>
+            <artifactId>org.obeonetwork.dsl.environment.edit</artifactId>
+            <version>${entity.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.obeonetwork.dsl</groupId>
+            <artifactId>org.obeonetwork.dsl.technicalid</artifactId>
+            <version>${entity.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.obeonetwork.dsl</groupId>
+            <artifactId>org.obeonetwork.dsl.technicalid.edit</artifactId>
+            <version>${entity.version}</version>
+        </dependency>
+    </dependencies>
+</project>
