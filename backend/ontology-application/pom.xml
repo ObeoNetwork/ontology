@@ -64,7 +64,11 @@
         <!--            <version>2025.1.0</version>-->
         <!--        </dependency>-->
 
-
+        <dependency>
+            <groupId>ontology</groupId>
+            <artifactId>ontology-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>ontology</groupId>
             <artifactId>ontology-starter</artifactId>

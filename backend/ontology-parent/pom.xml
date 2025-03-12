@@ -33,6 +33,7 @@
         <java.version>17</java.version>
         <sirius.web.version>2025.2.1</sirius.web.version>
         <sirius.version>7.2.0-SNAPSHOT</sirius.version>
+        <entity.version>5.0.0</entity.version>
     </properties>
 
     <distributionManagement>
