@@ -41,17 +41,17 @@ public class ViewDiagramDescriptionBuilder {
 
     public static final String ONTOLOGY_DIAGRAM_NAME = "Ontology Diagram";
 
-    private static final String AQL_SELF_NAME = "aql:self.name";
-
-    private static final String AQL_SELF = "aql:self";
-
-    private static final int NB_LEVEL = 4;
-
     public static final String ENTITY_ENTITY = "entity::Entity";
 
     public static final String BLUE = "lightBlue 500";
 
     public static final String TRANSPARENT = "transparent";
+
+    private static final String AQL_SELF_NAME = "aql:self.name";
+
+    private static final String AQL_SELF = "aql:self";
+
+    private static final int NB_LEVEL = 4;
 
     private final DefaultColorProvider colorProvider;
 
@@ -99,7 +99,7 @@ public class ViewDiagramDescriptionBuilder {
         this.addEdgeToolToPalette(coreEntityNodeDescription, levelContainerDescriptions.get(0));
 
         for (int level = 1; level < levelContainerDescriptions.size(); level++) {
-            addEdgeToolToPalette(levelContainerDescriptions.get(level - 1).getChildrenDescriptions().get(0), levelContainerDescriptions.get(level));
+            this.addEdgeToolToPalette(levelContainerDescriptions.get(level - 1).getChildrenDescriptions().get(0), levelContainerDescriptions.get(level));
         }
     }
 
@@ -108,7 +108,7 @@ public class ViewDiagramDescriptionBuilder {
                 new DiagramBuilders().newEdgeTool()
                         .targetElementDescriptions(targetNodeDescription)
                         .body(new ChangeContextBuilder()
-                                .expression("aql:semanticEdgeSource.createSubEntity('New Ontology')")
+                                .expression("aql:semanticEdgeSource.createSubEntity('New Entity')")
                                 .build())
                         .build());
     }
@@ -141,6 +141,12 @@ public class ViewDiagramDescriptionBuilder {
                 .deleteTool(new DiagramBuilders().newDeleteTool()
                         .body(new ChangeContextBuilder()
                                 .expression("aql:self.deleteEntity()")
+                                .build())
+                        .build())
+                .nodeTools(new DiagramBuilders().newNodeTool()
+                        .name("New Sub Entity")
+                        .body(new ChangeContextBuilder()
+                                .expression("aql:self.createSubEntity('New Sub Entity')")
                                 .build())
                         .build())
                 .build();
@@ -241,7 +247,7 @@ public class ViewDiagramDescriptionBuilder {
                 .domainType(ENTITY_ENTITY)
                 .semanticCandidatesExpression(String.format("aql:self.getEntitiesOfLevel(%s)", level))
                 .style(rectangularNodeStyleDescription)
-                .borderNodesDescriptions(this.createBorderNodeDescription(level), createFakeBorderNodeDescription(level))
+                .borderNodesDescriptions(this.createBorderNodeDescription(level), this.createFakeBorderNodeDescription(level))
                 .insideLabel(insideLabelDescription)
                 .defaultWidthExpression("0")
                 .defaultHeightExpression("0")
