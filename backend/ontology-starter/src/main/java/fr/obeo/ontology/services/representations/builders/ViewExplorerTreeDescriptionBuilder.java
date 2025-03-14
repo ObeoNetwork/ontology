@@ -37,15 +37,15 @@ public class ViewExplorerTreeDescriptionBuilder {
 
     public static final String ONTOLOGY_EXPLORER_DESCRIPTION_NAME = "Ontology Explorer";
 
+    public static final String ENTITY_ENTITY = "entity::Entity";
+
+    public static final String BLUE = "lightBlue 500";
+
     private static final String AQL_SELF_NAME = "aql:self.name";
 
     private static final String AQL_SELF = "aql:self";
 
     private static final int NB_LEVEL = 4;
-
-    public static final String ENTITY_ENTITY = "entity::Entity";
-
-    public static final String BLUE = "lightBlue 500";
 
     private static final String AQL_TRUE = "aql:true";
 
@@ -157,12 +157,12 @@ public class ViewExplorerTreeDescriptionBuilder {
                         .build())
                 .build();
         SingleClickTreeItemContextMenuEntry createSubEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
-                .name("Create Sub Entity")
+                .name("New Sub Entity")
                 .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .labelExpression("New Sub Entity")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
-                        .expression("aql:self.createSubEntity('Sub Ontology')")
+                        .expression("aql:self.createSubEntity('New Sub Entity')")
                         .build())
                 .build();
         return List.of(deleteEntity, createSubEntity);

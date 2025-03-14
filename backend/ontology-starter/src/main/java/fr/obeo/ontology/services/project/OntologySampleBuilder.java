@@ -33,15 +33,15 @@ public class OntologySampleBuilder {
         root.setName("Root");
 
         Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
-        namespace.setName("Core concepts");
+        namespace.setName("Core entities");
         root.getOwnedNamespaces().add(namespace);
 
-        Entity entity = EntityFactory.eINSTANCE.createEntity();
-        entity.setName("Core Entity");
+        Entity coreEntity = EntityFactory.eINSTANCE.createEntity();
+        coreEntity.setName("Core Entity");
         Entity entityLevel1 = EntityFactory.eINSTANCE.createEntity();
-        entity.setName("Entity Level 1");
-        entityLevel1.setSupertype(entity);
-        namespace.getTypes().addAll(List.of(entityLevel1, entity));
+        entityLevel1.setName("Entity Level 1");
+        entityLevel1.setSupertype(coreEntity);
+        namespace.getTypes().addAll(List.of(coreEntity, entityLevel1));
 
         return List.of(root);
     }
