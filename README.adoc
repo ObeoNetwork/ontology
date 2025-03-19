@@ -25,10 +25,10 @@ For development or local testing, the easiest way is to start a PostgreSQL insta
 [#docker-db, reftext=Docker command]
 [source,sh]
 ----
-docker run -p 5439:5432 --name ontology-postgres \
+docker run -p 5437:5432 --name ontology-postgres \
                             -e POSTGRES_USER=dbuser \
                             -e POSTGRES_PASSWORD=dbpwd \
-                            -e POSTGRES_DB=ontology-db \
+                            -e POSTGRES_DB=ontology-web-db \
                             -d postgres
 ----
 +
