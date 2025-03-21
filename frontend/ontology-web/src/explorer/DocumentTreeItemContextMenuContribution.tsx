@@ -10,12 +10,14 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
+import { ServerContext, ServerContextValue } from '@eclipse-sirius/sirius-components-core';
 import { TreeItemContextMenuComponentProps } from '@eclipse-sirius/sirius-components-trees';
 import AddIcon from '@mui/icons-material/Add';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
-import { Fragment, forwardRef, useState } from 'react';
+import { Fragment, forwardRef, useContext, useState } from 'react';
 import { UploadOWLFileModal } from '../upload/upload-owl/UploadOWLFileModal';
 
 type Modal = 'ImportOWL';
@@ -26,8 +28,10 @@ export const DocumentTreeItemContextMenuContribution = forwardRef(
     ref: React.ForwardedRef<HTMLLIElement>
   ) => {
     const [modal, setModal] = useState<Modal>(null);
+    const { httpOrigin } = useContext<ServerContextValue>(ServerContext);
 
     const displayImportOWL = item.kind.startsWith('siriusWeb://document');
+    const displayDownloadOWL = item.kind.startsWith('siriusWeb://document');
 
     let modalElement = null;
     if (modal === 'ImportOWL') {
@@ -47,7 +51,23 @@ export const DocumentTreeItemContextMenuContribution = forwardRef(
             <ListItemIcon>
               <AddIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText primary="Upload OWL file" />
+            <ListItemText primary="Upload OWL" />
+          </MenuItem>
+        )}
+        {displayDownloadOWL && (
+          <MenuItem
+            key="download-owl"
+            divider
+            onClick={onClose}
+            component="a"
+            href={`${httpOrigin}/api/editingcontexts/${editingContextId}/owl/${item.id}`}
+            type="application/octet-stream"
+            data-testid="download-owl"
+            aria-disabled>
+            <ListItemIcon>
+              <GetAppIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Download OWL" aria-disabled />
           </MenuItem>
         )}
         {modalElement}

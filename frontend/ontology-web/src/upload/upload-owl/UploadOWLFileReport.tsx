@@ -33,10 +33,10 @@ const useUploadOWLFileReportStyles = makeStyles()((theme: Theme) => ({
 
 export const UploadOWLFileReport = ({ uploadedDocument }: UploadOWLFileReportProps) => {
   const [state, setState] = useState<UploadOWLFileReportState>({
-    downloaded: false,
+    uploaded: false,
   });
 
-  const onDownloadReport = () => {
+  const onUploadReport = () => {
     if (uploadedDocument) {
       const { report } = uploadedDocument;
 
@@ -47,7 +47,7 @@ export const UploadOWLFileReport = ({ uploadedDocument }: UploadOWLFileReportPro
       hyperlink.setAttribute('href', window.URL.createObjectURL(blob));
       hyperlink.click();
 
-      setState((prevState) => ({ ...prevState, downloaded: true }));
+      setState((prevState) => ({ ...prevState, uploaded: true }));
     }
   };
 
@@ -65,14 +65,14 @@ export const UploadOWLFileReport = ({ uploadedDocument }: UploadOWLFileReportPro
         <Button
           variant="outlined"
           size="small"
-          disabled={state.downloaded}
+          disabled={state.uploaded}
           color="primary"
           type="button"
           form="upload-form-id"
           startIcon={<GetAppIcon />}
-          data-testid="upload-document-download-report"
-          onClick={() => onDownloadReport()}>
-          Download report
+          data-testid="upload-document-report"
+          onClick={() => onUploadReport()}>
+          Upload report
         </Button>
       ) : null}
     </div>
