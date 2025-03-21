@@ -18,5 +18,5 @@ export interface UploadOWLFileReportProps {
 }
 
 export interface UploadOWLFileReportState {
-  downloaded: boolean;
+  uploaded: boolean;
 }

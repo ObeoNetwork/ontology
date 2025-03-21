@@ -24,5 +24,5 @@ import jakarta.validation.constraints.NotNull;
  *
  * @author lfasani
  */
-public record UploadOWLSuccessPayload(@NotNull UUID id, @NotNull DocumentDTO document, String report) implements IPayload {
+public record UploadOWLFileSuccessPayload(@NotNull UUID id, @NotNull DocumentDTO document, String report) implements IPayload {
 }

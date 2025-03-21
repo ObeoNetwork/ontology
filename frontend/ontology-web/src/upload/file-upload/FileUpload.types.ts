@@ -14,6 +14,7 @@
 export interface FileUploadProps {
   onFileSelected: (file: File) => void;
   'data-testid'?: string;
+  fileExtensions?: string;
 }
 
 export interface FileUploadState {

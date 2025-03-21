@@ -62,7 +62,7 @@ export const UploadOWLFileModal = ({ editingContextId, onClose }: UploadOWLFileM
           encType="multipart/form-data"
           className={styles.form}>
           <FormGroup>
-            <FileUpload onFileSelected={onFileSelected} data-testid="file" />
+            <FileUpload onFileSelected={onFileSelected} fileExtensions=".xml" data-testid="file" />
           </FormGroup>
         </form>
         <UploadOWLFileReport uploadedDocument={uploadedDocument} />

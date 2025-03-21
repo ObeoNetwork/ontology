@@ -47,7 +47,7 @@ const initialState: FileUploadState = {
   file: null,
   message: DEFAULT_MESSAGE,
 };
-export const FileUpload = ({ onFileSelected, 'data-testid': dataTestId }: FileUploadProps) => {
+export const FileUpload = ({ onFileSelected, 'data-testid': dataTestId, fileExtensions }: FileUploadProps) => {
   const { classes: styles } = useFileUploadViewStyles();
   const fileInput = React.createRef<HTMLInputElement>();
 
@@ -84,6 +84,7 @@ export const FileUpload = ({ onFileSelected, 'data-testid': dataTestId }: FileUp
       <input
         type="file"
         name="file"
+        accept={fileExtensions}
         id="file"
         className={styles.inputfile}
         ref={fileInput}
