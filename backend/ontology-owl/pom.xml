@@ -39,6 +39,11 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-core</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.sirius</groupId>
             <artifactId>sirius-components-annotations-spring</artifactId>
         </dependency>
@@ -67,6 +72,20 @@
             <groupId>org.eclipse.emf</groupId>
             <artifactId>org.eclipse.emf.ecore</artifactId>
             <version>2.23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf.cdo</groupId>
+            <artifactId>org.eclipse.emf.cdo.common</artifactId>
+            <!--            <scope>system</scope>-->
+            <!--            <systemPath>${project.basedir}/libs/org.eclipse.emf.cdo_4.21.0.v20230831-2127.jar</systemPath>-->
+            <version>4.20.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf.cdo</groupId>
+            <artifactId>org.eclipse.emf.cdo</artifactId>
+            <!--            <scope>system</scope>-->
+            <!--            <systemPath>${project.basedir}/libs/org.eclipse.emf.cdo_4.21.0.v20230831-2127.jar</systemPath>-->
+            <version>4.21.0</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
