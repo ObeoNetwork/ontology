@@ -57,7 +57,7 @@ for (let index = 0; index < lines.length; index++) {
 
       const tagAsNumber = Number(tag);
       if (!isNaN(tagAsNumber)) {
-        const issueURL = `https://github.com/Obeo/france-travail-ontology/issues/${tagAsNumber}`;
+        const issueURL = `https://github.com/ObeoNetwork/ontology/issues/${tagAsNumber}`;
 
         if (!changelog.includes(issueURL)) {
           missingIssuesInChangelog.push(issueURL);

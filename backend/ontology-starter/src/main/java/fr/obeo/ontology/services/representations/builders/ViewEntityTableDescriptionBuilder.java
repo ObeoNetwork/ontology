@@ -30,6 +30,8 @@ public class ViewEntityTableDescriptionBuilder {
 
     public static final String AQL = "aql:";
 
+    public static final String ENTITIES_TABLE_NAME = "Entities Table";
+
     private final TableBuilders tableBuilders = new TableBuilders();
 
     private final View view;
@@ -86,7 +88,7 @@ public class ViewEntityTableDescriptionBuilder {
                 .build();
 
         return this.tableBuilders.newTableDescription()
-                .name("Entities Table")
+                .name(ENTITIES_TABLE_NAME)
                 .titleExpression("aql:self.name + ' Table'")
                 .domainType("environment::Namespace")
                 .columnDescriptions(attributesColumnDescription, commentsColumnDescription)
