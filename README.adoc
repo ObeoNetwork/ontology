@@ -41,7 +41,7 @@ Get the `ontology-application-{$version}.jar` from the last successful build on 
 [source,sh]
 ----
 java -jar ontology-application-{$version}.jar \
-          --spring.datasource.url=jdbc:postgresql://localhost:5439/ontology-db \
+          --spring.datasource.url=jdbc:postgresql://localhost:5437/ontology-web-db \
           --spring.datasource.username=dbuser \
           --spring.datasource.password=dbpwd
 ----
