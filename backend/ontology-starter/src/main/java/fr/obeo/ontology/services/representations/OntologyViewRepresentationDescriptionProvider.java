@@ -14,6 +14,7 @@ package fr.obeo.ontology.services.representations;
 
 import fr.obeo.ontology.services.project.OntologyEditingContextPredicate;
 import fr.obeo.ontology.services.representations.builders.ViewDiagramDescriptionBuilder;
+import fr.obeo.ontology.services.representations.builders.ViewEntityTableDescriptionBuilder;
 import fr.obeo.ontology.services.representations.builders.ViewExplorerTreeDescriptionBuilder;
 import fr.obeo.ontology.services.representations.builders.ViewOntologyPaletteBuilder;
 
@@ -79,6 +80,7 @@ public class OntologyViewRepresentationDescriptionProvider implements IEditingCo
 
         new ViewDiagramDescriptionBuilder(domainView).addRepresentationDescription();
         new ViewExplorerTreeDescriptionBuilder(domainView).addRepresentationDescription();
+        new ViewEntityTableDescriptionBuilder(domainView).addRepresentationDescription();
 
         domainView.eAllContents().forEachRemaining(eObject -> {
             var id = UUID.nameUUIDFromBytes(EcoreUtil.getURI(eObject).toString().getBytes());

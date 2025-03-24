@@ -47,6 +47,10 @@ public class ViewDiagramDescriptionBuilder {
 
     public static final String TRANSPARENT = "transparent";
 
+    public static final String ZERO = "0";
+
+    public static final String WHITE = "white";
+
     private static final String AQL_SELF_NAME = "aql:self.name";
 
     private static final String AQL_SELF = "aql:self";
@@ -175,7 +179,7 @@ public class ViewDiagramDescriptionBuilder {
 
     private NodeDescription createCoreEntityNodeDescription() {
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                .background(this.colorProvider.getColor("white"))
+                .background(this.colorProvider.getColor(WHITE))
                 .borderColor(this.colorProvider.getColor(BLUE))
                 .borderSize(3)
                 .build();
@@ -192,8 +196,8 @@ public class ViewDiagramDescriptionBuilder {
                 .style(rectangularNodeStyleDescription)
                 .borderNodesDescriptions(this.createBorderNodeDescription(0))
                 .insideLabel(insideLabelDescription)
-                .defaultWidthExpression("0")
-                .defaultHeightExpression("0")
+                .defaultWidthExpression(ZERO)
+                .defaultHeightExpression(ZERO)
                 .palette(this.createEntityNodePalette(0))
                 .build();
     }
@@ -204,7 +208,7 @@ public class ViewDiagramDescriptionBuilder {
             FreeFormLayoutStrategyDescription freeFormLayoutStrategyDescription = new DiagramBuilders().newFreeFormLayoutStrategyDescription().build();
 
             RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                    .background(this.colorProvider.getColor("white"))
+                    .background(this.colorProvider.getColor(WHITE))
                     .borderSize(3)
                     .build();
 
@@ -233,7 +237,7 @@ public class ViewDiagramDescriptionBuilder {
 
     private NodeDescription createEntityNodeDescription(int level) {
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                .background(this.colorProvider.getColor("white"))
+                .background(this.colorProvider.getColor(WHITE))
                 .borderColor(this.colorProvider.getColor(BLUE))
                 .build();
 
@@ -249,8 +253,8 @@ public class ViewDiagramDescriptionBuilder {
                 .style(rectangularNodeStyleDescription)
                 .borderNodesDescriptions(this.createBorderNodeDescription(level), this.createFakeBorderNodeDescription(level))
                 .insideLabel(insideLabelDescription)
-                .defaultWidthExpression("0")
-                .defaultHeightExpression("0")
+                .defaultWidthExpression(ZERO)
+                .defaultHeightExpression(ZERO)
                 .palette(this.createEntityNodePalette(level))
                 .build();
     }
