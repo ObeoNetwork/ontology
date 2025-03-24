@@ -16,6 +16,7 @@ import fr.obeo.ontology.services.representations.modelexplorer.OntologyExplorerS
 
 import java.util.List;
 
+import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.View;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.emf.IJavaServiceProvider;
@@ -31,10 +32,10 @@ public class EntityJavaServiceProvider implements IJavaServiceProvider {
 
     @Override
     public List<Class<?>> getServiceClasses(View view) {
-        boolean isEntityView = view.getDescriptions().stream().filter(DiagramDescription.class::isInstance).map(DiagramDescription.class::cast)
-                .anyMatch(diagramDescription -> diagramDescription.getDomainType().equals("entity::Entity"));
+        boolean isEntityView = view.getDescriptions().stream()
+                .anyMatch(representationDescription -> representationDescription.getDomainType().equals("entity::Entity"));
         if (isEntityView) {
-            return List.of(EntityJavaService.class, OntologyExplorerServices.class);
+            return List.of(EntityJavaService.class, OntologyExplorerServices.class, EntityTableJavaService.class);
         }
         return List.of();
     }

@@ -25,7 +25,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.sirius.components.core.api.IEditService;
 import org.eclipse.sirius.components.core.api.IEditingContext;
-import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.IObjectService;
 import org.eclipse.sirius.web.application.editingcontext.EditingContext;
 import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerServices;
@@ -33,7 +32,6 @@ import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.service
 import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.services.api.IRepresentationMetadataSearchService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Namespace;
-import org.obeonetwork.dsl.environment.StructuredType;
 import org.springframework.stereotype.Service;
 
 /**
@@ -46,8 +44,6 @@ public class OntologyExplorerServices {
 
     private final IObjectService objectService;
 
-    private final IIdentityService identityService;
-
     private final IEditService editService;
 
     private final IRepresentationMetadataSearchService representationMetadataSearchService;
@@ -56,11 +52,10 @@ public class OntologyExplorerServices {
 
     private final IProjectSemanticDataSearchService projectSemanticDataSearchService;
 
-    public OntologyExplorerServices(IObjectService objectService, IIdentityService identityService, IEditService editService, IRepresentationMetadataSearchService representationMetadataSearchService,
+    public OntologyExplorerServices(IObjectService objectService, IEditService editService, IRepresentationMetadataSearchService representationMetadataSearchService,
             IExplorerServices explorerServices,
             IProjectSemanticDataSearchService projectSemanticDataSearchService) {
         this.objectService = Objects.requireNonNull(objectService);
-        this.identityService = identityService;
         this.editService = editService;
         this.representationMetadataSearchService = Objects.requireNonNull(representationMetadataSearchService);
         this.explorerServices = Objects.requireNonNull(explorerServices);
@@ -150,7 +145,7 @@ public class OntologyExplorerServices {
                     .filter(Entity.class::isInstance)
                     .map(Entity.class::cast)
                     .filter(entity -> entity.getSupertype() == null)
-                    .map(e -> new EntityTreeItemElement(e, projectSemanticDataSearchService, representationMetadataSearchService, objectService, explorerServices))
+                    .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.objectService, this.explorerServices))
                     .toList());
         } else {
             result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds));
@@ -196,18 +191,13 @@ public class OntologyExplorerServices {
     }
 
     public int getEntityLevel(EntityTreeItemElement entityTreeItemElement) {
-        int level = 0;
-        StructuredType supertype = entityTreeItemElement.getEntity().getSupertype();
-        while (supertype != null) {
-            level = level + 1;
-            supertype = supertype.getSupertype();
-        }
-
-        return level;
+        EntityJavaService entityJavaService = new EntityJavaService(this.editService);
+        Entity entity = entityTreeItemElement.getEntity();
+        return entityJavaService.getEntityLevel(entity);
     }
 
     public String getEntityTreeItemLabelPrefix(EntityTreeItemElement entityTreeItemElement) {
-        int entityLevel = getEntityLevel(entityTreeItemElement);
+        int entityLevel = this.getEntityLevel(entityTreeItemElement);
         return entityLevel > 0 ? "[" + entityLevel + "] " : "";
     }
 
@@ -216,10 +206,10 @@ public class OntologyExplorerServices {
     }
 
     public Entity createSubEntity(EntityTreeItemElement entityTreeItemElement, String name) {
-        return new EntityJavaService(identityService, objectService, editService).createSubEntity(entityTreeItemElement.getEntity(), name);
+        return new EntityJavaService(this.editService).createSubEntity(entityTreeItemElement.getEntity(), name);
     }
 
     public Entity deleteEntity(EntityTreeItemElement entityTreeItemElement) {
-        return new EntityJavaService(identityService, objectService, editService).deleteEntity(entityTreeItemElement.getEntity());
+        return new EntityJavaService(this.editService).deleteEntity(entityTreeItemElement.getEntity());
     }
 }

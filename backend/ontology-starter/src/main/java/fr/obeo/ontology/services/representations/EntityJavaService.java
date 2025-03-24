@@ -13,13 +13,10 @@
 package fr.obeo.ontology.services.representations;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.sirius.components.core.api.IEditService;
-import org.eclipse.sirius.components.core.api.IIdentityService;
-import org.eclipse.sirius.components.core.api.IObjectService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.environment.Namespace;
@@ -33,15 +30,9 @@ import org.obeonetwork.dsl.environment.TypesDefinition;
  */
 public class EntityJavaService {
 
-    private final IIdentityService identityService;
-
-    private final IObjectService objectService;
-
     private final IEditService editService;
 
-    public EntityJavaService(IIdentityService identityService, IObjectService objectService, IEditService editService) {
-        this.identityService = Objects.requireNonNull(identityService);
-        this.objectService = Objects.requireNonNull(objectService);
+    public EntityJavaService(IEditService editService) {
         this.editService = editService;
     }
 
@@ -63,14 +54,13 @@ public class EntityJavaService {
                 .toList();
 
         if (level > 1) {
-            List<Entity> orderedEntities = this.orderEntities(coreObject, level, entities);
-            entities = orderedEntities;
+            entities = this.orderEntities(coreObject, level, entities);
         }
         return entities;
     }
 
     private List<Entity> orderEntities(Entity coreObject, int level, List<Entity> entities) {
-        List<Entity> entitiesOfLowerLevel = getEntitiesOfLevel(coreObject, level - 1);
+        List<Entity> entitiesOfLowerLevel = this.getEntitiesOfLevel(coreObject, level - 1);
         return entities.stream()
                 .sorted((e1, e2) -> Integer.valueOf(entitiesOfLowerLevel.indexOf(e2.getSupertype())).compareTo(Integer.valueOf(entitiesOfLowerLevel.indexOf(e1.getSupertype()))))
                 .toList();
@@ -112,10 +102,20 @@ public class EntityJavaService {
 
     public Entity deleteEntity(Entity entity) {
         StructuredType supertype = entity.getSupertype();
-        this.getSubEntities(entity).stream()
-                .forEach(subEntity -> subEntity.setSupertype(supertype));
-        editService.delete(entity);
+        this.getSubEntities(entity).forEach(subEntity -> subEntity.setSupertype(supertype));
+        this.editService.delete(entity);
         return entity;
+    }
+
+    public int getEntityLevel(Entity entity) {
+        int level = 0;
+        StructuredType supertype = entity.getSupertype();
+        while (supertype != null) {
+            level = level + 1;
+            supertype = supertype.getSupertype();
+        }
+
+        return level;
     }
 
 //    public List<Entity> getEntitiesHierarchy(Entity entity) {
