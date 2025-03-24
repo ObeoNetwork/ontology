@@ -56,7 +56,7 @@
         <dependency>
             <groupId>obeo</groupId>
             <artifactId>ocp-license-application-validator</artifactId>
-            <version>${sirius.web.version}</version>
+            <version>${ocp.license.version}</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.eclipse.sirius</groupId>-->
