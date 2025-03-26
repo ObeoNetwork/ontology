@@ -27,7 +27,7 @@ import { ExtensionRegistry } from '@eclipse-sirius/sirius-components-core';
 import { ExtensionRegistryMergeStrategy } from './extension/ExtensionRegistryMergeStrategy';
 
 import { treeItemContextMenuEntryExtensionPoint } from '@eclipse-sirius/sirius-components-trees';
-import { ObjectTreeItemContextMenuContribution } from './explorer/ObjectTreeItemContextMenuContribution';
+import { DocumentTreeItemContextMenuContribution } from './explorer/DocumentTreeItemContextMenuContribution';
 import './fonts.css';
 import './portals.css';
 import './ReactFlow.css';
@@ -76,7 +76,7 @@ extensionRegistry.addComponent(navigationBarIconExtensionPoint, {
 // });
 extensionRegistry.addComponent(treeItemContextMenuEntryExtensionPoint, {
   identifier: `ontology_${treeItemContextMenuEntryExtensionPoint.identifier}_object`,
-  Component: ObjectTreeItemContextMenuContribution,
+  Component: DocumentTreeItemContextMenuContribution,
 });
 // extensionRegistry.addComponent(treeItemContextMenuEntryExtensionPoint, {
 //   identifier: `ontology_${treeItemContextMenuEntryExtensionPoint.identifier}_diagram`,
