@@ -1,6 +1,12 @@
 package fr.obeo.ontology.services.representations.modelexplorer;
 
 import fr.obeo.ontology.services.project.OntologyEditingContextPredicate;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.ResourceLocator;
@@ -19,13 +25,9 @@ import org.obeonetwork.dsl.entity.EntityPackage;
 import org.obeonetwork.dsl.environment.EnvironmentPackage;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
 /**
  * A Specific Ontology Edit Service to filter children creation on Namespace container.
+ *
  * @author fbarbin
  */
 @Service
@@ -34,6 +36,8 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
     private final List<EClass> namespaceContainerChildrenList = List.of(EntityPackage.Literals.ENTITY, EnvironmentPackage.Literals.NAMESPACE,
             EnvironmentPackage.Literals.ENUMERATION, EnvironmentPackage.Literals.PRIMITIVE_TYPE, EnvironmentPackage.Literals.ATTRIBUTE,
             EnvironmentPackage.Literals.META_DATA_CONTAINER, EnvironmentPackage.Literals.REFERENCE, EnvironmentPackage.Literals.ANNOTATION);
+
+    private final List<EClass> rootChildrenList = List.of(EntityPackage.Literals.ROOT);
 
     private final List<EPackage> authorizedPackage = List.of(EnvironmentPackage.eINSTANCE, EntityPackage.eINSTANCE);
 
@@ -51,7 +55,7 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
 
     @Override
     public boolean canHandle(Object object) {
-        return object instanceof EObject eObject && authorizedPackage.contains(eObject.eClass().getEPackage());
+        return object instanceof EObject eObject && this.authorizedPackage.contains(eObject.eClass().getEPackage());
     }
 
     @Override
@@ -61,14 +65,15 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
 
     @Override
     public List<ChildCreationDescription> getRootCreationDescriptions(IEditingContext editingContext, String domainId, boolean suggested, String referenceKind) {
-        return this.defaultEditService.getRootCreationDescriptions(editingContext, domainId, suggested, referenceKind);
+        return this.defaultEditService.getRootCreationDescriptions(editingContext, domainId, suggested, referenceKind).stream()
+                .filter(childCreationDescription -> this.filterByClasses(childCreationDescription, this.rootChildrenList))
+                .toList();
     }
 
     @Override
     public List<ChildCreationDescription> getChildCreationDescriptions(IEditingContext editingContext, String kind, String referenceKind) {
-        List<ChildCreationDescription> childCreationDescriptions = this.defaultEditService.getChildCreationDescriptions(editingContext, kind, referenceKind);
-        return childCreationDescriptions.stream()
-                .filter(this::filterNamespaceContainerChildren)
+        return this.defaultEditService.getChildCreationDescriptions(editingContext, kind, referenceKind).stream()
+                .filter(childCreationDescription -> this.filterByClasses(childCreationDescription, this.namespaceContainerChildrenList))
                 .toList();
     }
 
@@ -81,11 +86,12 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
         return eClass.getName();
     }
 
-    private boolean filterNamespaceContainerChildren(ChildCreationDescription childCreationDescription) {
+    private boolean filterByClasses(ChildCreationDescription childCreationDescription, List<EClass> classesToKeep) {
         AdapterFactoryEditingDomain adapterFactoryEditingDomain = new AdapterFactoryEditingDomain(this.composedAdapterFactory, new BasicCommandStack());
-        List<String> eClassifierLabels = namespaceContainerChildrenList.stream().map(eClass -> computeLabel(eClass, adapterFactoryEditingDomain)).toList();
+        List<String> eClassifierLabels = classesToKeep.stream().map(eClass -> this.computeLabel(eClass, adapterFactoryEditingDomain)).toList();
         return eClassifierLabels.contains(childCreationDescription.getLabel());
     }
+
     @Override
     public Optional<Object> createChild(IEditingContext editingContext, Object object, String childCreationDescriptionId) {
         return this.defaultEditService.createChild(editingContext, object, childCreationDescriptionId);
