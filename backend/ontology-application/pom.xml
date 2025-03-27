@@ -27,6 +27,7 @@
 
     <properties>
         <java.version>17</java.version>
+        <ocp.version>2025.2.5</ocp.version>
     </properties>
 
     <repositories>
@@ -51,7 +52,7 @@
         <dependency>
             <groupId>obeo</groupId>
             <artifactId>obeo-cloud-platform-starter</artifactId>
-            <version>${sirius.web.version}</version>
+            <version>${ocp.version}</version>
         </dependency>
         <dependency>
             <groupId>obeo</groupId>

@@ -24,6 +24,6 @@
     "format-lint": "prettier --list-different \"*/src/**/*.{js,ts,tsx,css}\""
   },
   "devDependencies": {
-    "turbo": "1.13.3"
+    "turbo": "2.4.4"
   }
 }

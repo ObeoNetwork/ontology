@@ -28,7 +28,7 @@
         <repository>
             <id>github-ontology</id>
             <name>Ontology</name>
-            <url>https://github.com/Obeo/france-travail-ontology</url>
+            <url>https://github.com/ObeoNetwork/ontology/</url>
         </repository>
     </distributionManagement>
 
