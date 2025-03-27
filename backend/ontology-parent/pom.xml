@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ontology</groupId>
@@ -31,7 +31,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <sirius.web.version>2025.2.4</sirius.web.version>
+        <sirius.web.version>2025.2.5</sirius.web.version>
         <sirius.version>7.2.0-SNAPSHOT</sirius.version>
         <entity.version>5.0.0</entity.version>
     </properties>
@@ -243,11 +243,6 @@
             <dependency>
                 <groupId>org.eclipse.sirius</groupId>
                 <artifactId>sirius-components-core</artifactId>
-                <version>${sirius.web.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.sirius</groupId>
-                <artifactId>sirius-components-representations</artifactId>
                 <version>${sirius.web.version}</version>
             </dependency>
             <dependency>
