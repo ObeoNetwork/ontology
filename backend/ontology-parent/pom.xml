@@ -32,7 +32,6 @@
     <properties>
         <java.version>17</java.version>
         <sirius.web.version>2025.2.5</sirius.web.version>
-        <ocp.license.version>2025.2.1</ocp.license.version>
         <sirius.version>7.2.0-SNAPSHOT</sirius.version>
         <entity.version>5.0.0</entity.version>
     </properties>

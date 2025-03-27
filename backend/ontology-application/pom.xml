@@ -28,6 +28,7 @@
     <properties>
         <java.version>17</java.version>
         <ocp.version>2025.2.5</ocp.version>
+        <ocp.license.version>2025.2.4</ocp.license.version>
     </properties>
 
     <repositories>
