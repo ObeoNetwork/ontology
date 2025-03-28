@@ -1,8 +1,114 @@
 ifndef::imagesdir[:imagesdir: images]
 
 = User documentation
-Pepper v{ontology-version} - {git-commit-id-abbrev}
+Ontology v{ontology-version} - {git-commit-id-abbrev}
 
 :toc:
 
-Ontology is an application to manage the ontology concepts.
+Ontology is an application to manage the ontology model.
+
+It allows to define an Ontology structure by creating entities and sub entities.
+
+== Create Ontology project and model
+
+To create an Ontology project, simply click on Ontology tile.
+
+image:projects-new-ontology-project.png[New Ontology project]
+
+By default, the created project contains an sample Ontology model.
+
+To create another model, click on `New model`.
+
+image:explorer-new-model.png[New model]
+
+== The objects managed in the Ontology application
+
+The main concept managed is the `Entity`.
+
+There are so called "core entities" and sub entities from level 1 to level 3. "Core" entities has no super type. An entity of level n is the super type of entites of level n+1
+
+Here is the main information you can managed related the `Entity`
+
+* name
+* description
+* superType: define the relation of a entity of level n and sub entity of level n+1
+* attributes of primitive type or enum
+* references to other entities
+* comments
+
+== Manage representation 
+
+Representations of the Ontology model allow to visualize and edit the model.
+
+=== Model Explorer
+
+The model explorer presents the model as a Trees.
+
+There are two model explorer trees:
+
+* [default] `Ontology Explorer` shows the entities as a tree structured by level. +
+It is displayed by default and should be the preferred way to manage the entities. +
++
+image:explorer-custom.png[] +
++
+From `Ontology Explorer` toolbar, you can use filters button to display or not the attributes and/or the comment of the entities. +
+image:explorer-filters.png[] +
+
+* `Explorer` presents the model as it is serialized. +
+It gives access to tools that you may not have access from `Ontology Explorer` such as rename, delete tools or creation tools for attributes and comments. 
+
+You may switch from a tree to another using `Explorers` button in the Eplorer toolbar.
+
+image:explorer-switch-tree.png[Explorers]
+
+
+=== Details view
+
+The details view allows to see and modify the data of objects managed in the model.
+
+For example, the `Details` for the `Entity` object.
+
+image:details-entity.png[Details view for Entity]
+
+=== Ontology Diagram
+
+Ontology Diagram can be created only on "core entities".
+
+image:diagram-creation.png[Diagram creation]
+
+The ontology diagram allows to see the relationship between entities in a diagram.
+
+image:diagram-ontology.png[Ontology Diagram]
+
+Right clicking on a Entity in the diagram gives you access to tools.
+One useful tool is "New Sub Entity" that will create an entity of following level.
+
+image:diagram-tools.png[New Sub Entity]
+
+=== Ontology table
+
+Ontology table can be created only on Namespace object.
+
+image:table-creation.png[Table creation]
+
+It displays a tree table containing all entities contained in the Namespace. 
+Click on the arrow of a line to expand to display sub-level entities.
+
+You can also use global search filter or column filter to find entities containing the typed word.
+
+image:table-ontology.png[Ontology Table]
+
+== Upload/download model
+
+You can download an Ontology model as EMF XML format by clicking `Download` on the Ontology model contextual menu.
+
+You can download an Ontology model as RDF/XML format by clicking `Download OWL` on the Ontology model contextual menu.
+
+image:explorer-download.png[Download Ontology model]
+
+
+The `Upload model` button in the explorer toolbar allows to upload an ontology model from a model either in EMF XML format or in RDF/XML format.
+
+
+
+
