@@ -15,11 +15,9 @@ package fr.obeo.ontology.services.representations.modelexplorer;
 import fr.obeo.ontology.services.representations.EntityJavaService;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -27,13 +25,17 @@ import org.eclipse.sirius.components.core.api.IEditService;
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.IObjectService;
+import org.eclipse.sirius.web.application.UUIDParser;
 import org.eclipse.sirius.web.application.editingcontext.EditingContext;
 import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerServices;
 import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.services.api.IProjectSemanticDataSearchService;
+import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.RepresentationMetadata;
 import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.services.api.IRepresentationMetadataSearchService;
 import org.obeonetwork.dsl.entity.Entity;
+import org.obeonetwork.dsl.entity.Root;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.StructuredType;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Service;
 
 /**
@@ -129,9 +131,17 @@ public class OntologyExplorerServices {
         if (self instanceof TreeItemFragment treeItemFragment) {
             hasChildren = treeItemFragment.hasChildren(editingContext, expandedIds, activeFilterIds);
         } else if (self instanceof Resource resource) {
-            hasChildren = !resource.getContents().isEmpty();
-        } else if (self instanceof Namespace) {
-            hasChildren = true;
+            hasChildren = resource.getContents().stream()
+                    .filter(Root.class::isInstance)
+                    .map(Root.class::cast)
+                    .flatMap(root -> root.getOwnedNamespaces().stream())
+                    .findFirst()
+                    .isPresent();
+        } else if (self instanceof Namespace namespace) {
+            hasChildren = namespace.getTypes().stream()
+                    .filter(Entity.class::isInstance)
+                    .map(Entity.class::cast)
+                    .anyMatch(entity -> entity.getSupertype() == null);
         } else if (self instanceof EObject eObject) {
             hasChildren = !eObject.eContents().isEmpty();
         }
@@ -141,21 +151,36 @@ public class OntologyExplorerServices {
     public List<Object> getChildren(Object self, IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
         List<Object> result = new ArrayList<>();
         String id = this.getTreeItemId(self);
-        if (self instanceof TreeItemFragment treeItemFragment) {
-            if (expandedIds.contains(id)) {
+        if (expandedIds.contains(id)) {
+            if (self instanceof TreeItemFragment treeItemFragment) {
                 result.addAll(treeItemFragment.getChildren(editingContext, expandedIds, activeFilterIds));
-            }
-        } else if (self instanceof Resource resource) {
-            result.addAll(StreamSupport.stream(Spliterators.spliteratorUnknownSize(resource.getAllContents(), Spliterator.ORDERED), false)
-                    .filter(Entity.class::isInstance)
-                    .map(Entity.class::cast)
-                    .filter(entity -> entity.getSupertype() == null)
-                    .map(e -> new EntityTreeItemElement(e, projectSemanticDataSearchService, representationMetadataSearchService, objectService, explorerServices))
-                    .toList());
-        } else {
-            result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds));
-        }
+            } else if (self instanceof Resource resource) {
+                result.addAll(resource.getContents().stream()
+                        .filter(Root.class::isInstance)
+                        .map(Root.class::cast)
+                        .flatMap(root -> root.getOwnedNamespaces().stream())
+                        .toList());
+            } else if (self instanceof Namespace namespace) {
+                var semanticDataId = new UUIDParser().parse(editingContext.getId());
 
+                if (semanticDataId.isPresent()) {
+                    var representationMetadata = new ArrayList<>(
+                            this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()),
+                                    this.objectService.getId(namespace)));
+                    representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
+                    result.addAll(representationMetadata);
+                }
+
+                result.addAll(namespace.getTypes().stream()
+                        .filter(Entity.class::isInstance)
+                        .map(Entity.class::cast)
+                        .filter(entity -> entity.getSupertype() == null)
+                        .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.objectService, this.explorerServices))
+                        .toList());
+            } else {
+                result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds));
+            }
+        }
         return result;
     }
 
@@ -207,7 +232,7 @@ public class OntologyExplorerServices {
     }
 
     public String getEntityTreeItemLabelPrefix(EntityTreeItemElement entityTreeItemElement) {
-        int entityLevel = getEntityLevel(entityTreeItemElement);
+        int entityLevel = this.getEntityLevel(entityTreeItemElement);
         return entityLevel > 0 ? "[" + entityLevel + "] " : "";
     }
 
@@ -216,10 +241,10 @@ public class OntologyExplorerServices {
     }
 
     public Entity createSubEntity(EntityTreeItemElement entityTreeItemElement, String name) {
-        return new EntityJavaService(identityService, objectService, editService).createSubEntity(entityTreeItemElement.getEntity(), name);
+        return new EntityJavaService(this.identityService, this.objectService, this.editService).createSubEntity(entityTreeItemElement.getEntity(), name);
     }
 
     public Entity deleteEntity(EntityTreeItemElement entityTreeItemElement) {
-        return new EntityJavaService(identityService, objectService, editService).deleteEntity(entityTreeItemElement.getEntity());
+        return new EntityJavaService(this.identityService, this.objectService, this.editService).deleteEntity(entityTreeItemElement.getEntity());
     }
 }
