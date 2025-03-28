@@ -51,7 +51,7 @@ public class ViewDiagramDescriptionBuilder {
 
     private static final String AQL_SELF = "aql:self";
 
-    private static final int NB_LEVEL = 4;
+    private static final int NB_LEVEL = 3;
 
     private final DefaultColorProvider colorProvider;
 
@@ -59,13 +59,13 @@ public class ViewDiagramDescriptionBuilder {
 
     public ViewDiagramDescriptionBuilder(View view) {
         this.view = view;
-        colorProvider = new DefaultColorProvider(view);
+        this.colorProvider = new DefaultColorProvider(view);
     }
 
     public void addRepresentationDescription() {
         DiagramDescription ontologyDiagramDescription = this.createOntologyDiagramDescription();
 
-        view.getDescriptions().add(ontologyDiagramDescription);
+        this.view.getDescriptions().add(ontologyDiagramDescription);
     }
 
     private DiagramDescription createOntologyDiagramDescription() {
@@ -115,7 +115,7 @@ public class ViewDiagramDescriptionBuilder {
 
     private EdgeDescription createCoreToLevel1Edge(NodeDescription coreEntityNodeDescription, NodeDescription levelContainerDescription) {
         EdgeStyle edgeStyle = new DiagramBuilders().newEdgeStyle()
-                .color(colorProvider.getColor(BLUE))
+                .color(this.colorProvider.getColor(BLUE))
                 .build();
         return new DiagramBuilders().newEdgeDescription()
                 .name("CoreToLevel1Edge")
@@ -156,7 +156,7 @@ public class ViewDiagramDescriptionBuilder {
         List<EdgeDescription> edgeDescriptions = new ArrayList<>();
         for (int level = 0; level < levelContainerDescriptions.size() - 1; level++) {
             EdgeStyle edgeStyle = new DiagramBuilders().newEdgeStyle()
-                    .color(colorProvider.getColor(BLUE))
+                    .color(this.colorProvider.getColor(BLUE))
                     .build();
             edgeDescriptions.add(new DiagramBuilders().newEdgeDescription()
                     .name(String.format("Level%sToLevel%sEdge", level + 1, level + 2))
@@ -175,8 +175,8 @@ public class ViewDiagramDescriptionBuilder {
 
     private NodeDescription createCoreEntityNodeDescription() {
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                .background(colorProvider.getColor("white"))
-                .borderColor(colorProvider.getColor(BLUE))
+                .background(this.colorProvider.getColor("white"))
+                .borderColor(this.colorProvider.getColor(BLUE))
                 .borderSize(3)
                 .build();
 
@@ -204,7 +204,7 @@ public class ViewDiagramDescriptionBuilder {
             FreeFormLayoutStrategyDescription freeFormLayoutStrategyDescription = new DiagramBuilders().newFreeFormLayoutStrategyDescription().build();
 
             RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                    .background(colorProvider.getColor("white"))
+                    .background(this.colorProvider.getColor("white"))
                     .borderSize(3)
                     .build();
 
@@ -233,8 +233,8 @@ public class ViewDiagramDescriptionBuilder {
 
     private NodeDescription createEntityNodeDescription(int level) {
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                .background(colorProvider.getColor("white"))
-                .borderColor(colorProvider.getColor(BLUE))
+                .background(this.colorProvider.getColor("white"))
+                .borderColor(this.colorProvider.getColor(BLUE))
                 .build();
 
         InsideLabelDescription insideLabelDescription = new DiagramBuilders().newInsideLabelDescription()
@@ -275,8 +275,8 @@ public class ViewDiagramDescriptionBuilder {
 
     private NodeDescription createFakeBorderNodeDescription(int level) {
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                .background(colorProvider.getColor(TRANSPARENT))
-                .borderColor(colorProvider.getColor(TRANSPARENT))
+                .background(this.colorProvider.getColor(TRANSPARENT))
+                .borderColor(this.colorProvider.getColor(TRANSPARENT))
                 .build();
 
         return new DiagramBuilders().newNodeDescription()
