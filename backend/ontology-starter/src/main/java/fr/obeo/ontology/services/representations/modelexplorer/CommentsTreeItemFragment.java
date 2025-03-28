@@ -47,7 +47,7 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
     }
 
     public Entity getEntity() {
-        return entity;
+        return this.entity;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public boolean hasChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
-        boolean result = Optional.of(entity)
+        boolean result = Optional.of(this.entity)
                 .map(entity -> entity.getMetadatas())
                 .filter(MetaDataContainer.class::isInstance)
                 .map(dataContainer -> dataContainer)
@@ -78,7 +78,7 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
     public List<Object> getChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
         List<Object> result = new ArrayList<>();
 
-        result.addAll(Optional.of(entity)
+        result.addAll(Optional.of(this.entity)
                 .map(entity -> entity.getMetadatas())
                 .filter(MetaDataContainer.class::isInstance)
                 .map(dataContainer -> dataContainer)
@@ -92,7 +92,7 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return "CommentsTreeItemFragment " + objectService.getId(entity);
+        return "CommentsTreeItemFragment " + this.objectService.getId(this.entity);
     }
 
     @Override
@@ -112,6 +112,6 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getKind() {
-        return this.explorerServices.getKind(EnvironmentFactory.eINSTANCE.createMetaDataContainer());
+        return "";
     }
 }
