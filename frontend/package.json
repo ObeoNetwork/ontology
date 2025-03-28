@@ -17,6 +17,7 @@
     "node": "18.7.0",
     "npm": "8.15.0"
   },
+  "packageManager": "npm@8.15.0",
   "scripts": {
     "build": "turbo run build",
     "start": "turbo run start",
