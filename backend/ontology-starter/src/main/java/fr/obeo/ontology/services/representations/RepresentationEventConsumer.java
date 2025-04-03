@@ -26,6 +26,8 @@ import org.eclipse.sirius.components.collaborative.api.IRepresentationSearchServ
 import org.eclipse.sirius.components.diagrams.Diagram;
 import org.eclipse.sirius.components.diagrams.Node;
 import org.eclipse.sirius.components.diagrams.layoutdata.EdgeLayoutData;
+import org.eclipse.sirius.components.diagrams.layoutdata.HandleLayoutData;
+import org.eclipse.sirius.components.diagrams.layoutdata.HandleType;
 import org.eclipse.sirius.components.diagrams.layoutdata.NodeLayoutData;
 import org.eclipse.sirius.components.diagrams.layoutdata.Position;
 import org.eclipse.sirius.components.diagrams.layoutdata.Size;
@@ -83,7 +85,7 @@ public class RepresentationEventConsumer {
                 .ifPresent(diagram -> {
                     var optionalRepresentationId = new UUIDParser().parse(diagram.getId());
                     if (optionalRepresentationId.isPresent()) {
-                        representationContentUpdateService.updateContentByRepresentationId(domainEvent.causedBy(), optionalRepresentationId.get(), this.toString(diagram));
+                        this.representationContentUpdateService.updateContentByRepresentationId(domainEvent.causedBy(), optionalRepresentationId.get(), this.toString(diagram));
                     }
                 });
     }
@@ -99,14 +101,13 @@ public class RepresentationEventConsumer {
                 .ifPresent(diagram -> {
                     var optionalRepresentationId = new UUIDParser().parse(diagram.getId());
                     if (optionalRepresentationId.isPresent()) {
-                        representationContentUpdateService.updateContentByRepresentationId(updateEvent.causedBy(), optionalRepresentationId.get(), this.toString(diagram));
+                        this.representationContentUpdateService.updateContentByRepresentationId(updateEvent.causedBy(), optionalRepresentationId.get(), this.toString(diagram));
                     }
                 });
     }
 
     private String toString(IRepresentation representation) {
         String content = "";
-
         try {
             content = this.objectMapper.writeValueAsString(representation);
         } catch (JsonProcessingException exception) {
@@ -129,12 +130,12 @@ public class RepresentationEventConsumer {
     }
 
     private Diagram updateLayout(Diagram diagram) {
-        idToNodeLayoutDataMap = diagram.getLayoutData().nodeLayoutData();
+        this.idToNodeLayoutDataMap = diagram.getLayoutData().nodeLayoutData();
 
-        diagram = updateDiagramWithPinnedNodes(diagram);
-        updateContainerLayout(diagram);
-        updateContainerContentLayout(diagram);
-        updateEdges(diagram);
+        diagram = this.updateDiagramWithPinnedNodes(diagram);
+        this.updateContainerLayout(diagram);
+        this.updateContainerContentLayout(diagram);
+        this.updateEdges(diagram);
 
         return diagram;
     }
@@ -151,16 +152,16 @@ public class RepresentationEventConsumer {
                 .map(Node::getId)
                 .toList();
 
-        idToNodeLayoutDataMap.forEach((id, nodeLayoutData) -> {
+        this.idToNodeLayoutDataMap.forEach((id, nodeLayoutData) -> {
             if (nodeIds.contains(id)) {
                 int index = nodeIds.indexOf(id);
                 double x = 0;
                 for (int i = 0; i < index; i++) {
-                    x = x + idToNodeLayoutDataMap.get(nodeIds.get(i)).size().width() + CONTAINER_GAP;
+                    x = x + this.idToNodeLayoutDataMap.get(nodeIds.get(i)).size().width() + CONTAINER_GAP;
                 }
 
                 Position position = new Position(x, 0);
-                idToNodeLayoutDataMap.put(id, new NodeLayoutData(nodeLayoutData.id(), position, nodeLayoutData.size(), nodeLayoutData.resizedByUser()));
+                this.idToNodeLayoutDataMap.put(id, new NodeLayoutData(nodeLayoutData.id(), position, nodeLayoutData.size(), nodeLayoutData.resizedByUser(), nodeLayoutData.handleLayoutData()));
             }
         });
     }
@@ -170,6 +171,8 @@ public class RepresentationEventConsumer {
         Map<Node, Node> borderNodeToOwningNode = new LinkedHashMap<>();
         Map<Integer, List<Node>> levelToNodes = new LinkedHashMap<>();
         this.initializeDataForDiagram(diagram, idToNode, borderNodeToOwningNode);
+
+        // update nodes position in level containers
         Map<String, NodeLayoutData> nodeLayoutDataMap = diagram.getLayoutData().nodeLayoutData();
         for (Integer level = 1; level <= 4; level++) {
             List<Node> nodesToReorder = new ArrayList<>();
@@ -178,7 +181,7 @@ public class RepresentationEventConsumer {
                         .flatMap(parentNodes -> parentNodes.stream())
                         .forEach(parentNode -> {
                             nodesToReorder.addAll(diagram.getEdges().stream()
-                                    .filter(edge -> edge.getSourceId().equals(parentNode.getBorderNodes().get(1).getId()))
+                                    .filter(edge -> edge.getSourceId().equals(parentNode.getId()))
                                     .map(edge -> borderNodeToOwningNode.get(idToNode.get(edge.getTargetId())))
                                     .toList());
                         });
@@ -193,45 +196,53 @@ public class RepresentationEventConsumer {
             for (int i = 0; i < nodesToReorder.size(); i++) {
                 String nodeId = nodesToReorder.get(i).getId();
                 Size size = Optional.ofNullable(nodeLayoutDataMap.get(nodeId)).map(NodeLayoutData::size).orElse(new Size(10, 10));
-                nodeLayoutDataMap.put(nodeId, new NodeLayoutData(nodeId, new Position(20, 50 + i * 70), size, false));
+                nodeLayoutDataMap.put(nodeId, new NodeLayoutData(nodeId, new Position(20, 50 + i * 70), size, false, List.of()));
             }
         }
 
         //update border node position
         for (Node borderNode : borderNodeToOwningNode.keySet()) {
-            Node parentNode = borderNodeToOwningNode.get(borderNode);
-            boolean isCoreEntityBorderNode = parentNode.equals(diagram.getNodes().get(0));
+            boolean isCoreEntityBorderNode = borderNodeToOwningNode.get(borderNode).equals(diagram.getNodes().get(0));
             if (!isCoreEntityBorderNode) {
-                List<Node> borderNodes = parentNode.getBorderNodes();
-                boolean isIncomingBorderNode = borderNodes.size() == 2 && borderNode == borderNodes.get(0);
-                if (isIncomingBorderNode) {
-                    Size size = Optional.ofNullable(nodeLayoutDataMap.get(borderNode.getId())).map(NodeLayoutData::size).orElse(new Size(20, 20));
-                    nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(-15, 8), size, false));
-                } else {
-                    Double parentWidth = Optional.ofNullable(idToNodeLayoutDataMap.get(parentNode.getId())).map(NodeLayoutData::size).map(Size::width).orElse(0.);
-                    Size size = new Size(1, 1);
-                    nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(parentWidth - 1, 10), size, false));
-                }
+                Size size = Optional.ofNullable(nodeLayoutDataMap.get(borderNode.getId())).map(NodeLayoutData::size).orElse(new Size(20, 20));
+                nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(-15, 8), size, false, List.of()));
             }
         }
+
+        //update source edge position
+        diagram.getEdges().stream().forEach(edge -> {
+            String edgeId = edge.getId();
+            String sourceNodeId = edge.getSourceId();
+            NodeLayoutData nodeLayoutData = this.idToNodeLayoutDataMap.get(sourceNodeId);
+            if (nodeLayoutData != null) {
+                boolean isCoreEntityBorderNode = nodeLayoutData.id().equals(diagram.getNodes().get(0).getBorderNodes().get(0));
+                if (!isCoreEntityBorderNode) {
+                    List<HandleLayoutData> handleLayoutDatas = new ArrayList<>(nodeLayoutData.handleLayoutData());
+                    // HARD CODED VALUE because of strange SW edge source positioning
+                    handleLayoutDatas.add(new HandleLayoutData(edgeId, new Position(-6, 15), "right", HandleType.source));
+                    this.idToNodeLayoutDataMap.put(sourceNodeId,
+                            new NodeLayoutData(nodeLayoutData.id(), nodeLayoutData.position(), nodeLayoutData.size(), nodeLayoutData.resizedByUser(), handleLayoutDatas));
+                }
+            }
+        });
     }
 
     private void initializeDataForDiagram(Diagram diagram, Map<String, Node> idToNode, Map<Node, Node> borderNodeToOwningNode) {
         diagram.getNodes().stream().forEach(node -> {
             idToNode.put(node.getId(), node);
-            initializeDataForNodes(node, idToNode, borderNodeToOwningNode);
+            this.initializeDataForNodes(node, idToNode, borderNodeToOwningNode);
         });
     }
 
     private void initializeDataForNodes(Node node, Map<String, Node> idToNode, Map<Node, Node> borderNodeToOwningNode) {
         node.getChildNodes().stream().forEach(childNode -> {
             idToNode.put(node.getId(), node);
-            initializeDataForNodes(childNode, idToNode, borderNodeToOwningNode);
+            this.initializeDataForNodes(childNode, idToNode, borderNodeToOwningNode);
         });
         node.getBorderNodes().stream().forEach(borderNode -> {
             idToNode.put(borderNode.getId(), borderNode);
             borderNodeToOwningNode.put(borderNode, node);
-            initializeDataForNodes(borderNode, idToNode, borderNodeToOwningNode);
+            this.initializeDataForNodes(borderNode, idToNode, borderNodeToOwningNode);
         });
     }
 

@@ -166,7 +166,7 @@ public class ViewDiagramDescriptionBuilder {
                     .name(String.format("Level%sToLevel%sEdge", level + 1, level + 2))
                     .domainType(ENTITY_ENTITY)
                     .semanticCandidatesExpression(AQL_SELF)
-                    .sourceDescriptions(levelContainerDescriptions.get(level).getChildrenDescriptions().get(0).getBorderNodesDescriptions().get(1))
+                    .sourceDescriptions(levelContainerDescriptions.get(level).getChildrenDescriptions().get(0))
                     .targetDescriptions(levelContainerDescriptions.get(level + 1).getChildrenDescriptions().get(0).getBorderNodesDescriptions().get(0))
                     .sourceExpression(AQL_SELF)
                     .targetExpression("aql:self.getSubEntities()")
@@ -251,7 +251,7 @@ public class ViewDiagramDescriptionBuilder {
                 .domainType(ENTITY_ENTITY)
                 .semanticCandidatesExpression(String.format("aql:self.getEntitiesOfLevel(%s)", level))
                 .style(rectangularNodeStyleDescription)
-                .borderNodesDescriptions(this.createBorderNodeDescription(level), this.createFakeBorderNodeDescription(level))
+                .borderNodesDescriptions(this.createBorderNodeDescription(level))
                 .insideLabel(insideLabelDescription)
                 .defaultWidthExpression(ZERO)
                 .defaultHeightExpression(ZERO)
@@ -272,24 +272,6 @@ public class ViewDiagramDescriptionBuilder {
                 .style(imageNodeStyleDescription)
                 .defaultHeightExpression("20")
                 .defaultWidthExpression("20")
-                .keepAspectRatio(true)
-                .userResizable(UserResizableDirection.NONE)
-                .build();
-    }
-
-    private NodeDescription createFakeBorderNodeDescription(int level) {
-        RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
-                .background(this.colorProvider.getColor(TRANSPARENT))
-                .borderColor(this.colorProvider.getColor(TRANSPARENT))
-                .build();
-
-        return new DiagramBuilders().newNodeDescription()
-                .name("FakeBorderNodeLevel" + level)
-                .domainType(ENTITY_ENTITY)
-                .semanticCandidatesExpression(AQL_SELF)
-                .style(rectangularNodeStyleDescription)
-                .defaultHeightExpression("1")
-                .defaultWidthExpression("1")
                 .keepAspectRatio(true)
                 .userResizable(UserResizableDirection.NONE)
                 .build();
