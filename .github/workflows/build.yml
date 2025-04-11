@@ -61,7 +61,7 @@ jobs:
 
       - name: Build the frontend packages
         run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.OBEO_TOKEN }}" >> .npmrc
+          echo -e "\n//npm.pkg.github.com/:_authToken=${{ secrets.OBEO_TOKEN }}" >> .npmrc
           echo "CI=true" >> $GITHUB_ENV
           npm ci
           npm run build
@@ -91,57 +91,3 @@ jobs:
         with:
           name: application fat jar
           path: backend/ontology-application/target/ontology-application-${{ env.app_version_latest }}.jar
-
-      - name: Configure AWS CLI
-        if: github.event_name != 'pull_request'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{env.AWS_ACCOUNT}}:role/${{env.AWS_ROLE}}
-          aws-region: ${{env.AWS_DEFAULT_REGION}}
-
-      - name: Login to Amazon Elastic Container Registry
-        if: github.event_name != 'pull_request'
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Extract metadata (tags, labels) for Docker
-        if: github.event_name != 'pull_request'
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ steps.login-ecr.outputs.registry }}/${{env.DOCKER_IMAGE}}
-
-      - name: Set up Docker Build to use cache feature
-        if: github.event_name != 'pull_request'
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        if: github.event_name != 'pull_request'
-        id: build-push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          context: backend/ontology-application
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Install AWS CLI v2
-        if: github.event_name != 'pull_request'
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
-          unzip -q /tmp/awscliv2.zip -d /tmp
-          rm /tmp/awscliv2.zip
-          sudo /tmp/aws/install --update
-          rm -rf /tmp/aws/
-
-      - name: Configure AWS CLI
-        if: github.event_name != 'pull_request'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{env.AWS_ACCOUNT}}:role/container-ontology-update-role
-          aws-region: ${{env.AWS_DEFAULT_REGION}}
-
-      - name: Update deploy
-        if: github.event_name != 'pull_request'
-        run: |
-          aws ecs update-service --cluster ontology --service ontology --force-new-deployment
