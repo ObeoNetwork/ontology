@@ -30,14 +30,14 @@ public class EntityOWLModelService {
 
     public static final String BASE_URI = "http://obeo.fr/ontology#";
 
-    public static final String ENTITY_SUPERTYPE_URI = BASE_URI + "superType";
-
     public static final String ENTITY_DESCRIPTION_URI = BASE_URI + "description";
 
     public static final String ENTITY_NAME_URI = BASE_URI + "name";
 
     private static final String ENTITY_RESOURCE_URI = BASE_URI + "Entity";
+
     private static final String NAMESPACE_RESOURCE_URI = BASE_URI + "Namespace";
+
     public EntityOWLModelService() {
 
     }
@@ -45,9 +45,11 @@ public class EntityOWLModelService {
     public Resource getEntityClass(Model model) {
         return model.getResource(ENTITY_RESOURCE_URI);
     }
+
     public Resource getNamespaceClass(Model model) {
         return model.getResource(NAMESPACE_RESOURCE_URI);
     }
+
     public Model createBaseModel() {
         Model model = ModelFactory.createDefaultModel();
 
@@ -59,8 +61,6 @@ public class EntityOWLModelService {
         // Création de propriétés OWL
         model.createProperty(ENTITY_NAME_URI);
         model.createProperty(ENTITY_DESCRIPTION_URI);
-        Property superTypeProperty = model.createProperty(ENTITY_SUPERTYPE_URI);
-        superTypeProperty.addProperty(RDF.type, OWL.ObjectProperty);
         return model;
     }
 
@@ -70,9 +70,5 @@ public class EntityOWLModelService {
 
     public Property getDescriptionProperty(Model model) {
         return model.getProperty(ENTITY_DESCRIPTION_URI);
-    }
-
-    public Property getSuperTypeProperty(Model model) {
-        return model.getProperty(ENTITY_SUPERTYPE_URI);
     }
 }
