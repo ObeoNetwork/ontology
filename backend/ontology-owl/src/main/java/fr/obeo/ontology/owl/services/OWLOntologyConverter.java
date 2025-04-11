@@ -12,10 +12,18 @@
  *******************************************************************************/
 package fr.obeo.ontology.owl.services;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.sirius.components.core.api.IObjectService;
 import org.obeonetwork.dsl.entity.Entity;
@@ -25,16 +33,9 @@ import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
 /**
  * A Service to convert OWL to Ontology and Ontology to OWL.
+ *
  * @author fbarbin
  */
 @Service
@@ -110,8 +111,8 @@ public class OWLOntologyConverter {
 
     private Optional<Entity> getSuperTypeEntity(Resource entityResource, Model model, Map<String, Entity> uriToEntityMap, Namespace namespace) {
         Optional<Entity> optionalEntity = Optional.empty();
-        if (entityResource.hasProperty(this.entityOWLModelService.getSuperTypeProperty(model))) {
-            Resource resource = entityResource.getProperty(this.entityOWLModelService.getSuperTypeProperty(model)).getObject().asResource();
+        if (entityResource.hasProperty(RDFS.subClassOf)) {
+            Resource resource = entityResource.getProperty(RDFS.subClassOf).getObject().asResource();
             optionalEntity = Optional.of(this.convertOWLEntity(model, resource, uriToEntityMap, namespace));
         }
         return optionalEntity;
@@ -131,9 +132,11 @@ public class OWLOntologyConverter {
         rootOntology.getOwnedNamespaces().forEach(namespace -> this.convert(namespace, model, objectIdToOWLResourceMap));
         return model;
     }
+
     private void convert(Entity entity, Model model, Map<String, Resource> objectIdToOWLResourceMap) {
         this.getOrCreate(entity, model, objectIdToOWLResourceMap);
     }
+
     private Resource getOrCreate(Entity entity, Model model, Map<String, Resource> objectIdToOWLResourceMap) {
         String objectId = this.objectService.getId(entity);
         Resource resource = objectIdToOWLResourceMap.get(objectId);
@@ -146,7 +149,7 @@ public class OWLOntologyConverter {
                 .addProperty(this.entityOWLModelService.getNameProperty(model), Optional.ofNullable(entity.getName()).orElse(""))
                 .addProperty(this.entityOWLModelService.getDescriptionProperty(model), Optional.ofNullable(entity.getDescription()).orElse(""));
         if (entity.getSupertype() instanceof Entity superType) {
-            resource.addProperty(this.entityOWLModelService.getSuperTypeProperty(model), this.getOrCreate(superType, model, objectIdToOWLResourceMap));
+            resource.addProperty(RDFS.subClassOf, this.getOrCreate(superType, model, objectIdToOWLResourceMap));
         }
         return resource;
     }
