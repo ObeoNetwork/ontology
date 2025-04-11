@@ -18,7 +18,7 @@
 
     <groupId>ontology</groupId>
     <artifactId>ontology-container</artifactId>
-    <version>2025.3.0</version>
+    <version>2025.4.0</version>
 
     <name>Ontology</name>
     <description>Ontology</description>
@@ -28,7 +28,7 @@
         <repository>
             <id>github-ontology</id>
             <name>Ontology</name>
-            <url>https://github.com/ObeoNetwork/ontology/</url>
+            <url>https://maven.pkg.github.com/ObeoNetwork/ontology/</url>
         </repository>
     </distributionManagement>
 
@@ -38,7 +38,6 @@
 
       -->
     <modules>
-        <module>ontology-parent</module>
         <module>ontology-starter</module>
         <module>ontology-application</module>
         <module>ontology-frontend</module>
