@@ -38,6 +38,7 @@
 
       -->
     <modules>
+        <module>ontology-parent</module>
         <module>ontology-starter</module>
         <module>ontology-application</module>
         <module>ontology-frontend</module>
