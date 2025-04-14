@@ -23,7 +23,7 @@
     </parent>
     <groupId>ontology</groupId>
     <artifactId>ontology-parent</artifactId>
-    <version>2025.4.0</version>
+    <version>2025.4.1</version>
     <name>ontology-parent</name>
     <description>Parent Pom for ontology modules</description>
     <packaging>pom</packaging>
