@@ -20,7 +20,8 @@ import java.util.Optional;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.sirius.components.core.api.IEditingContext;
-import org.eclipse.sirius.components.core.api.IObjectService;
+import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.eclipse.sirius.components.core.api.ILabelService;
 import org.eclipse.sirius.web.application.UUIDParser;
 import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerServices;
 import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.services.api.IProjectSemanticDataSearchService;
@@ -43,25 +44,28 @@ public class EntityTreeItemElement implements TreeItemFragment {
 
     private final IProjectSemanticDataSearchService projectSemanticDataSearchService;
 
-    private final IObjectService objectService;
+    private final IIdentityService identityService;
+
+    private final ILabelService labelService;
 
     private final IExplorerServices explorerServices;
 
     public EntityTreeItemElement(Entity entity, IProjectSemanticDataSearchService projectSemanticDataSearchService, IRepresentationMetadataSearchService representationMetadataSearchService,
-            IObjectService objectService, IExplorerServices explorerServices) {
+            IIdentityService identityService, ILabelService labelService, IExplorerServices explorerServices) {
         this.entity = Objects.requireNonNull(entity);
         this.projectSemanticDataSearchService = projectSemanticDataSearchService;
         this.representationMetadataSearchService = representationMetadataSearchService;
-        this.objectService = objectService;
+        this.identityService = identityService;
+        this.labelService = labelService;
         this.explorerServices = explorerServices;
     }
 
     public Entity getEntity() {
-        return entity;
+        return this.entity;
     }
 
     public String getId() {
-        return objectService.getId(entity);
+        return this.identityService.getId(this.entity);
     }
 
     public String getLabel() {
@@ -69,7 +73,7 @@ public class EntityTreeItemElement implements TreeItemFragment {
     }
 
     public List<String> getIconURL() {
-        return this.explorerServices.getImageURL(this.entity);
+        return this.labelService.getImagePaths(this.entity);
     }
 
     @Override
@@ -77,7 +81,7 @@ public class EntityTreeItemElement implements TreeItemFragment {
         boolean result =
                 !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) || !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID);
 
-        result = result || Optional.ofNullable(entity.eContainer())
+        result = result || Optional.ofNullable(this.entity.eContainer())
                 .filter(Namespace.class::isInstance)
                 .stream()
                 .flatMap(namespace -> ((Namespace) namespace).getTypes().stream())
@@ -87,12 +91,12 @@ public class EntityTreeItemElement implements TreeItemFragment {
                 .findFirst()
                 .isPresent();
 
-        result = result || this.hasRepresentation(entity, editingContext);
+        result = result || this.hasRepresentation(this.entity, editingContext);
         return result;
     }
 
     private boolean hasRepresentation(EObject self, IEditingContext editingContext) {
-        String id = this.objectService.getId(self);
+        String id = this.identityService.getId(self);
         return new UUIDParser().parse(editingContext.getId())
                 .map(uuid -> this.representationMetadataSearchService.existAnyRepresentationMetadataForSemanticDataAndTargetObjectId(AggregateReference.to(uuid), id))
                 .orElse(false);
@@ -106,28 +110,28 @@ public class EntityTreeItemElement implements TreeItemFragment {
 
             if (semanticDataId.isPresent()) {
                 var representationMetadata = new ArrayList<>(
-                        this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()), getId()));
+                        this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()), this.getId()));
                 representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
                 result.addAll(representationMetadata);
             }
         }
 
         if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID)) {
-            result.add(new CommentsTreeItemFragment(entity, objectService, explorerServices));
+            result.add(new CommentsTreeItemFragment(this.entity, this.identityService, this.labelService));
         }
 
         if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)) {
-            result.add(new AttributesTreeItemFragment(entity, objectService, explorerServices));
+            result.add(new AttributesTreeItemFragment(this.entity, this.identityService, this.labelService));
         }
 
-        result.addAll(Optional.ofNullable(entity.eContainer())
+        result.addAll(Optional.ofNullable(this.entity.eContainer())
                 .filter(Namespace.class::isInstance)
                 .stream()
                 .flatMap(namespace -> ((Namespace) namespace).getTypes().stream())
                 .filter(Entity.class::isInstance)
                 .map(Entity.class::cast)
                 .filter(e -> this.entity.equals(e.getSupertype()))
-                .map(e -> new EntityTreeItemElement(e, projectSemanticDataSearchService, representationMetadataSearchService, objectService, explorerServices))
+                .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.identityService, this.labelService, this.explorerServices))
                 .map(Object.class::cast)
                 .toList());
 
@@ -152,6 +156,6 @@ public class EntityTreeItemElement implements TreeItemFragment {
 
     @Override
     public String getKind() {
-        return this.explorerServices.getKind(entity);
+        return this.explorerServices.getKind(this.entity);
     }
 }

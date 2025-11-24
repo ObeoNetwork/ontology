@@ -23,9 +23,11 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.sirius.components.core.api.IEditService;
 import org.eclipse.sirius.components.core.api.IEditingContext;
-import org.eclipse.sirius.components.core.api.IObjectService;
+import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.eclipse.sirius.components.core.api.ILabelService;
 import org.eclipse.sirius.web.application.UUIDParser;
 import org.eclipse.sirius.web.application.editingcontext.EditingContext;
+import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerLabelService;
 import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerServices;
 import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.services.api.IProjectSemanticDataSearchService;
 import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.RepresentationMetadata;
@@ -44,7 +46,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class OntologyExplorerServices {
 
-    private final IObjectService objectService;
+    private final IIdentityService identityService;
+
+    private final ILabelService labelService;
 
     private final IEditService editService;
 
@@ -52,15 +56,19 @@ public class OntologyExplorerServices {
 
     private final IExplorerServices explorerServices;
 
+    private final IExplorerLabelService explorerLabelService;
+
     private final IProjectSemanticDataSearchService projectSemanticDataSearchService;
 
-    public OntologyExplorerServices(IObjectService objectService, IEditService editService, IRepresentationMetadataSearchService representationMetadataSearchService,
-            IExplorerServices explorerServices,
+    public OntologyExplorerServices(IIdentityService identityService, ILabelService labelService, IEditService editService, IRepresentationMetadataSearchService representationMetadataSearchService,
+            IExplorerServices explorerServices, IExplorerLabelService explorerLabelService,
             IProjectSemanticDataSearchService projectSemanticDataSearchService) {
-        this.objectService = Objects.requireNonNull(objectService);
+        this.identityService = Objects.requireNonNull(identityService);
+        this.labelService = labelService;
         this.editService = editService;
         this.representationMetadataSearchService = Objects.requireNonNull(representationMetadataSearchService);
         this.explorerServices = Objects.requireNonNull(explorerServices);
+        this.explorerLabelService = explorerLabelService;
         this.projectSemanticDataSearchService = Objects.requireNonNull(projectSemanticDataSearchService);
     }
 
@@ -106,7 +114,7 @@ public class OntologyExplorerServices {
         if (self instanceof TreeItemFragment treeItemFragment) {
             label = treeItemFragment.getLabel();
         } else {
-            label = this.explorerServices.getLabel(self);
+            label = String.valueOf(this.labelService.getStyledLabel(self));
         }
         return label;
     }
@@ -116,7 +124,7 @@ public class OntologyExplorerServices {
         if (self instanceof TreeItemFragment treeItemFragment) {
             result = treeItemFragment.getIconURL();
         } else {
-            result = this.explorerServices.getImageURL(self);
+            result = this.labelService.getImagePaths(self);
         }
         return result;
     }
@@ -161,7 +169,7 @@ public class OntologyExplorerServices {
                 if (semanticDataId.isPresent()) {
                     var representationMetadata = new ArrayList<>(
                             this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()),
-                                    this.objectService.getId(namespace)));
+                                    this.identityService.getId(namespace)));
                     representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
                     result.addAll(representationMetadata);
                 }
@@ -170,7 +178,8 @@ public class OntologyExplorerServices {
                         .filter(Entity.class::isInstance)
                         .map(Entity.class::cast)
                         .filter(entity -> entity.getSupertype() == null)
-                        .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.objectService, this.explorerServices))
+                        .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.identityService, this.labelService,
+                                this.explorerServices))
                         .toList());
             } else {
                 result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds, existingRepresentations));
@@ -192,7 +201,7 @@ public class OntologyExplorerServices {
         if (self instanceof TreeItemFragment treeItemFragment) {
             result = treeItemFragment.isEditable();
         } else {
-            result = this.explorerServices.isEditable(self);
+            result = this.explorerLabelService.isEditable(self);
         }
         return result;
     }

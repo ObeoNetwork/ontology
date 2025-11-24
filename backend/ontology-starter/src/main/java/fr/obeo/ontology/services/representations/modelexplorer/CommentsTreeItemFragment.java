@@ -19,8 +19,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
-import org.eclipse.sirius.components.core.api.IObjectService;
-import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerServices;
+import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.eclipse.sirius.components.core.api.ILabelService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.MetaDataContainer;
@@ -36,14 +36,14 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     private final String id = UUID.nameUUIDFromBytes("CommentsTreeItemFragment".getBytes()).toString();
 
-    private final IObjectService objectService;
+    private final IIdentityService identityService;
 
-    private final IExplorerServices explorerServices;
+    private final ILabelService labelService;
 
-    public CommentsTreeItemFragment(Entity entity, IObjectService objectService, IExplorerServices explorerServices) {
+    public CommentsTreeItemFragment(Entity entity, IIdentityService identityService, ILabelService labelService) {
         this.entity = Objects.requireNonNull(entity);
-        this.objectService = objectService;
-        this.explorerServices = explorerServices;
+        this.identityService = identityService;
+        this.labelService = labelService;
     }
 
     public Entity getEntity() {
@@ -57,7 +57,7 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public List<String> getIconURL() {
-        return this.explorerServices.getImageURL(EnvironmentFactory.eINSTANCE.createMetaDataContainer());
+        return this.labelService.getImagePaths(EnvironmentFactory.eINSTANCE.createMetaDataContainer());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return "CommentsTreeItemFragment " + this.objectService.getId(this.entity);
+        return "CommentsTreeItemFragment " + this.identityService.getId(this.entity);
     }
 
     @Override

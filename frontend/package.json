@@ -1,6 +1,6 @@
 {
   "name": "@ObeoNetwork/ontology",
-  "version": "2025.6.0",
+  "version": "2025.8.0",
   "author": "Obeo",
   "license": "EPL-2.0",
   "repository": {
@@ -14,10 +14,10 @@
     "ontology-web"
   ],
   "engines": {
-    "node": "18.7.0",
-    "npm": "8.15.0"
+    "node": "22.16.0",
+    "npm": "10.9.2"
   },
-  "packageManager": "npm@8.15.0",
+  "packageManager": "npm@10.9.2",
   "scripts": {
     "build": "turbo run build",
     "start": "turbo run start",
