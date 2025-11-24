@@ -143,7 +143,7 @@ public class OntologyExplorerServices {
         return hasChildren;
     }
 
-    public List<Object> getChildren(Object self, IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
+    public List<Object> getChildren(Object self, IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds, List<RepresentationMetadata> existingRepresentations) {
         List<Object> result = new ArrayList<>();
         String id = this.getTreeItemId(self);
         if (expandedIds.contains(id)) {
@@ -173,7 +173,7 @@ public class OntologyExplorerServices {
                         .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.objectService, this.explorerServices))
                         .toList());
             } else {
-                result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds));
+                result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds, existingRepresentations));
             }
         }
         return result;

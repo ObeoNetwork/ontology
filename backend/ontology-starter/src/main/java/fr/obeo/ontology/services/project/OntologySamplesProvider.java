@@ -44,7 +44,7 @@ public class OntologySamplesProvider {
         var resourceMetadataAdapter = new ResourceMetadataAdapter(resourceName);
         var migrationService = new MigrationService(this.migrationParticipants);
 
-        resourceMetadataAdapter.setMigrationData(migrationService.getMostRecentParticipantMigrationData());
+        resourceMetadataAdapter.addMigrationData(migrationService.getMostRecentParticipantMigrationData());
 
         resource.eAdapters().add(resourceMetadataAdapter);
         resourceSet.getResources().add(resource);

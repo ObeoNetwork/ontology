@@ -78,6 +78,7 @@ public class RepresentationEventConsumer {
 
     @TransactionalEventListener
     public void RepresentationContentCreatedEvent(RepresentationContentCreatedEvent domainEvent) {
+        // TODO Check if this code is still useful
         this.toRepresentation(domainEvent.representationContent().getContent())
                 .filter(Diagram.class::isInstance)
                 .map(Diagram.class::cast)
@@ -92,6 +93,7 @@ public class RepresentationEventConsumer {
 
     @TransactionalEventListener
     public void onRepresentationContentUpdatedEvent(RepresentationContentUpdatedEvent updateEvent) {
+        // TODO Check if this code is still useful
         // The change is not taken into account in DiagramEventProcessor.handleEvent
         // Consequently the layout update is done in preProcess override
         this.toRepresentation(updateEvent.representationContent().getContent())
@@ -133,6 +135,8 @@ public class RepresentationEventConsumer {
         this.idToNodeLayoutDataMap = diagram.getLayoutData().nodeLayoutData();
 
         diagram = this.updateDiagramWithPinnedNodes(diagram);
+        // TODO Check if this code is still useful
+        // Diagram Layout is supposed to be done in DiagramProcessor
         this.updateContainerLayout(diagram);
         this.updateContainerContentLayout(diagram);
         this.updateEdges(diagram);
@@ -143,7 +147,7 @@ public class RepresentationEventConsumer {
     private void updateEdges(Diagram diagram) {
         Map<String, EdgeLayoutData> edgeIdLayoutDataMap = diagram.getLayoutData().edgeLayoutData();
         diagram.getEdges().stream().forEach(edge -> {
-            edgeIdLayoutDataMap.put(edge.getId(), new EdgeLayoutData(edge.getId(), List.of()));
+            edgeIdLayoutDataMap.put(edge.getId(), new EdgeLayoutData(edge.getId(), List.of(), List.of()));
         });
     }
 

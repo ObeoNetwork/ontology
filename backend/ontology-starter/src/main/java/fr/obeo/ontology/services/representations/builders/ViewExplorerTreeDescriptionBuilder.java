@@ -59,21 +59,21 @@ public class ViewExplorerTreeDescriptionBuilder {
 
     public ViewExplorerTreeDescriptionBuilder(View view) {
         this.view = view;
-        colorProvider = new DefaultColorProvider(view);
-        colorPalette = view.getColorPalettes().get(0);
-        textStylePalette = view.getTextStylePalettes().get(0);
+        this.colorProvider = new DefaultColorProvider(view);
+        this.colorPalette = view.getColorPalettes().get(0);
+        this.textStylePalette = view.getTextStylePalettes().get(0);
     }
 
     public void addRepresentationDescription() {
         TreeDescription ontologyExplorerTreeDescription = this.createExplorerTreeDescription();
 
-        view.getDescriptions().add(ontologyExplorerTreeDescription);
+        this.view.getDescriptions().add(ontologyExplorerTreeDescription);
     }
 
     private TreeDescription createExplorerTreeDescription() {
         return new TreeBuilders().newTreeDescription()
                 .name(ONTOLOGY_EXPLORER_DESCRIPTION_NAME)
-                .childrenExpression("aql:self.getChildren(editingContext, expanded, activeFilterIds))")
+                .childrenExpression("aql:self.getChildren(editingContext, expanded, activeFilterIds, existingRepresentations)")
                 .deletableExpression("aql:self.isDeletable()")
                 .editableExpression("aql:self.isEditable()")
                 .elementsExpression("aql:editingContext.getElements()")
@@ -143,7 +143,7 @@ public class ViewExplorerTreeDescriptionBuilder {
 //    }
 
     private TextStyleDescription getTextStyleByName(String styleName) {
-        return textStylePalette.getStyles().stream().filter(tsd -> tsd.getName().equals(styleName)).findFirst().orElse(null);
+        return this.textStylePalette.getStyles().stream().filter(tsd -> tsd.getName().equals(styleName)).findFirst().orElse(null);
     }
 
     private List<TreeItemContextMenuEntry> createContextMenuEntries() {
