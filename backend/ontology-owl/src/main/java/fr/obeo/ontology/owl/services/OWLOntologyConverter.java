@@ -25,7 +25,7 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.sirius.components.core.api.IObjectService;
+import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.entity.Root;
@@ -43,11 +43,11 @@ public class OWLOntologyConverter {
 
     private final EntityOWLModelService entityOWLModelService;
 
-    private final IObjectService objectService;
+    private final IIdentityService identityService;
 
-    public OWLOntologyConverter(EntityOWLModelService entityOWLModelService, IObjectService objectService) {
+    public OWLOntologyConverter(EntityOWLModelService entityOWLModelService, IIdentityService identityService) {
         this.entityOWLModelService = Objects.requireNonNull(entityOWLModelService);
-        this.objectService = Objects.requireNonNull(objectService);
+        this.identityService = Objects.requireNonNull(identityService);
     }
 
     /**
@@ -138,7 +138,7 @@ public class OWLOntologyConverter {
     }
 
     private Resource getOrCreate(Entity entity, Model model, Map<String, Resource> objectIdToOWLResourceMap) {
-        String objectId = this.objectService.getId(entity);
+        String objectId = this.identityService.getId(entity);
         Resource resource = objectIdToOWLResourceMap.get(objectId);
         return Optional.ofNullable(resource).orElseGet(() -> this.createEntityResource(entity, model, objectIdToOWLResourceMap));
     }
@@ -160,6 +160,6 @@ public class OWLOntologyConverter {
     }
 
     private String createURI(EObject eObject) {
-        return EntityOWLModelService.BASE_URI + this.objectService.getId(eObject);
+        return EntityOWLModelService.BASE_URI + this.identityService.getId(eObject);
     }
 }

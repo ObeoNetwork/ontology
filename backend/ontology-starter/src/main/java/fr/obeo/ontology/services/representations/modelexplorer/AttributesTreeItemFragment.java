@@ -19,8 +19,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
-import org.eclipse.sirius.components.core.api.IObjectService;
-import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerServices;
+import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.eclipse.sirius.components.core.api.ILabelService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
 
@@ -35,14 +35,14 @@ public class AttributesTreeItemFragment implements TreeItemFragment {
 
     private final String id = UUID.nameUUIDFromBytes("AttributesTreeItemFragment".getBytes()).toString();
 
-    private final IObjectService objectService;
+    private final IIdentityService identityService;
 
-    private final IExplorerServices explorerServices;
+    private final ILabelService labelService;
 
-    public AttributesTreeItemFragment(Entity entity, IObjectService objectService, IExplorerServices explorerServices) {
+    public AttributesTreeItemFragment(Entity entity, IIdentityService identityService, ILabelService labelService) {
         this.entity = Objects.requireNonNull(entity);
-        this.objectService = objectService;
-        this.explorerServices = explorerServices;
+        this.identityService = identityService;
+        this.labelService = labelService;
     }
 
     public Entity getEntity() {
@@ -56,7 +56,7 @@ public class AttributesTreeItemFragment implements TreeItemFragment {
 
     @Override
     public List<String> getIconURL() {
-        return this.explorerServices.getImageURL(EnvironmentFactory.eINSTANCE.createAttribute());
+        return this.labelService.getImagePaths(EnvironmentFactory.eINSTANCE.createAttribute());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AttributesTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return "AttributesTreeItemFragment " + this.objectService.getId(this.entity);
+        return "AttributesTreeItemFragment " + this.identityService.getId(this.entity);
     }
 
     @Override
