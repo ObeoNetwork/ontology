@@ -18,7 +18,7 @@
     <parent>
         <groupId>ontology</groupId>
         <artifactId>ontology-parent</artifactId>
-        <version>2025.4.1</version>
+        <version>2025.6.0</version>
         <relativePath>../ontology-parent</relativePath>
     </parent>
     <artifactId>ontology-model</artifactId>
@@ -41,17 +41,14 @@
         <dependency>
             <groupId>org.eclipse.emf</groupId>
             <artifactId>org.eclipse.emf.common</artifactId>
-            <version>2.21.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emf</groupId>
             <artifactId>org.eclipse.emf.ecore</artifactId>
-            <version>2.23.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emf</groupId>
             <artifactId>org.eclipse.emf.edit</artifactId>
-            <version>2.16.0</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>

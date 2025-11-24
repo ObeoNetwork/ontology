@@ -210,6 +210,7 @@ public class ViewDiagramDescriptionBuilder {
             RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
                     .background(this.colorProvider.getColor(WHITE))
                     .borderSize(3)
+                    .childrenLayoutStrategy(freeFormLayoutStrategyDescription)
                     .build();
 
             InsideLabelDescription insideLabelDescription = new DiagramBuilders().newInsideLabelDescription()
@@ -225,7 +226,6 @@ public class ViewDiagramDescriptionBuilder {
                     .name("ContainerNodeLevel" + level)
                     .domainType(ENTITY_ENTITY)
                     .semanticCandidatesExpression(AQL_SELF)
-                    .childrenLayoutStrategy(freeFormLayoutStrategyDescription)
                     .style(rectangularNodeStyleDescription)
                     .insideLabel(insideLabelDescription)
                     .childrenDescriptions(this.createEntityNodeDescription(level))
