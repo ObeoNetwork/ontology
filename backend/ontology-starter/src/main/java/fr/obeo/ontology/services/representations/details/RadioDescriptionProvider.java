@@ -20,7 +20,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
-import org.eclipse.sirius.components.core.services.ObjectService;
+import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.emf.forms.api.IPropertiesValidationProvider;
 import org.eclipse.sirius.components.forms.components.SelectComponent;
 import org.eclipse.sirius.components.forms.description.RadioDescription;
@@ -48,11 +48,11 @@ public class RadioDescriptionProvider {
 
     private final Function<VariableManager, String> semanticTargetIdProvider;
 
-    public RadioDescriptionProvider(ComposedAdapterFactory composedAdapterFactory, IPropertiesValidationProvider propertiesValidationProvider, ObjectService objectService) {
+    public RadioDescriptionProvider(ComposedAdapterFactory composedAdapterFactory, IPropertiesValidationProvider propertiesValidationProvider, IIdentityService identityService) {
         this.composedAdapterFactory = Objects.requireNonNull(composedAdapterFactory);
         this.propertiesValidationProvider = Objects.requireNonNull(propertiesValidationProvider);
         this.semanticTargetIdProvider = variableManager -> variableManager.get(VariableManager.SELF, Object.class)
-                .map(objectService::getId)
+                .map(identityService::getId)
                 .orElse(null);
     }
 

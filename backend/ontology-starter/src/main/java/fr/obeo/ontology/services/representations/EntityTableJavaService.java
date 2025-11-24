@@ -26,7 +26,7 @@ import java.util.Optional;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.sirius.components.core.api.IEditService;
-import org.eclipse.sirius.components.core.api.IObjectService;
+import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.tables.ColumnFilter;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Annotation;
@@ -39,14 +39,14 @@ import org.obeonetwork.dsl.environment.Namespace;
  */
 public class EntityTableJavaService {
 
-    private final IObjectService objectService;
+    private final IIdentityService identityService;
 
     private final IEditService editService;
 
     private final ObjectMapper objectMapper;
 
-    public EntityTableJavaService(IObjectService objectService, IEditService editService, ObjectMapper objectMapper) {
-        this.objectService = Objects.requireNonNull(objectService);
+    public EntityTableJavaService(IIdentityService identityService, IEditService editService, ObjectMapper objectMapper) {
+        this.identityService = Objects.requireNonNull(identityService);
         this.editService = editService;
         this.objectMapper = Objects.requireNonNull(objectMapper);
     }
@@ -94,7 +94,7 @@ public class EntityTableJavaService {
         if (parent == null) {
             return true;
         }
-        String parentEntityId = this.objectService.getId(parent);
+        String parentEntityId = this.identityService.getId(parent);
         return expandedIds.contains(parentEntityId) && this.isAllAncestorsExpanded(this.getSuperEntity(parent), expandedIds);
     }
 

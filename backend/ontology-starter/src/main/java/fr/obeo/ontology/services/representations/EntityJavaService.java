@@ -148,7 +148,7 @@ public class EntityJavaService {
 //        Entity rootEntity = null;
 //        Diagram diagram = diagramContext.getDiagram();
 //        String targetObjectId = diagram.getTargetObjectId();
-//        Optional<Object> object = this.objectService.getObject(editingContext, targetObjectId);
+//        Optional<Object> object = this.identityService.getObject(editingContext, targetObjectId);
 //        if (object.isPresent()) {
 //            rootEntity = (Entity) object.get();
 //        }

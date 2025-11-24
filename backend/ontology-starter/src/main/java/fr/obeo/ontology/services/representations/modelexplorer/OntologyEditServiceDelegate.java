@@ -89,7 +89,7 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
     private boolean filterByClasses(ChildCreationDescription childCreationDescription, List<EClass> classesToKeep) {
         AdapterFactoryEditingDomain adapterFactoryEditingDomain = new AdapterFactoryEditingDomain(this.composedAdapterFactory, new BasicCommandStack());
         List<String> eClassifierLabels = classesToKeep.stream().map(eClass -> this.computeLabel(eClass, adapterFactoryEditingDomain)).toList();
-        return eClassifierLabels.contains(childCreationDescription.getLabel());
+        return eClassifierLabels.contains(childCreationDescription.label());
     }
 
     @Override
@@ -105,10 +105,5 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
     @Override
     public void delete(Object object) {
         this.defaultEditService.delete(object);
-    }
-
-    @Override
-    public void editLabel(Object object, String labelField, String newValue) {
-        this.defaultEditService.editLabel(object, labelField, newValue);
     }
 }

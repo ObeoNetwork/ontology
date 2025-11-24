@@ -33,11 +33,6 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
     }
 
     @Override
-    public String getLabel(Object object) {
-        return this.getStyledLabel(object).toString();
-    }
-
-    @Override
     public StyledString getStyledLabel(Object object) {
         StyledString styledString = StyledString.of("");
         if (object instanceof MetaDataContainer metaDataContainer) {
@@ -52,22 +47,7 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
     }
 
     @Override
-    public String getFullLabel(Object object) {
-        return this.getStyledLabel(object).toString();
-    }
-
-    @Override
-    public Optional<String> getLabelField(Object object) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean isLabelEditable(Object object) {
-        return false;
-    }
-
-    @Override
-    public List<String> getImagePath(Object object) {
-        return this.defaultLabelService.getImagePath(object);
+    public List<String> getImagePaths(Object object) {
+        return this.defaultLabelService.getImagePaths(object);
     }
 }
