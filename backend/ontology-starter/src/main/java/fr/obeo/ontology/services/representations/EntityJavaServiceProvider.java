@@ -16,9 +16,7 @@ import fr.obeo.ontology.services.representations.modelexplorer.OntologyExplorerS
 
 import java.util.List;
 
-import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.View;
-import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.emf.IJavaServiceProvider;
 import org.springframework.stereotype.Service;
 
