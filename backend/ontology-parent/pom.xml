@@ -34,7 +34,7 @@
         <sirius.web.version>2025.10.5</sirius.web.version>
         <sirius.version>7.2.0-SNAPSHOT</sirius.version>
         <sirius.emfjson.version>2.5.3-SNAPSHOT</sirius.emfjson.version>
-        <entity.version>5.0.0</entity.version>
+        <entity.version>5.1.1</entity.version>
     </properties>
 
     <distributionManagement>
@@ -57,6 +57,10 @@
         <repository>
             <id>github-sirius-emfjson</id>
             <url>https://maven.pkg.github.com/eclipse-sirius/sirius-emf-json</url>
+        </repository>
+        <repository>
+            <id>github-InformationSystem</id>
+            <url>https://maven.pkg.github.com/ObeoNetwork/InformationSystem</url>
         </repository>
     </repositories>
 
