@@ -30,6 +30,11 @@
           <name>Sirius EMF JSON - Maven Packages</name>
           <url>https://maven.pkg.github.com/eclipse-sirius/sirius-emf-json</url>
         </repository>
+        <repository>
+          <id>github-InformationSystem</id>
+          <name>InformationSystem - Maven Packages</name>
+          <url>https://maven.pkg.github.com/ObeoNetwork/InformationSystem</url>
+        </repository>
       </repositories>
     </profile>
   </profiles>
@@ -57,6 +62,11 @@
     </server>
     <server>
       <id>github-ocp-license</id>
+      <username>${env.USERNAME}</username>
+      <password>${env.PASSWORD}</password>
+    </server>
+    <server>
+      <id>github-InformationSystem</id>
       <username>${env.USERNAME}</username>
       <password>${env.PASSWORD}</password>
     </server>
