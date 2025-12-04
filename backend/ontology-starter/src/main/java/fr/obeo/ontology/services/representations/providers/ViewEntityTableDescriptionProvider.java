@@ -10,11 +10,13 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.builders;
+package fr.obeo.ontology.services.representations.providers;
 
 import org.eclipse.sirius.components.view.RepresentationDescription;
-import org.eclipse.sirius.components.view.View;
 import org.eclipse.sirius.components.view.builder.generated.table.TableBuilders;
+import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
+import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
+import org.springframework.stereotype.Service;
 
 /**
  * Used to provide the view model used to create tables.
@@ -22,7 +24,8 @@ import org.eclipse.sirius.components.view.builder.generated.table.TableBuilders;
  * @author fbarbin
  */
 @SuppressWarnings("checkstyle:MultipleStringLiterals")
-public class ViewEntityTableDescriptionBuilder {
+@Service
+public class ViewEntityTableDescriptionProvider implements IRepresentationDescriptionProvider {
 
     public static final String ENTITY_TABLE_ATTRIBUTES_COLUMN = "Attributes";
 
@@ -34,19 +37,8 @@ public class ViewEntityTableDescriptionBuilder {
 
     private final TableBuilders tableBuilders = new TableBuilders();
 
-    private final View view;
-
-    public ViewEntityTableDescriptionBuilder(View view) {
-        this.view = view;
-    }
-
-    public void addRepresentationDescription() {
-        RepresentationDescription representationDescription = this.create();
-
-        this.view.getDescriptions().add(representationDescription);
-    }
-
-    private RepresentationDescription create() {
+    @Override
+    public RepresentationDescription create(IColorProvider colorProvider) {
 
         var attributesColumnDescription = this.tableBuilders.newColumnDescription()
                 .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_ATTRIBUTES_COLUMN + "'")
