@@ -12,7 +12,7 @@
  *******************************************************************************/
 package fr.obeo.ontology.application.tables;
 
-import fr.obeo.ontology.services.representations.builders.ViewEntityTableDescriptionBuilder;
+import fr.obeo.ontology.services.representations.providers.ViewEntityTableDescriptionProvider;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -25,6 +25,7 @@ import org.eclipse.sirius.components.emf.services.IDAdapter;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.view.View;
 import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilder;
+import org.eclipse.sirius.components.view.builder.providers.DefaultColorProvider;
 import org.eclipse.sirius.components.view.emf.table.ITableIdProvider;
 import org.eclipse.sirius.components.view.table.TableDescription;
 import org.eclipse.sirius.emfjson.resource.JsonResource;
@@ -53,9 +54,9 @@ public class OntologyTableDescriptionProvider implements IEditingContextProcesso
 
     private View createView() {
         View view = new ViewBuilder().build();
-        new ViewEntityTableDescriptionBuilder(view).addRepresentationDescription();
+        view.getDescriptions().add(new ViewEntityTableDescriptionProvider().create(new DefaultColorProvider(view)));
         this.tableDescription = view.getDescriptions().stream()
-                .filter(representationDescription -> representationDescription.getName().equals(ViewEntityTableDescriptionBuilder.ENTITIES_TABLE_NAME))
+                .filter(representationDescription -> representationDescription.getName().equals(ViewEntityTableDescriptionProvider.ENTITIES_TABLE_NAME))
                 .map(TableDescription.class::cast)
                 .findFirst()
                 .get();
