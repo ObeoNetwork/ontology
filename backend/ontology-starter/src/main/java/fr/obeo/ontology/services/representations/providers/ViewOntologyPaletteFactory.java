@@ -10,7 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.builders;
+package fr.obeo.ontology.services.representations.providers;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import org.eclipse.sirius.components.view.TextStylePalette;
 import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.DefaultColorPalettesProvider;
 
-public class ViewOntologyPaletteBuilder {
+public class ViewOntologyPaletteFactory {
 
     static final String BLUE_ITALIC_TEXT_STYLE_NAME = "blue italic";
 

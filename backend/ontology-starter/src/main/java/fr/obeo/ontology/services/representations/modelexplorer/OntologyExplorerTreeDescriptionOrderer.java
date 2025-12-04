@@ -12,7 +12,7 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.modelexplorer;
 
-import fr.obeo.ontology.services.representations.builders.ViewExplorerTreeDescriptionBuilder;
+import fr.obeo.ontology.services.representations.providers.ViewExplorerTreeDescriptionProvider;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class OntologyExplorerTreeDescriptionOrderer implements IExplorerTreeDesc
     public void order(List<ExplorerDescriptionMetadata> explorerDescriptionMetadataList) {
         if (explorerDescriptionMetadataList.stream()
                 .map(ExplorerDescriptionMetadata::label)
-                .anyMatch(label -> ViewExplorerTreeDescriptionBuilder.ONTOLOGY_EXPLORER_DESCRIPTION_NAME.equals(label))) {
+                .anyMatch(label -> ViewExplorerTreeDescriptionProvider.ONTOLOGY_EXPLORER_DESCRIPTION_NAME.equals(label))) {
             // Remove the default Sirius Web explorer if the Ontology Explorer is available.
 //            explorerDescriptionMetadataList.removeIf(metadata -> ExplorerDescriptionProvider.DESCRIPTION_ID.equals(metadata.id()));
         }

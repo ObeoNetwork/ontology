@@ -10,67 +10,42 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.builders;
+package fr.obeo.ontology.services.representations.providers;
 
 import java.util.List;
 
-import org.eclipse.sirius.components.view.ColorPalette;
+import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.TextStyleDescription;
 import org.eclipse.sirius.components.view.TextStylePalette;
-import org.eclipse.sirius.components.view.View;
 import org.eclipse.sirius.components.view.builder.generated.tree.TreeBuilders;
 import org.eclipse.sirius.components.view.builder.generated.view.ChangeContextBuilder;
-import org.eclipse.sirius.components.view.builder.providers.DefaultColorProvider;
+import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
+import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
 import org.eclipse.sirius.components.view.tree.SingleClickTreeItemContextMenuEntry;
-import org.eclipse.sirius.components.view.tree.TreeDescription;
 import org.eclipse.sirius.components.view.tree.TreeItemContextMenuEntry;
 import org.eclipse.sirius.components.view.tree.TreeItemLabelDescription;
 import org.eclipse.sirius.components.view.tree.TreeItemLabelElementDescription;
 import org.eclipse.sirius.components.view.tree.TreeItemLabelFragmentDescription;
+import org.springframework.stereotype.Service;
 
 /**
  * Builder of the Explorer tree description.
  *
  * @author lfasani
  */
-public class ViewExplorerTreeDescriptionBuilder {
+@Service
+public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescriptionProvider {
 
     public static final String ONTOLOGY_EXPLORER_DESCRIPTION_NAME = "Ontology Explorer";
 
-    public static final String ENTITY_ENTITY = "entity::Entity";
-
-    public static final String BLUE = "lightBlue 500";
-
-    private static final String AQL_SELF_NAME = "aql:self.name";
-
-    private static final String AQL_SELF = "aql:self";
-
-    private static final int NB_LEVEL = 4;
-
-    private static final String AQL_TRUE = "aql:true";
-
-    private final DefaultColorProvider colorProvider;
-
-    private final View view;
-
-    private final ColorPalette colorPalette;
-
     private final TextStylePalette textStylePalette;
 
-    public ViewExplorerTreeDescriptionBuilder(View view) {
-        this.view = view;
-        this.colorProvider = new DefaultColorProvider(view);
-        this.colorPalette = view.getColorPalettes().get(0);
-        this.textStylePalette = view.getTextStylePalettes().get(0);
+    public ViewExplorerTreeDescriptionProvider() {
+        this.textStylePalette = new ViewOntologyPaletteFactory().createTextStylePalette();
     }
 
-    public void addRepresentationDescription() {
-        TreeDescription ontologyExplorerTreeDescription = this.createExplorerTreeDescription();
-
-        this.view.getDescriptions().add(ontologyExplorerTreeDescription);
-    }
-
-    private TreeDescription createExplorerTreeDescription() {
+    @Override
+    public RepresentationDescription create(IColorProvider colorProvider) {
         return new TreeBuilders().newTreeDescription()
                 .name(ONTOLOGY_EXPLORER_DESCRIPTION_NAME)
                 .childrenExpression("aql:self.getChildren(editingContext, expanded, activeFilterIds, existingRepresentations)")
@@ -131,7 +106,7 @@ public class ViewExplorerTreeDescriptionBuilder {
     private TreeItemLabelElementDescription getEntityTreeItemLabelPrefix() {
         return new TreeBuilders().newTreeItemLabelFragmentDescription()
                 .labelExpression("aql:self.getEntityTreeItemLabelPrefix()")
-                .style(this.getTextStyleByName(ViewOntologyPaletteBuilder.BLUE_BOLD_TEXT_STYLE_NAME))
+                .style(this.getTextStyleByName(ViewOntologyPaletteFactory.BLUE_BOLD_TEXT_STYLE_NAME))
                 .build();
     }
 

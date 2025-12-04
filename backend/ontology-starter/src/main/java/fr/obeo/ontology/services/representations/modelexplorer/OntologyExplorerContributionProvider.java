@@ -13,7 +13,7 @@
 package fr.obeo.ontology.services.representations.modelexplorer;
 
 import fr.obeo.ontology.services.project.OntologyEditingContextPredicate;
-import fr.obeo.ontology.services.representations.builders.ViewExplorerTreeDescriptionBuilder;
+import fr.obeo.ontology.services.representations.providers.ViewExplorerTreeDescriptionProvider;
 
 import java.util.List;
 import java.util.Objects;
@@ -84,7 +84,7 @@ public class OntologyExplorerContributionProvider implements IExplorerTreeDescri
             // this tree description comes from a tree DSL
             var optionalViewTreeDescription = this.viewRepresentationDescriptionSearchService.findById(editingContext, treeDescription.getId());
             if (optionalViewTreeDescription.isPresent()) {
-                return optionalViewTreeDescription.get().getName().equals(ViewExplorerTreeDescriptionBuilder.ONTOLOGY_EXPLORER_DESCRIPTION_NAME);
+                return optionalViewTreeDescription.get().getName().equals(ViewExplorerTreeDescriptionProvider.ONTOLOGY_EXPLORER_DESCRIPTION_NAME);
             }
         }
         return false;

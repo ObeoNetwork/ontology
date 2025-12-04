@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.obeo.ontology.services.representations.builders.ViewEntityTableDescriptionBuilder;
+import fr.obeo.ontology.services.representations.providers.ViewEntityTableDescriptionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,9 +116,9 @@ public class EntityTableJavaService {
         isValidCandidate = isValidCandidate && columnFilters.stream().allMatch(columnFilter -> {
             boolean isCandidate = true;
             String columnFilterValue = this.getColumnFilterValue(columnFilter);
-            if (columnFilter.id().equals(ViewEntityTableDescriptionBuilder.ENTITY_TABLE_ATTRIBUTES_COLUMN)) {
+            if (columnFilter.id().equals(ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COLUMN)) {
                 isCandidate = entity.getOwnedAttributes() != null && this.isValidAttributesFilter(entity, columnFilterValue);
-            } else if (columnFilter.id().equals(ViewEntityTableDescriptionBuilder.ENTITY_TABLE_ATTRIBUTES_COMMENTS)) {
+            } else if (columnFilter.id().equals(ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COMMENTS)) {
                 isCandidate = entity.getMetadatas() != null && this.isValidMetadataFilter(entity, columnFilterValue);
             }
             return isCandidate;
