@@ -86,6 +86,7 @@ public class OntologyTableControllerTests extends AbstractIntegrationTests {
                 .map(TableRefreshedEventPayload::table)
                 .ifPresentOrElse(table -> {
                     assertThat(table).isNotNull();
+                    assertThat(table).isNotNull();
                     assertThat(table.getColumns()).hasSize(2);
                 }, () -> fail(MISSING_TABLE));
 
