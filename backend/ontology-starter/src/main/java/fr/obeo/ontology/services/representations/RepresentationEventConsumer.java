@@ -165,7 +165,8 @@ public class RepresentationEventConsumer {
 
                 Position position = new Position(x, 0);
                 this.idToNodeLayoutDataMap.put(id,
-                        new NodeLayoutData(nodeLayoutData.id(), position, nodeLayoutData.size(), nodeLayoutData.resizedByUser(), nodeLayoutData.movedByUser(), nodeLayoutData.handleLayoutData()));
+                        new NodeLayoutData(nodeLayoutData.id(), position, nodeLayoutData.size(), nodeLayoutData.resizedByUser(), nodeLayoutData.movedByUser(), nodeLayoutData.handleLayoutData(),
+                                new Size(0, 0)));
             }
         });
     }
@@ -200,7 +201,7 @@ public class RepresentationEventConsumer {
             for (int i = 0; i < nodesToReorder.size(); i++) {
                 String nodeId = nodesToReorder.get(i).getId();
                 Size size = Optional.ofNullable(nodeLayoutDataMap.get(nodeId)).map(NodeLayoutData::size).orElse(new Size(10, 10));
-                nodeLayoutDataMap.put(nodeId, new NodeLayoutData(nodeId, new Position(20, 50 + i * 70), size, false, false, List.of()));
+                nodeLayoutDataMap.put(nodeId, new NodeLayoutData(nodeId, new Position(20, 50 + i * 70), size, false, false, List.of(), new Size(0, 0)));
             }
         }
 
@@ -209,7 +210,7 @@ public class RepresentationEventConsumer {
             boolean isCoreEntityBorderNode = borderNodeToOwningNode.get(borderNode).equals(diagram.getNodes().get(0));
             if (!isCoreEntityBorderNode) {
                 Size size = Optional.ofNullable(nodeLayoutDataMap.get(borderNode.getId())).map(NodeLayoutData::size).orElse(new Size(20, 20));
-                nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(-15, 8), size, false, false, List.of()));
+                nodeLayoutDataMap.put(borderNode.getId(), new NodeLayoutData(borderNode.getId(), new Position(-15, 8), size, false, false, List.of(), new Size(0, 0)));
             }
         }
 
@@ -225,7 +226,8 @@ public class RepresentationEventConsumer {
                     // HARD CODED VALUE because of strange SW edge source positioning
                     handleLayoutDatas.add(new HandleLayoutData(edgeId, new Position(-6, 15), "right", HandleType.source));
                     this.idToNodeLayoutDataMap.put(sourceNodeId,
-                            new NodeLayoutData(nodeLayoutData.id(), nodeLayoutData.position(), nodeLayoutData.size(), nodeLayoutData.resizedByUser(), nodeLayoutData.movedByUser(), handleLayoutDatas));
+                            new NodeLayoutData(nodeLayoutData.id(), nodeLayoutData.position(), nodeLayoutData.size(), nodeLayoutData.resizedByUser(), nodeLayoutData.movedByUser(), handleLayoutDatas,
+                                    new Size(0, 0)));
                 }
             }
         });
