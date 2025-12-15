@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import graphql.execution.DataFetcherResult;
 import reactor.test.StepVerifier;
 
 /**
@@ -72,9 +71,6 @@ public class DetailsViewControllerIntegrationTests extends AbstractIntegrationTe
 
         Predicate<Object> formContentMatcher = object -> {
             return Optional.of(object)
-                    .filter(DataFetcherResult.class::isInstance)
-                    .map(DataFetcherResult.class::cast)
-                    .map(DataFetcherResult::getData)
                     .filter(FormRefreshedEventPayload.class::isInstance)
                     .isPresent();
         };
