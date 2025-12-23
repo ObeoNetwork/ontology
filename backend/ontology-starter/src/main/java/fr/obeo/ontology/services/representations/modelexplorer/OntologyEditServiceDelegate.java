@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -45,12 +46,13 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
 
     private final OntologyEditingContextPredicate ontologyEditingContextPredicate;
 
-    private final ComposedAdapterFactory composedAdapterFactory;
+    private final List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors;
 
-    public OntologyEditServiceDelegate(IDefaultEditService defaultEditService, OntologyEditingContextPredicate ontologyEditingContextPredicate, ComposedAdapterFactory composedAdapterFactory) {
+    public OntologyEditServiceDelegate(IDefaultEditService defaultEditService, OntologyEditingContextPredicate ontologyEditingContextPredicate,
+            List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors) {
         this.defaultEditService = Objects.requireNonNull(defaultEditService);
         this.ontologyEditingContextPredicate = Objects.requireNonNull(ontologyEditingContextPredicate);
-        this.composedAdapterFactory = Objects.requireNonNull(composedAdapterFactory);
+        this.composedAdapterFactoryDescriptors = composedAdapterFactoryDescriptors;
     }
 
     @Override
@@ -87,8 +89,15 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
     }
 
     private boolean filterByClasses(ChildCreationDescription childCreationDescription, List<EClass> classesToKeep) {
-        AdapterFactoryEditingDomain adapterFactoryEditingDomain = new AdapterFactoryEditingDomain(this.composedAdapterFactory, new BasicCommandStack());
+        List<AdapterFactory> adapterFactories = this.composedAdapterFactoryDescriptors.stream()
+                .map(ComposedAdapterFactory.Descriptor::createAdapterFactory)
+                .toList();
+        var composedAdapterFactory = new ComposedAdapterFactory(adapterFactories);
+
+        AdapterFactoryEditingDomain adapterFactoryEditingDomain = new AdapterFactoryEditingDomain(composedAdapterFactory, new BasicCommandStack());
         List<String> eClassifierLabels = classesToKeep.stream().map(eClass -> this.computeLabel(eClass, adapterFactoryEditingDomain)).toList();
+        composedAdapterFactory.dispose();
+
         return eClassifierLabels.contains(childCreationDescription.label());
     }
 
