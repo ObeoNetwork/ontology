@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+import org.eclipse.sirius.components.collaborative.forms.dto.FormCapabilitiesRefreshedEventPayload;
 import org.eclipse.sirius.components.collaborative.forms.dto.FormRefreshedEventPayload;
 import org.eclipse.sirius.web.application.views.details.dto.DetailsEventInput;
 import org.eclipse.sirius.web.tests.graphql.DetailsEventSubscriptionRunner;
@@ -69,13 +70,16 @@ public class DetailsViewControllerIntegrationTests extends AbstractIntegrationTe
         var input = new DetailsEventInput(UUID.randomUUID(), OntologyProjectIdentifiers.ONTOLOGY_PROJECT_EDITING_CONTEXT_ID, detailsRepresentationId);
         var flux = this.detailsEventSubscriptionRunner.run(input);
 
-        Predicate<Object> formContentMatcher = object -> {
-            return Optional.of(object)
-                    .filter(FormRefreshedEventPayload.class::isInstance)
-                    .isPresent();
-        };
+        Predicate<Object> formCapabilitiesMatcher = object -> Optional.of(object)
+                .filter(FormCapabilitiesRefreshedEventPayload.class::isInstance)
+                .isPresent();
+
+        Predicate<Object> formContentMatcher = object -> Optional.of(object)
+                .filter(FormRefreshedEventPayload.class::isInstance)
+                .isPresent();
 
         StepVerifier.create(flux)
+                .expectNextMatches(formCapabilitiesMatcher)
                 .expectNextMatches(formContentMatcher)
                 .thenCancel()
                 .verify(Duration.ofSeconds(10));

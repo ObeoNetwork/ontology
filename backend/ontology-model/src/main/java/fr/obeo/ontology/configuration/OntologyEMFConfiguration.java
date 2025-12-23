@@ -12,7 +12,7 @@
  *******************************************************************************/
 package fr.obeo.ontology.configuration;
 
-import org.eclipse.emf.common.notify.AdapterFactory;
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.obeonetwork.dsl.entity.provider.EntityItemProviderAdapterFactory;
 import org.obeonetwork.dsl.environment.provider.EnvironmentItemProviderAdapterFactory;
 import org.obeonetwork.dsl.technicalid.provider.TechnicalIDItemProviderAdapterFactory;
@@ -28,17 +28,17 @@ import org.springframework.context.annotation.Configuration;
 public class OntologyEMFConfiguration {
 
     @Bean
-    public AdapterFactory environmentAdapterFactory() {
-        return new EnvironmentItemProviderAdapterFactory();
+    public ComposedAdapterFactory.Descriptor environmentAdapterFactory() {
+        return EnvironmentItemProviderAdapterFactory::new;
     }
 
     @Bean
-    public AdapterFactory entityAdapterFactory() {
-        return new EntityItemProviderAdapterFactory();
+    public ComposedAdapterFactory.Descriptor entityAdapterFactory() {
+        return EntityItemProviderAdapterFactory::new;
     }
 
     @Bean
-    public AdapterFactory technicalidAdapterFactory() {
-        return new TechnicalIDItemProviderAdapterFactory();
+    public ComposedAdapterFactory.Descriptor technicalidAdapterFactory() {
+        return TechnicalIDItemProviderAdapterFactory::new;
     }
 }

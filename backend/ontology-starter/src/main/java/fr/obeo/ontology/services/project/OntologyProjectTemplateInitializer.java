@@ -12,16 +12,17 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.project;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
-import org.eclipse.sirius.components.core.RepresentationMetadata;
 import org.eclipse.sirius.components.core.api.IEditingContext;
+import org.eclipse.sirius.components.core.api.IEditingContextPersistenceService;
 import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.eclipse.sirius.components.events.ICause;
-import org.eclipse.sirius.web.application.project.services.api.IProjectTemplateInitializer;
+import org.eclipse.sirius.web.application.project.dto.CreateProjectInput;
+import org.eclipse.sirius.web.application.project.services.api.ISemanticDataInitializer;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,22 +31,29 @@ import org.springframework.stereotype.Service;
  * @author lfasani
  */
 @Service
-public class OntologyProjectTemplateInitializer implements IProjectTemplateInitializer {
+public class OntologyProjectTemplateInitializer implements ISemanticDataInitializer {
+    private final IEditingContextPersistenceService editingContextPersistenceService;
+
+    public OntologyProjectTemplateInitializer(IEditingContextPersistenceService editingContextPersistenceService) {
+        this.editingContextPersistenceService = editingContextPersistenceService;
+    }
+
     @Override
     public boolean canHandle(String projectTemplateId) {
         return OntologyProjectTemplateProvider.ONTOLOGY_EXAMPLE_TEMPLATE_ID.equals(projectTemplateId);
     }
 
     @Override
-    public Optional<RepresentationMetadata> handle(ICause cause, String projectTemplateId, IEditingContext editingContext) {
+    public void handle(ICause cause, IEditingContext editingContext, String projectTemplateId) {
         if (OntologyProjectTemplateProvider.ONTOLOGY_EXAMPLE_TEMPLATE_ID.equals(projectTemplateId)) {
-            return this.initializeOntologyModel(editingContext);
+            this.initializeOntologyModel(editingContext);
+
+            this.editingContextPersistenceService.persist(new CreateProjectInput(UUID.randomUUID(), "Ontology", OntologyProjectTemplateProvider.ONTOLOGY_EXAMPLE_TEMPLATE_ID, List.of()),
+                    editingContext);
         }
-        return Optional.empty();
     }
 
-    private Optional<RepresentationMetadata> initializeOntologyModel(IEditingContext editingContext) {
-        Optional<RepresentationMetadata> result = Optional.empty();
+    private void initializeOntologyModel(IEditingContext editingContext) {
         if (editingContext instanceof IEMFEditingContext emfEditingContext) {
             var documentId = UUID.randomUUID();
             var resource = new JSONResourceFactory().createResourceFromPath(documentId.toString());
@@ -55,6 +63,5 @@ public class OntologyProjectTemplateInitializer implements IProjectTemplateIniti
 
             resource.getContents().addAll(new OntologySampleBuilder().getEmptySampleContent());
         }
-        return result;
     }
 }
