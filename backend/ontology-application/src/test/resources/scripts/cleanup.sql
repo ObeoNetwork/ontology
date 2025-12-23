@@ -8,6 +8,7 @@ DELETE FROM representation_metadata;
 DELETE FROM image;
 DELETE FROM nature;
 DELETE FROM project;
+DELETE FROM project_semantic_data;
 --DELETE FROM project_access_rule;
 --DELETE FROM membership;
 --DELETE FROM team;
