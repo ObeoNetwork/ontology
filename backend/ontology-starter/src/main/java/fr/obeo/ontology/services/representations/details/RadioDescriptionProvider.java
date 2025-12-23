@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.util.Enumerator;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClassifier;
@@ -42,14 +43,15 @@ public class RadioDescriptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(RadioDescriptionProvider.class);
 
-    private final ComposedAdapterFactory composedAdapterFactory;
+    private final List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors;
 
     private final IPropertiesValidationProvider propertiesValidationProvider;
 
     private final Function<VariableManager, String> semanticTargetIdProvider;
 
-    public RadioDescriptionProvider(ComposedAdapterFactory composedAdapterFactory, IPropertiesValidationProvider propertiesValidationProvider, IIdentityService identityService) {
-        this.composedAdapterFactory = Objects.requireNonNull(composedAdapterFactory);
+    public RadioDescriptionProvider(List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors,
+            IPropertiesValidationProvider propertiesValidationProvider, IIdentityService identityService) {
+        this.composedAdapterFactoryDescriptors = composedAdapterFactoryDescriptors;
         this.propertiesValidationProvider = Objects.requireNonNull(propertiesValidationProvider);
         this.semanticTargetIdProvider = variableManager -> variableManager.get(VariableManager.SELF, Object.class)
                 .map(identityService::getId)
@@ -105,13 +107,20 @@ public class RadioDescriptionProvider {
             Object literal = variables.get("candidate");
             String result = "";
             if (object instanceof EObject eObject) {
-                Adapter adapter = this.composedAdapterFactory.adapt(eObject, IItemPropertySource.class);
+                List<AdapterFactory> adapterFactories = this.composedAdapterFactoryDescriptors.stream()
+                        .map(ComposedAdapterFactory.Descriptor::createAdapterFactory)
+                        .toList();
+                var composedAdapterFactory = new ComposedAdapterFactory(adapterFactories);
+                Adapter adapter = composedAdapterFactory.adapt(eObject, IItemPropertySource.class);
+                composedAdapterFactory.dispose();
+
                 if (adapter instanceof IItemPropertySource itemPropertySource) {
                     IItemPropertyDescriptor descriptor = itemPropertySource.getPropertyDescriptor(eObject, feature);
                     if (descriptor != null) {
                         result = descriptor.getLabelProvider(eObject).getText(literal);
                     }
                 }
+
             }
 
             if (result.isEmpty() && literal instanceof Enumerator enumerator) {

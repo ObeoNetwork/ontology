@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -48,14 +49,15 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
 
     private final IPropertiesWidgetCreationService propertiesWidgetCreationService;
 
-    private final ComposedAdapterFactory composedAdapterFactory;
+    private final List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors;
 
     private final RadioDescriptionProvider radioDescriptionProvider;
 
-    public OntologyPropertiesDescriptionRegistryConfigurer(IPropertiesConfigurerService propertiesConfigurerService, ComposedAdapterFactory composedAdapterFactory,
-            IPropertiesWidgetCreationService propertiesWidgetCreationService, RadioDescriptionProvider radioDescriptionProvider) {
+    public OntologyPropertiesDescriptionRegistryConfigurer(IPropertiesConfigurerService propertiesConfigurerService,
+            IPropertiesWidgetCreationService propertiesWidgetCreationService, List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors,
+            RadioDescriptionProvider radioDescriptionProvider) {
         this.propertiesWidgetCreationService = Objects.requireNonNull(propertiesWidgetCreationService);
-        this.composedAdapterFactory = Objects.requireNonNull(composedAdapterFactory);
+        this.composedAdapterFactoryDescriptors = composedAdapterFactoryDescriptors;
         this.radioDescriptionProvider = Objects.requireNonNull(radioDescriptionProvider);
     }
 
@@ -189,7 +191,14 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         var optionalEObject = variableManager.get(VariableManager.SELF, EObject.class);
         if (optionalEObject.isPresent()) {
             EObject eObject = optionalEObject.get();
-            Object adapter = this.composedAdapterFactory.adapt(eObject, IItemPropertySource.class);
+
+            List<AdapterFactory> adapterFactories = this.composedAdapterFactoryDescriptors.stream()
+                    .map(ComposedAdapterFactory.Descriptor::createAdapterFactory)
+                    .toList();
+            var composedAdapterFactory = new ComposedAdapterFactory(adapterFactories);
+            Object adapter = composedAdapterFactory.adapt(eObject, IItemPropertySource.class);
+            composedAdapterFactory.dispose();
+
             if (adapter instanceof IItemPropertySource itemPropertySource) {
                 IItemPropertyDescriptor descriptor = itemPropertySource.getPropertyDescriptor(eObject, feature);
                 if (descriptor != null) {
