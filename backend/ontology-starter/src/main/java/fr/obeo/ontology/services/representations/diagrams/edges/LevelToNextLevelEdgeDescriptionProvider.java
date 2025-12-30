@@ -23,6 +23,7 @@ import org.eclipse.sirius.components.view.builder.providers.IEdgeDescriptionProv
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.diagram.EdgeDescription;
 import org.eclipse.sirius.components.view.diagram.EdgeStyle;
+import org.eclipse.sirius.components.view.diagram.EdgeType;
 
 /**
  * Used to create the edge from nodes of level n to nodes of level n+1.
@@ -43,6 +44,7 @@ public class LevelToNextLevelEdgeDescriptionProvider extends AbstractDescription
     public EdgeDescription create() {
         EdgeStyle edgeStyle = new DiagramBuilders().newEdgeStyle()
                 .color(this.colorProvider.getColor(BORDER_COLOR))
+                .edgeType(EdgeType.OBLIQUE)
                 .build();
         return new DiagramBuilders().newEdgeDescription()
                 .name(String.format("Level%sToLevel%sEdge", this.level, this.level + 1))

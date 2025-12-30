@@ -21,7 +21,9 @@ import org.eclipse.sirius.components.view.builder.generated.tree.TreeBuilders;
 import org.eclipse.sirius.components.view.builder.generated.view.ChangeContextBuilder;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
+import org.eclipse.sirius.components.view.emf.tree.ITreeIdProvider;
 import org.eclipse.sirius.components.view.tree.SingleClickTreeItemContextMenuEntry;
+import org.eclipse.sirius.components.view.tree.TreeDescription;
 import org.eclipse.sirius.components.view.tree.TreeItemContextMenuEntry;
 import org.eclipse.sirius.components.view.tree.TreeItemLabelDescription;
 import org.eclipse.sirius.components.view.tree.TreeItemLabelElementDescription;
@@ -40,13 +42,22 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
     private final TextStylePalette textStylePalette;
 
-    public ViewExplorerTreeDescriptionProvider() {
+    private final ITreeIdProvider treeIdProvider;
+
+    private TreeDescription treeDescription;
+
+    public ViewExplorerTreeDescriptionProvider(ITreeIdProvider treeIdProvider) {
+        this.treeIdProvider = treeIdProvider;
         this.textStylePalette = new ViewOntologyPaletteFactory().createTextStylePalette();
+    }
+
+    public String getRepresentationDescriptionId() {
+        return this.treeIdProvider.getId(this.treeDescription);
     }
 
     @Override
     public RepresentationDescription create(IColorProvider colorProvider) {
-        return new TreeBuilders().newTreeDescription()
+        this.treeDescription = new TreeBuilders().newTreeDescription()
                 .name(ONTOLOGY_EXPLORER_DESCRIPTION_NAME)
                 .childrenExpression("aql:self.getChildren(editingContext, expanded, activeFilterIds, existingRepresentations)")
                 .deletableExpression("aql:self.isDeletable()")
@@ -67,6 +78,8 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .treeItemLabelDescriptions(this.createEntityTreeItemLabel(), this.createDefaultStyle())
                 .contextMenuEntries(this.createContextMenuEntries().toArray(new TreeItemContextMenuEntry[] {}))
                 .build();
+
+        return this.treeDescription;
     }
 
     private TreeItemLabelDescription createDefaultStyle() {
@@ -124,7 +137,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
     private List<TreeItemContextMenuEntry> createContextMenuEntries() {
         SingleClickTreeItemContextMenuEntry deleteEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("Delete Entity Entry")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression("aql:true")
                 .labelExpression("Delete")
                 .iconURLExpression("/customImages/delete.svg")
                 .body(new ChangeContextBuilder()
@@ -133,7 +146,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .build();
         SingleClickTreeItemContextMenuEntry createSubEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Sub Entity")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression("aql:true")
                 .labelExpression("New Sub Entity")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()

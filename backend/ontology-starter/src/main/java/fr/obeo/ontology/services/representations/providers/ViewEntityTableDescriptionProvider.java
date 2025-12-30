@@ -69,6 +69,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .cellWidgetDescription(this.tableBuilders.newCellLabelWidgetDescription().build())
                 .build();
 
+        //TODO traiter la variable ExplandAll
         var rowDescription = this.tableBuilders.newRowDescription()
                 .semanticCandidatesExpression(AQL + "self.getAllOrderedEntities(expandedIds, globalFilterData, columnFilters)->toPaginatedData(cursor,direction,size)")
                 .initialHeightExpression("-1")
