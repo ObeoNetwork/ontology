@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2026 Obeo.
+ * Copyright (c) 2025, 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,11 @@ import org.eclipse.sirius.components.view.diagram.UserResizableDirection;
  */
 public abstract class AbstractNodeDescriptionProvider extends AbstractDescriptionProvider implements INodeDescriptionProvider {
 
-    public static final String INITIAL_NODE_SIZE = "0";
+    public static final int DEFAULT_NODE_HEIGHT = 40;
+
+    public static final int DEFAULT_NODE_WIDTH = 400;
+
+    public static final int BORDER_NODE_SIZE = 20;
 
     protected NodePalette createEntityNodePalette(int level) {
         return new DiagramBuilders().newNodePalette()

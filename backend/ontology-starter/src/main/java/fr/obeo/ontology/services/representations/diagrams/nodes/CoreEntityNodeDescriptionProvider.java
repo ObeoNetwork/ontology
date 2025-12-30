@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, 2026 Obeo.
+ * Copyright (c) 2025, 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -40,10 +40,14 @@ public class CoreEntityNodeDescriptionProvider extends AbstractNodeDescriptionPr
 
     @Override
     public NodeDescription create() {
+        NodeDescription borderNodeDescription = this.createBorderNodeDescription(0);
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
                 .background(this.colorProvider.getColor(BACKGROUND_COLOR))
                 .borderColor(this.colorProvider.getColor(BORDER_COLOR))
                 .borderSize(3)
+                .childrenLayoutStrategy(new DiagramBuilders().newFreeFormLayoutStrategyDescription()
+                        .onEastAtCreationBorderNodes(borderNodeDescription)
+                        .build())
                 .build();
 
         InsideLabelDescription insideLabelDescription = new DiagramBuilders().newInsideLabelDescription()
@@ -56,10 +60,10 @@ public class CoreEntityNodeDescriptionProvider extends AbstractNodeDescriptionPr
                 .domainType("entity::Entity")
                 .semanticCandidatesExpression("aql:self")
                 .style(rectangularNodeStyleDescription)
-                .borderNodesDescriptions(this.createBorderNodeDescription(0))
+                .borderNodesDescriptions(borderNodeDescription)
                 .insideLabel(insideLabelDescription)
-                .defaultWidthExpression(INITIAL_NODE_SIZE)
-                .defaultHeightExpression(INITIAL_NODE_SIZE)
+                .defaultWidthExpression(String.valueOf(DEFAULT_NODE_HEIGHT))
+                .defaultHeightExpression(String.valueOf(DEFAULT_NODE_HEIGHT))
                 .palette(this.createEntityNodePalette(0))
                 .build();
     }

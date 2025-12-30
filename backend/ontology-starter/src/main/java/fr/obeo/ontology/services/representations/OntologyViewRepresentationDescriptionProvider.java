@@ -31,8 +31,6 @@ import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.DefaultColorProvider;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
-import org.eclipse.sirius.components.view.emf.tree.ITreeIdProvider;
-import org.eclipse.sirius.components.view.tree.TreeDescription;
 import org.eclipse.sirius.emfjson.resource.JsonResource;
 import org.eclipse.sirius.web.application.editingcontext.EditingContext;
 import org.springframework.stereotype.Service;
@@ -51,16 +49,11 @@ public class OntologyViewRepresentationDescriptionProvider implements IEditingCo
 
     private final ViewBuilders viewBuilderHelper = new ViewBuilders();
 
-    private final ITreeIdProvider treeIdProvider;
-
     private final List<IRepresentationDescriptionProvider> representationDescriptionProviders;
 
-    private TreeDescription viewDescription;
-
-    public OntologyViewRepresentationDescriptionProvider(OntologyEditingContextPredicate ontologyEditingContextPredicate, ITreeIdProvider treeIdProvider,
+    public OntologyViewRepresentationDescriptionProvider(OntologyEditingContextPredicate ontologyEditingContextPredicate,
             List<IRepresentationDescriptionProvider> representationDescriptionProviders) {
         this.ontologyEditingContextPredicate = Objects.requireNonNull(ontologyEditingContextPredicate);
-        this.treeIdProvider = Objects.requireNonNull(treeIdProvider);
         this.representationDescriptionProviders = representationDescriptionProviders;
     }
 
@@ -95,9 +88,4 @@ public class OntologyViewRepresentationDescriptionProvider implements IEditingCo
 
         return view;
     }
-
-    public String getRepresentationDescriptionId() {
-        return this.treeIdProvider.getId(this.viewDescription);
-    }
-
 }

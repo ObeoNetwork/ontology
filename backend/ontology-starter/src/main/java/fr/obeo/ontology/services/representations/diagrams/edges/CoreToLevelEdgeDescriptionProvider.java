@@ -24,6 +24,7 @@ import org.eclipse.sirius.components.view.builder.providers.IEdgeDescriptionProv
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.diagram.EdgeDescription;
 import org.eclipse.sirius.components.view.diagram.EdgeStyle;
+import org.eclipse.sirius.components.view.diagram.EdgeType;
 
 /**
  * Used to create the edge from core node to nodes of level 1.
@@ -41,6 +42,7 @@ public class CoreToLevelEdgeDescriptionProvider extends AbstractDescriptionProvi
     public EdgeDescription create() {
         EdgeStyle edgeStyle = new DiagramBuilders().newEdgeStyle()
                 .color(this.colorProvider.getColor(BORDER_COLOR))
+                .edgeType(EdgeType.OBLIQUE)
                 .build();
         return new DiagramBuilders().newEdgeDescription()
                 .name("CoreToLevel1Edge")

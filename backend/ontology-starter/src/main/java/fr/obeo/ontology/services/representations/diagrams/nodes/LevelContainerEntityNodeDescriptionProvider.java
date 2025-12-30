@@ -18,7 +18,6 @@ import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
-import org.eclipse.sirius.components.view.diagram.FreeFormLayoutStrategyDescription;
 import org.eclipse.sirius.components.view.diagram.HeaderSeparatorDisplayMode;
 import org.eclipse.sirius.components.view.diagram.InsideLabelDescription;
 import org.eclipse.sirius.components.view.diagram.NodeDescription;
@@ -43,12 +42,11 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
 
     @Override
     public NodeDescription create() {
-        FreeFormLayoutStrategyDescription freeFormLayoutStrategyDescription = new DiagramBuilders().newFreeFormLayoutStrategyDescription().build();
-
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
                 .background(this.colorProvider.getColor(BACKGROUND_COLOR))
                 .borderSize(3)
-                .childrenLayoutStrategy(freeFormLayoutStrategyDescription)
+                .childrenLayoutStrategy(new DiagramBuilders().newFreeFormLayoutStrategyDescription()
+                        .build())
                 .build();
 
         InsideLabelDescription insideLabelDescription = new DiagramBuilders().newInsideLabelDescription()
@@ -71,9 +69,13 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
     }
 
     private NodeDescription createEntityNodeDescription(int level) {
+        NodeDescription borderNodeDescription = this.createBorderNodeDescription(level);
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
                 .background(this.colorProvider.getColor(BACKGROUND_COLOR))
                 .borderColor(this.colorProvider.getColor(BORDER_COLOR))
+                .childrenLayoutStrategy(new DiagramBuilders().newFreeFormLayoutStrategyDescription()
+                        .onWestAtCreationBorderNodes(borderNodeDescription)
+                        .build())
                 .build();
 
         InsideLabelDescription insideLabelDescription = new DiagramBuilders().newInsideLabelDescription()
@@ -86,10 +88,10 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
                 .domainType(ENTITY_ENTITY)
                 .semanticCandidatesExpression(String.format("aql:self.getEntitiesOfLevel(%s)", level))
                 .style(rectangularNodeStyleDescription)
-                .borderNodesDescriptions(this.createBorderNodeDescription(level))
+                .borderNodesDescriptions(borderNodeDescription)
                 .insideLabel(insideLabelDescription)
-                .defaultWidthExpression(INITIAL_NODE_SIZE)
-                .defaultHeightExpression(INITIAL_NODE_SIZE)
+                .defaultWidthExpression(String.valueOf(DEFAULT_NODE_WIDTH))
+                .defaultHeightExpression(String.valueOf(DEFAULT_NODE_HEIGHT))
                 .palette(this.createEntityNodePalette(level))
                 .build();
     }
