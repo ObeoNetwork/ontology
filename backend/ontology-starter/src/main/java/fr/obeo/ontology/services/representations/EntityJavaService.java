@@ -16,28 +16,93 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.sirius.components.collaborative.diagrams.DiagramContext;
 import org.eclipse.sirius.components.core.api.IEditService;
+import org.eclipse.sirius.components.diagrams.Node;
+import org.eclipse.sirius.components.interpreter.SimpleCrossReferenceProvider;
+import org.eclipse.sirius.components.representations.Message;
+import org.eclipse.sirius.components.representations.MessageLevel;
+import org.eclipse.sirius.components.web.services.FeedbackMessageService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityFactory;
+import org.obeonetwork.dsl.environment.EnvironmentPackage;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.StructuredType;
 import org.obeonetwork.dsl.environment.TypesDefinition;
+import org.springframework.stereotype.Service;
 
 /**
  * Java Service for the Entity view.
  *
- * @author jmallet
+ * @author lfasani
  */
+@Service
 public class EntityJavaService {
 
     private final IEditService editService;
 
-    public EntityJavaService(IEditService editService) {
+    private final int NB_LEVEL = 3;
+
+    private final FeedbackMessageService feedbackMessageService;
+
+    public EntityJavaService(IEditService editService, FeedbackMessageService feedbackMessageService) {
         this.editService = editService;
+        this.feedbackMessageService = feedbackMessageService;
     }
 
     public boolean canCreateEntityDiagram(Entity entity) {
         // TODO : condition de création
+        return true;
+    }
+
+    public boolean isDropableInThisContainer(EObject eObject) {
+        return true;
+    }
+
+    public void dropEntity(Entity droppedElement, Node targetNode, DiagramContext diagramContext) {
+        List<String> nodeIds = diagramContext.diagram().getNodes().stream()
+                .map(Node::getId)
+                .toList();
+
+        int targetLevel = nodeIds.indexOf(targetNode.getId());
+        int sourceLevel = this.getEntityLevel(droppedElement);
+
+        StructuredType superType = droppedElement.getSupertype();
+        if (targetLevel == (sourceLevel + 1) && superType instanceof Entity superEntity) {
+            if (this.isDropAuthorized(droppedElement, sourceLevel)) {
+                // We create an intermediary entity between the super entity and the dropped entity
+                Entity newEntity = this.createSubEntity(superEntity, "New entity");
+                droppedElement.setSupertype(newEntity);
+            }
+
+        } else if (targetLevel == (sourceLevel - 1) && superType instanceof Entity superEntity) {
+            // the super entity is now the super entity of the super entity
+            droppedElement.setSupertype(superType.getSupertype());
+        }
+    }
+
+    /**
+     * Send a message is the drop is forbidden. The drop is authorized if the "moved" tree of entities results in entities with level NB_LEVEL at maximum.
+     */
+    private boolean isDropAuthorized(Entity entity, int currentLevel) {
+        int subEntitiesDepth = 0;
+        List<Entity> subEntities = this.getSubEntities(entity);
+        while (!subEntities.isEmpty()) {
+            subEntitiesDepth = subEntitiesDepth + 1;
+            if (subEntitiesDepth + currentLevel >= this.NB_LEVEL) {
+                break;
+            }
+            subEntities = subEntities.stream()
+                    .flatMap(subEntity -> this.getSubEntities(subEntity).stream())
+                    .toList();
+        }
+
+        if (subEntitiesDepth + currentLevel >= this.NB_LEVEL) {
+            var message = "The operation is not authorized because the move operation includes entities of level " + this.NB_LEVEL;
+            this.feedbackMessageService.addFeedbackMessage(new Message(message, MessageLevel.INFO));
+            return false;
+        }
         return true;
     }
 
@@ -62,7 +127,20 @@ public class EntityJavaService {
     private List<Entity> orderEntities(Entity coreObject, int level, List<Entity> entities) {
         List<Entity> entitiesOfLowerLevel = this.getEntitiesOfLevel(coreObject, level - 1);
         return entities.stream()
-                .sorted((e1, e2) -> Integer.valueOf(entitiesOfLowerLevel.indexOf(e2.getSupertype())).compareTo(Integer.valueOf(entitiesOfLowerLevel.indexOf(e1.getSupertype()))))
+                .sorted((e1, e2) -> {
+                    int value = Integer.valueOf(entitiesOfLowerLevel.indexOf(e2.getSupertype())).compareTo(Integer.valueOf(entitiesOfLowerLevel.indexOf(e1.getSupertype())));
+                    if (value == 0) {
+                        List<Entity> allEntities = Optional.ofNullable(coreObject.eContainer())
+                                .filter(Namespace.class::isInstance)
+                                .stream()
+                                .flatMap(namespace -> ((Namespace) namespace).getTypes().stream())
+                                .filter(Entity.class::isInstance)
+                                .map(Entity.class::cast)
+                                .toList();
+                        value = Integer.valueOf(allEntities.indexOf(e2)).compareTo(Integer.valueOf(allEntities.indexOf(e1)));
+                    }
+                    return value;
+                })
                 .toList();
     }
 
@@ -79,13 +157,11 @@ public class EntityJavaService {
     }
 
     public List<Entity> getSubEntities(Entity coreObject) {
-        return Optional.ofNullable(coreObject.eContainer())
-                .filter(Namespace.class::isInstance)
-                .stream()
-                .flatMap(namespace -> ((Namespace) namespace).getTypes().stream())
+        return new SimpleCrossReferenceProvider().getInverseReferences(coreObject).stream()
+                .filter(setting -> setting.getEStructuralFeature().equals(EnvironmentPackage.eINSTANCE.getStructuredType_Supertype()))
+                .map(EStructuralFeature.Setting::getEObject)
                 .filter(Entity.class::isInstance)
                 .map(Entity.class::cast)
-                .filter(entity -> coreObject.equals(entity.getSupertype()))
                 .toList();
     }
 

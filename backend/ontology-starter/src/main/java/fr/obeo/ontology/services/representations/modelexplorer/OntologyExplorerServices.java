@@ -21,7 +21,6 @@ import java.util.Objects;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.sirius.components.core.api.IEditService;
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.ILabelService;
@@ -36,21 +35,17 @@ import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.Root;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
-import org.springframework.stereotype.Service;
 
 /**
  * Java service for Explorer tree.
  *
  * @author lfasani
  */
-@Service
 public class OntologyExplorerServices {
 
     private final IIdentityService identityService;
 
     private final ILabelService labelService;
-
-    private final IEditService editService;
 
     private final IRepresentationMetadataSearchService representationMetadataSearchService;
 
@@ -60,16 +55,18 @@ public class OntologyExplorerServices {
 
     private final IProjectSemanticDataSearchService projectSemanticDataSearchService;
 
-    public OntologyExplorerServices(IIdentityService identityService, ILabelService labelService, IEditService editService, IRepresentationMetadataSearchService representationMetadataSearchService,
+    private final EntityJavaService entityJavaService;
+
+    public OntologyExplorerServices(IIdentityService identityService, ILabelService labelService, IRepresentationMetadataSearchService representationMetadataSearchService,
             IExplorerServices explorerServices, IExplorerLabelService explorerLabelService,
-            IProjectSemanticDataSearchService projectSemanticDataSearchService) {
+            IProjectSemanticDataSearchService projectSemanticDataSearchService, EntityJavaService entityJavaService) {
         this.identityService = Objects.requireNonNull(identityService);
         this.labelService = labelService;
-        this.editService = editService;
         this.representationMetadataSearchService = Objects.requireNonNull(representationMetadataSearchService);
         this.explorerServices = Objects.requireNonNull(explorerServices);
         this.explorerLabelService = explorerLabelService;
         this.projectSemanticDataSearchService = Objects.requireNonNull(projectSemanticDataSearchService);
+        this.entityJavaService = entityJavaService;
     }
 
     public List<Object> getElements(IEditingContext editingContext) {
@@ -225,9 +222,8 @@ public class OntologyExplorerServices {
     }
 
     public int getEntityLevel(EntityTreeItemElement entityTreeItemElement) {
-        EntityJavaService entityJavaService = new EntityJavaService(this.editService);
         Entity entity = entityTreeItemElement.getEntity();
-        return entityJavaService.getEntityLevel(entity);
+        return this.entityJavaService.getEntityLevel(entity);
     }
 
     public String getEntityTreeItemLabelPrefix(EntityTreeItemElement entityTreeItemElement) {
@@ -240,10 +236,10 @@ public class OntologyExplorerServices {
     }
 
     public Entity createSubEntity(EntityTreeItemElement entityTreeItemElement, String name) {
-        return new EntityJavaService(this.editService).createSubEntity(entityTreeItemElement.getEntity(), name);
+        return this.entityJavaService.createSubEntity(entityTreeItemElement.getEntity(), name);
     }
 
     public Entity deleteEntity(EntityTreeItemElement entityTreeItemElement) {
-        return new EntityJavaService(this.editService).deleteEntity(entityTreeItemElement.getEntity());
+        return this.entityJavaService.deleteEntity(entityTreeItemElement.getEntity());
     }
 }

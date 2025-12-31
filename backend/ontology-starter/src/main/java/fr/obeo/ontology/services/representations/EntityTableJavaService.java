@@ -25,7 +25,6 @@ import java.util.Optional;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.sirius.components.core.api.IEditService;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.tables.ColumnFilter;
 import org.obeonetwork.dsl.entity.Entity;
@@ -41,14 +40,15 @@ public class EntityTableJavaService {
 
     private final IIdentityService identityService;
 
-    private final IEditService editService;
-
     private final ObjectMapper objectMapper;
 
-    public EntityTableJavaService(IIdentityService identityService, IEditService editService, ObjectMapper objectMapper) {
+    private final EntityJavaService entityJavaService;
+
+    public EntityTableJavaService(IIdentityService identityService, ObjectMapper objectMapper,
+            EntityJavaService entityJavaService) {
         this.identityService = Objects.requireNonNull(identityService);
-        this.editService = editService;
         this.objectMapper = Objects.requireNonNull(objectMapper);
+        this.entityJavaService = entityJavaService;
     }
 
     public List<Entity> getAllOrderedEntities(Namespace namespace, List<Object> expandedIds, String globalFilter, List<ColumnFilter> columnFilters) {
@@ -152,7 +152,7 @@ public class EntityTableJavaService {
     }
 
     public String getLevelLabel(Entity entity) {
-        int entityLevel = new EntityJavaService(this.editService).getEntityLevel(entity);
+        int entityLevel = this.entityJavaService.getEntityLevel(entity);
         String label = "";
         if (entityLevel > 0) {
             label = "[" + entityLevel + "]";
