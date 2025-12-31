@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
+import org.eclipse.sirius.components.view.builder.generated.view.ChangeContextBuilder;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.diagram.HeaderSeparatorDisplayMode;
@@ -31,6 +32,7 @@ import org.eclipse.sirius.components.view.diagram.RectangularNodeStyleDescriptio
 public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDescriptionProvider {
     public static final String CONTAINER_NODE_LEVEL_NAME = "ContainerNodeLevel";
 
+    public static final String ENTITY_NODE_LEVEL_NAME = "EntityNodeLevel";
     private final IColorProvider colorProvider;
 
     private final int level;
@@ -84,7 +86,7 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
                 .build();
 
         return new DiagramBuilders().newNodeDescription()
-                .name("EntityNodeLevel" + level)
+                .name(ENTITY_NODE_LEVEL_NAME + level)
                 .domainType(ENTITY_ENTITY)
                 .semanticCandidatesExpression(String.format("aql:self.getEntitiesOfLevel(%s)", level))
                 .style(rectangularNodeStyleDescription)
@@ -98,14 +100,30 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
 
     @Override
     public void link(DiagramDescription diagramDescription, IViewDiagramElementFinder cache) {
-        cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + this.level).ifPresent(nodeDescription -> {
+        cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + this.level).ifPresent(containerNodeDescription -> {
             if (this.level < NB_LEVEL) {
-                nodeDescription.getChildrenDescriptions().get(0).getPalette().getEdgeTools().add(this.createEdgeTool(cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + (this.level + 1)).get()));
+                containerNodeDescription.getChildrenDescriptions().get(0).getPalette().getEdgeTools()
+                        .add(this.createEdgeTool(cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + (this.level + 1)).get()));
             }
 
-            diagramDescription.getNodeDescriptions().add(nodeDescription);
-        });
+            diagramDescription.getNodeDescriptions().add(containerNodeDescription);
 
-        diagramDescription.getNodeDescriptions().add(cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + this.level).get());
+            NodeDescription[] nodeDescriptionOfOtherContainer = cache.getNodeDescriptions().stream()
+                    .filter(nodeDescription -> !(CONTAINER_NODE_LEVEL_NAME + this.level).equals(nodeDescription.getName()))
+                    .flatMap(nodeDescription -> nodeDescription.getChildrenDescriptions().stream())
+                    .toList()
+                    .toArray(NodeDescription[]::new);
+
+            containerNodeDescription.setPalette(new DiagramBuilders().newNodePalette()
+                    .dropNodeTool(new DiagramBuilders().newDropNodeTool()
+                            .name("DropEntityNodeTool" + this.level)
+                            .preconditionExpression("aql:self.isDropableInThisContainer()")
+                            .acceptedNodeTypes(nodeDescriptionOfOtherContainer)
+                            .body(new ChangeContextBuilder()
+                                    .expression("aql:droppedElements.dropEntity(targetNode,diagramContext)")
+                                    .build())
+                            .build())
+                    .build());
+        });
     }
 }
