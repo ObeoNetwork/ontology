@@ -9,6 +9,14 @@ To test _Ontology_ you have two possible options:
 . If you just want to run an already built version of the example application, follow link:#quick-start[the Quick Start].
 . If you want to _build_ the application yourself, follow link:#build[the complete Build instructions].
 
+
+[#Documentation]
+== Documentation
+
+image::./doc/images/diagram-ontology.png[Ontology Diagram]
+
+You can access link:./doc/user.adoc[the full user documentation] in this repository.
+
 [#quick-start]
 == Quick Start
 
