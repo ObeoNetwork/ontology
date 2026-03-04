@@ -23,7 +23,7 @@
     </parent>
     <groupId>ontology</groupId>
     <artifactId>ontology-parent</artifactId>
-    <version>2025.12.2</version>
+    <version>${revision}</version>
     <name>ontology-parent</name>
     <description>Parent Pom for ontology modules</description>
     <packaging>pom</packaging>
@@ -31,10 +31,11 @@
 
     <properties>
         <java.version>17</java.version>
-        <sirius.web.version>2025.12.2</sirius.web.version>
+        <sirius.web.version>2026.1.0</sirius.web.version>
         <sirius.version>7.2.0-SNAPSHOT</sirius.version>
         <sirius.emfjson.version>2.5.3-SNAPSHOT</sirius.emfjson.version>
         <entity.version>5.1.1</entity.version>
+        <revision>2026.1.0</revision>
     </properties>
 
     <distributionManagement>

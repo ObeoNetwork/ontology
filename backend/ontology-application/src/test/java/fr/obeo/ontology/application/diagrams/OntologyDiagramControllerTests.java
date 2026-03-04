@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Obeo.
+ * Copyright (c) 2025, 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.eclipse.sirius.components.collaborative.diagrams.dto.DiagramRefreshedEventPayload;
 import org.eclipse.sirius.components.collaborative.dto.CreateRepresentationInput;
 import org.eclipse.sirius.components.diagrams.tests.navigation.DiagramNavigator;
+import org.eclipse.sirius.components.graphql.tests.api.GraphQLSubscriptionResult;
 import org.eclipse.sirius.web.tests.services.api.IGivenCreatedDiagramSubscription;
 import org.eclipse.sirius.web.tests.services.api.IGivenInitialServerState;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +72,7 @@ public class OntologyDiagramControllerTests extends AbstractIntegrationTests {
         var input = new CreateRepresentationInput(UUID.randomUUID(), OntologyProjectIdentifiers.ONTOLOGY_PROJECT_EDITING_CONTEXT_ID,
                 this.ontologyDiagramDescriptionProvider.getRepresentationDescriptionId(),
                 OntologyProjectIdentifiers.ONTOLOGY_CORE_ENTITY_ID, "Ontology Diagram");
-        var flux = this.givenCreatedDiagramSubscription.createAndSubscribe(input);
+        GraphQLSubscriptionResult graphQLSubscriptionResult = this.givenCreatedDiagramSubscription.createAndSubscribe(input);
 
         Consumer<Object> initialDiagramContentConsumer = payload -> Optional.of(payload)
                 .filter(DiagramRefreshedEventPayload.class::isInstance)
@@ -96,7 +97,7 @@ public class OntologyDiagramControllerTests extends AbstractIntegrationTests {
 
                 }, () -> fail(MISSING_DIAGRAM));
 
-        StepVerifier.create(flux)
+        StepVerifier.create(graphQLSubscriptionResult.flux())
                 .consumeNextWith(initialDiagramContentConsumer)
                 .thenCancel()
                 .verify(Duration.ofSeconds(10));

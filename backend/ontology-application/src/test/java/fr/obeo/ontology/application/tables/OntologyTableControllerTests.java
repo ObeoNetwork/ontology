@@ -71,7 +71,7 @@ public class OntologyTableControllerTests extends AbstractIntegrationTests {
                 OntologyProjectIdentifiers.ONTOLOGY_NAMESPACE_ID,
                 "Ontology Table"
         );
-        return this.givenCreatedTableSubscription.createAndSubscribe(input);
+        return this.givenCreatedTableSubscription.createAndSubscribe(input).flux();
     }
 
     @Test

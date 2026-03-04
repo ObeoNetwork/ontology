@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 
 import org.eclipse.sirius.components.collaborative.forms.dto.FormCapabilitiesRefreshedEventPayload;
 import org.eclipse.sirius.components.collaborative.forms.dto.FormRefreshedEventPayload;
+import org.eclipse.sirius.components.graphql.tests.api.GraphQLSubscriptionResult;
 import org.eclipse.sirius.web.application.views.details.dto.DetailsEventInput;
 import org.eclipse.sirius.web.tests.graphql.DetailsEventSubscriptionRunner;
 import org.eclipse.sirius.web.tests.services.api.IGivenInitialServerState;
@@ -68,7 +69,7 @@ public class DetailsViewControllerIntegrationTests extends AbstractIntegrationTe
     public void givenSemanticObjectWhenWeSubscribeToItsPropertiesEventsThenTheFormIsSent() {
         var detailsRepresentationId = this.representationIdBuilder.buildDetailsRepresentationId(List.of(OntologyProjectIdentifiers.ONTOLOGY_ROOT_ID));
         var input = new DetailsEventInput(UUID.randomUUID(), OntologyProjectIdentifiers.ONTOLOGY_PROJECT_EDITING_CONTEXT_ID, detailsRepresentationId);
-        var flux = this.detailsEventSubscriptionRunner.run(input);
+        GraphQLSubscriptionResult graphQLSubscriptionResult = this.detailsEventSubscriptionRunner.run(input);
 
         Predicate<Object> formCapabilitiesMatcher = object -> Optional.of(object)
                 .filter(FormCapabilitiesRefreshedEventPayload.class::isInstance)
@@ -78,7 +79,7 @@ public class DetailsViewControllerIntegrationTests extends AbstractIntegrationTe
                 .filter(FormRefreshedEventPayload.class::isInstance)
                 .isPresent();
 
-        StepVerifier.create(flux)
+        StepVerifier.create(graphQLSubscriptionResult.flux())
                 .expectNextMatches(formCapabilitiesMatcher)
                 .expectNextMatches(formContentMatcher)
                 .thenCancel()
