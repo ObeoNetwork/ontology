@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright (c) 2026 Obeo.&#xA;This program and the accompanying materials&#xA;are made available under the terms of the Eclipse Public License v2.0&#xA;which accompanies this distribution, and is available at&#xA;https://www.eclipse.org/legal/epl-2.0/&#xA;&#xA;SPDX-License-Identifier: EPL-2.0&#xA;&#xA;Contributors:&#xA;    Obeo - initial API and implementation"
+    modelDirectory="/ontology-model/src/main/java" creationIcons="false" editDirectory="/ontology-model-edit/src/main/java"
+    editorDirectory="" modelPluginID="ontology-model" modelName="Ontology" modelPluginClass=""
+    editPluginClass="fr.obeo.ontology.ontologymm.provider.OntologyEditPlugin" editorPluginClass=""
+    updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    codeFormatting="true" commentFormatting="true" testsDirectory="" importerID="org.eclipse.emf.importer.ecore"
+    bundleManifest="false" complianceLevel="17.0" copyrightFields="false" editPluginID="ontology-model-edit"
+    editorPluginID="ontology-model.editor" usedGenPackages="../../../../../org.obeonetwork.dsl.entity/model/entity.genmodel#//entity ../../../../../org.obeonetwork.dsl.environment/model/environment.genmodel#//environment ../../../../../org.obeonetwork.dsl.technicalid/model/technicalid.genmodel#//technicalid"
+    operationReflection="true" importOrganizing="true" styleProviders="true">
+  <foreignModel>ontology.ecore</foreignModel>
+  <genPackages prefix="Ontology" basePackage="fr.obeo.ontology" disposableProviderFactory="true"
+      ecorePackage="ontology.ecore#/">
+    <genClasses ecoreClass="ontology.ecore#//OrganizationInformation">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//OrganizationInformation/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ontology.ecore#//OrganizationInformation/businessDomains"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ontology.ecore#//OrganizationInformation/dataOwners"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ontology.ecore#//OrganizationInformation/dataSources"/>
+    </genClasses>
+    <genClasses ecoreClass="ontology.ecore#//BusinessDomain">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//BusinessDomain/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//BusinessDomain/description"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference ontology.ecore#//BusinessDomain/entities"/>
+    </genClasses>
+    <genClasses ecoreClass="ontology.ecore#//DataSource">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//DataSource/code"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//DataSource/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//DataSource/description"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference ontology.ecore#//DataSource/entities"/>
+    </genClasses>
+    <genClasses ecoreClass="ontology.ecore#//DataOwner">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//DataOwner/code"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//DataOwner/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ontology.ecore#//DataOwner/description"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference ontology.ecore#//DataOwner/entities"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

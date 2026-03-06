@@ -10,7 +10,9 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.configuration;
+package fr.obeo.ontology.ontologymm.configuration;
+
+import fr.obeo.ontology.ontologymm.provider.OntologyItemProviderAdapterFactory;
 
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.obeonetwork.dsl.entity.provider.EntityItemProviderAdapterFactory;
@@ -40,5 +42,10 @@ public class OntologyEMFConfiguration {
     @Bean
     public ComposedAdapterFactory.Descriptor technicalidAdapterFactory() {
         return TechnicalIDItemProviderAdapterFactory::new;
+    }
+
+    @Bean
+    public ComposedAdapterFactory.Descriptor ontologyAdapterFactory() {
+        return OntologyItemProviderAdapterFactory::new;
     }
 }
