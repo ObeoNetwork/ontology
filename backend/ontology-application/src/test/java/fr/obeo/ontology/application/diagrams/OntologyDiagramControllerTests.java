@@ -90,10 +90,10 @@ public class OntologyDiagramControllerTests extends AbstractIntegrationTests {
                     var entity1_1_2Node = new DiagramNavigator(diagram).nodeWithLabel("Entity level 1.1.2").getNode();
                     var entity1_2_1Node = new DiagramNavigator(diagram).nodeWithLabel("Entity level 1.2.1").getNode();
 
-                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_1_1Node.getId()).position().x()).isEqualTo(20);
-                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_1_1Node.getId()).position().y()).isEqualTo(50);
-                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_1_2Node.getId()).position().y()).isEqualTo(120);
-                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_2_1Node.getId()).position().y()).isEqualTo(190);
+                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_1_1Node.getId()).position().x()).isEqualTo(25);
+                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_1_1Node.getId()).position().y()).isEqualTo(85);
+                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_1_2Node.getId()).position().y()).isEqualTo(155);
+                    assertThat(diagram.getLayoutData().nodeLayoutData().get(entity1_2_1Node.getId()).position().y()).isEqualTo(225);
 
                 }, () -> fail(MISSING_DIAGRAM));
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Obeo.
+ * Copyright (c) 2025, 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -12,22 +12,25 @@
  *******************************************************************************/
 package fr.obeo.ontology.owl.services;
 
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.sirius.web.application.document.services.api.IExternalResourceLoaderService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.sirius.web.application.document.services.LoadingReport;
+import org.eclipse.sirius.web.application.document.services.api.ExternalResourceLoadingResult;
+import org.eclipse.sirius.web.application.document.services.api.IExternalResourceLoaderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * A service providing capabilities to load owl files.
@@ -61,7 +64,11 @@ public class OWLExternalResourceLoaderService implements IExternalResourceLoader
     }
 
     @Override
-    public Optional<Resource> getResource(InputStream inputStream, URI resourceURI, ResourceSet resourceSet, boolean applyMigrationParticipants) {
-        return this.uploadOWLLoader.load(resourceSet, inputStream, resourceURI);
+    public Optional<ExternalResourceLoadingResult> getResource(InputStream inputStream, URI resourceURI, ResourceSet resourceSet, boolean applyMigrationParticipants) {
+        Optional<Resource> optionalResource = this.uploadOWLLoader.load(resourceSet, inputStream, resourceURI);
+        if (optionalResource.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new ExternalResourceLoadingResult(optionalResource.get(), new LoadingReport(List.of())));
     }
 }
