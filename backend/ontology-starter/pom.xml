@@ -38,6 +38,11 @@
         </dependency>
         <dependency>
             <groupId>ontology</groupId>
+            <artifactId>ontology-model-edit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ontology</groupId>
             <artifactId>ontology-owl</artifactId>
             <version>${project.version}</version>
         </dependency>

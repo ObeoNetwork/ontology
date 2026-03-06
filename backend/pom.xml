@@ -43,6 +43,7 @@
         <module>ontology-application</module>
         <module>ontology-frontend</module>
         <module>ontology-model</module>
+        <module>ontology-model-edit</module>
         <module>ontology-owl</module>
     </modules>
 

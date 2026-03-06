@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Obeo.
+ * Copyright (c) 2025, 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *     Obeo - initial API and implementation
  *******************************************************************************/
 package fr.obeo.ontology.services.project;
+
+import fr.obeo.ontology.ontologymm.OntologyPackage;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IEditingContextProcessor;
@@ -41,6 +43,7 @@ public class OntologyEditingContextInitializer implements IEditingContextProcess
             packageRegistry.put(EntityPackage.eNS_URI, EntityPackage.eINSTANCE);
             packageRegistry.put(EnvironmentPackage.eNS_URI, EnvironmentPackage.eINSTANCE);
             packageRegistry.put(TechnicalIDPackage.eNS_URI, TechnicalIDPackage.eINSTANCE);
+            packageRegistry.put(OntologyPackage.eNS_URI, OntologyPackage.eINSTANCE);
         }
     }
 }
