@@ -1,5 +1,6 @@
 package fr.obeo.ontology.services.representations.modelexplorer;
 
+import fr.obeo.ontology.ontologymm.OntologyPackage;
 import fr.obeo.ontology.services.project.OntologyEditingContextPredicate;
 
 import java.util.List;
@@ -10,7 +11,6 @@ import java.util.UUID;
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.AdapterFactory;
-import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -34,13 +34,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class OntologyEditServiceDelegate implements IEditServiceDelegate {
 
-    private final List<EClass> namespaceContainerChildrenList = List.of(EntityPackage.Literals.ENTITY, EnvironmentPackage.Literals.NAMESPACE,
+    private final List<EClass> authorizesChildren = List.of(EntityPackage.Literals.ENTITY, EnvironmentPackage.Literals.NAMESPACE,
             EnvironmentPackage.Literals.ENUMERATION, EnvironmentPackage.Literals.PRIMITIVE_TYPE, EnvironmentPackage.Literals.ATTRIBUTE,
-            EnvironmentPackage.Literals.META_DATA_CONTAINER, EnvironmentPackage.Literals.REFERENCE, EnvironmentPackage.Literals.ANNOTATION);
+            EnvironmentPackage.Literals.META_DATA_CONTAINER, EnvironmentPackage.Literals.REFERENCE, EnvironmentPackage.Literals.ANNOTATION, OntologyPackage.Literals.BUSINESS_DOMAIN,
+            OntologyPackage.Literals.DATA_SOURCE, OntologyPackage.Literals.DATA_OWNER);
 
-    private final List<EClass> rootChildrenList = List.of(EntityPackage.Literals.ROOT);
+    private final List<String> authorizedRootChildren = List.of(OntologyPackage.Literals.ORGANIZATION_INFORMATION.getName());
 
-    private final List<EPackage> authorizedPackage = List.of(EnvironmentPackage.eINSTANCE, EntityPackage.eINSTANCE);
+    private final List<EPackage> authorizedPackage = List.of(OntologyPackage.eINSTANCE);
 
     private final IDefaultEditService defaultEditService;
 
@@ -68,22 +69,22 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
     @Override
     public List<ChildCreationDescription> getRootCreationDescriptions(IEditingContext editingContext, String domainId, boolean suggested, String referenceKind) {
         return this.defaultEditService.getRootCreationDescriptions(editingContext, domainId, suggested, referenceKind).stream()
-                .filter(childCreationDescription -> this.filterByClasses(childCreationDescription, this.rootChildrenList))
+                .filter(childCreationDescription -> this.authorizedRootChildren.contains(childCreationDescription.label()))
                 .toList();
     }
 
     @Override
     public List<ChildCreationDescription> getChildCreationDescriptions(IEditingContext editingContext, String kind, String referenceKind) {
         return this.defaultEditService.getChildCreationDescriptions(editingContext, kind, referenceKind).stream()
-                .filter(childCreationDescription -> this.filterByClasses(childCreationDescription, this.namespaceContainerChildrenList))
+                .filter(childCreationDescription -> this.filterByClasses(childCreationDescription, this.authorizesChildren))
                 .toList();
     }
 
     private String computeLabel(EClass eClass, AdapterFactoryEditingDomain adapterFactoryEditingDomain) {
         EObject eObject = EcoreUtil.create(eClass);
         Adapter adapter = adapterFactoryEditingDomain.getAdapterFactory().adapt(eObject, IItemLabelProvider.class);
-        if (adapter instanceof ResourceLocator resourceLocator) {
-            return resourceLocator.getString("_UI_" + eClass.getName() + "_type");
+        if (adapter instanceof IItemLabelProvider itemLabelProvider) {
+            return itemLabelProvider.getText(eObject);
         }
         return eClass.getName();
     }
