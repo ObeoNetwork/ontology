@@ -12,6 +12,9 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.project;
 
+import fr.obeo.ontology.ontologymm.OntologyFactory;
+import fr.obeo.ontology.ontologymm.OrganizationInformation;
+
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
@@ -43,6 +46,9 @@ public class OntologySampleBuilder {
         entityLevel1.setSupertype(coreEntity);
         namespace.getTypes().addAll(List.of(coreEntity, entityLevel1));
 
-        return List.of(root);
+        OrganizationInformation organizationInformation = OntologyFactory.eINSTANCE.createOrganizationInformation();
+        organizationInformation.setName("Organization Information");
+
+        return List.of(root, organizationInformation);
     }
 }
