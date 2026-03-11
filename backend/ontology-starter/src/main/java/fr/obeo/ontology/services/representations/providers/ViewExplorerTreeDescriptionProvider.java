@@ -123,13 +123,6 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .build();
     }
 
-//    private TreeItemLabelElementDescription getEntityTreeItemLabelValue() {
-//        return new TreeBuilders().newTreeItemLabelFragmentDescription()
-//                .labelExpression("aql:aql:self.getLabel()")
-//                .style(this.getTextStyleByName(ViewOntologyPaletteBuilder.NORMAL_TEXT_STYLE_NAME))
-//                .build();
-//    }
-
     private TextStyleDescription getTextStyleByName(String styleName) {
         return this.textStylePalette.getStyles().stream().filter(tsd -> tsd.getName().equals(styleName)).findFirst().orElse(null);
     }
@@ -137,16 +130,29 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
     private List<TreeItemContextMenuEntry> createContextMenuEntries() {
         SingleClickTreeItemContextMenuEntry deleteEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("Delete Entity Entry")
-                .preconditionExpression("aql:true")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .labelExpression("Delete")
                 .iconURLExpression("/customImages/delete.svg")
                 .body(new ChangeContextBuilder()
                         .expression("aql:self.deleteEntity()")
                         .build())
                 .build();
+
+        // TODO It is currently not possible to hide default Rename et Delete menu entry
+        // So we must not add our own contextual menu
+/*        SingleClickTreeItemContextMenuEntry deleteOthers = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
+                .name("Delete Entity Entry")
+                .preconditionExpression("aql:self.isDeleteAuthorized()")
+                .labelExpression("Delete")
+                .iconURLExpression("/customImages/delete.svg")
+                .body(new ChangeContextBuilder()
+                        .expression("aql:self.deleteObjet()")
+                        .build())
+                .build();*/
+
         SingleClickTreeItemContextMenuEntry createSubEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Sub Entity")
-                .preconditionExpression("aql:true")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .labelExpression("New Sub Entity")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()

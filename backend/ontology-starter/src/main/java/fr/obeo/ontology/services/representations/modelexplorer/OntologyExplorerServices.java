@@ -33,7 +33,10 @@ import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.Represen
 import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.services.api.IRepresentationMetadataSearchService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.Root;
+import org.obeonetwork.dsl.environment.Annotation;
+import org.obeonetwork.dsl.environment.Attribute;
 import org.obeonetwork.dsl.environment.Namespace;
+import org.obeonetwork.dsl.environment.Reference;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 
 /**
@@ -237,6 +240,11 @@ public class OntologyExplorerServices {
 
     public Entity createSubEntity(EntityTreeItemElement entityTreeItemElement, String name) {
         return this.entityJavaService.createSubEntity(entityTreeItemElement.getEntity(), name);
+    }
+
+    public boolean isDeleteAuthorized(EObject eObject) {
+        return List.of(Attribute.class, Annotation.class, Reference.class).stream()
+                .anyMatch(clazz -> clazz.isInstance(eObject));
     }
 
     public Entity deleteEntity(EntityTreeItemElement entityTreeItemElement) {

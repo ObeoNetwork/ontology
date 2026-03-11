@@ -12,11 +12,12 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.modelexplorer;
 
+import fr.obeo.ontology.services.representations.EntityJavaService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.sirius.components.collaborative.trees.api.ITreeItemContextMenuEntryProvider;
 import org.eclipse.sirius.components.collaborative.trees.dto.ITreeItemContextMenuEntry;
@@ -31,6 +32,8 @@ import org.eclipse.sirius.components.trees.description.TreeDescription;
 import org.eclipse.sirius.components.view.emf.ViewRepresentationDescriptionPredicate;
 import org.eclipse.sirius.web.application.views.explorer.services.ExplorerTreeItemContextMenuEntryProvider;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.services.api.ISemanticDataSearchService;
+import org.obeonetwork.dsl.entity.Entity;
+import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.stereotype.Service;
 
 /**
@@ -49,11 +52,16 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
 
     private final ISemanticDataSearchService semanticDataSearchService;
 
-    public OntologyTreeItemContextMenuEntryProvider(ViewRepresentationDescriptionPredicate viewRepresentationDescriptionPredicate, IObjectSearchService objectSearchService, IReadOnlyObjectPredicate readOnlyObjectPredicate, ISemanticDataSearchService semanticDataSearchService) {
+    private final EntityJavaService entityJavaService;
+
+    public OntologyTreeItemContextMenuEntryProvider(ViewRepresentationDescriptionPredicate viewRepresentationDescriptionPredicate, IObjectSearchService objectSearchService,
+            IReadOnlyObjectPredicate readOnlyObjectPredicate, ISemanticDataSearchService semanticDataSearchService,
+            EntityJavaService entityJavaService) {
         this.viewRepresentationDescriptionPredicate = viewRepresentationDescriptionPredicate;
         this.objectSearchService = Objects.requireNonNull(objectSearchService);
         this.readOnlyObjectPredicate = Objects.requireNonNull(readOnlyObjectPredicate);
         this.semanticDataSearchService = Objects.requireNonNull(semanticDataSearchService);
+        this.entityJavaService = entityJavaService;
     }
 
     @Override
@@ -82,9 +90,6 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
             var resource = optionalResource.get();
 
             List<ITreeItemContextMenuEntry> entries = new ArrayList<>();
-            if (!this.readOnlyObjectPredicate.test(resource)) {
-                entries.add(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.NEW_ROOT_OBJECT, "", List.of(), false));
-            }
             entries.add(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.DOWNLOAD_DOCUMENT, "", List.of(), false));
             return entries;
         }
@@ -92,19 +97,20 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
     }
 
     private List<ITreeItemContextMenuEntry> getObjectContextMenuEntries(IEMFEditingContext editingContext, TreeItem treeItem) {
-        var optionalEObject = this.objectSearchService.getObject(editingContext, treeItem.getId())
-                .filter(EObject.class::isInstance)
-                .map(EObject.class::cast);
-        if (optionalEObject.isPresent()) {
-            var object = optionalEObject.get();
-            if (!this.readOnlyObjectPredicate.test(object)) {
-                return List.of(
-                        new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.NEW_REPRESENTATION, "", List.of(), false),
-                        new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.NEW_OBJECT, "", List.of(), false),
-                        new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.DUPLICATE_OBJECT, "", List.of(), false)
-                );
-            }
-        }
-        return List.of();
+
+        return this.objectSearchService.getObject(editingContext, treeItem.getId())
+                .filter(object -> {
+                    if (object instanceof Entity entity) {
+                        return this.entityJavaService.getEntityLevel(entity) == 0;
+                    }
+                    return object instanceof Namespace;
+                })
+                .filter(object -> !this.readOnlyObjectPredicate.test(object))
+                .map(object -> {
+                    return List.of(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.NEW_REPRESENTATION, "", List.of(), false));
+                })
+                .stream().flatMap(list -> list.stream())
+                .map(ITreeItemContextMenuEntry.class::cast)
+                .toList();
     }
 }
