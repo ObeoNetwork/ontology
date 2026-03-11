@@ -183,6 +183,10 @@ public class EntityJavaService {
         return entity;
     }
 
+    public void deleteObjet(Object object) {
+        this.editService.delete(object);
+    }
+
     public int getEntityLevel(Entity entity) {
         int level = 0;
         StructuredType supertype = entity.getSupertype();
