@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -189,7 +190,12 @@ public class OntologyExplorerServices {
     }
 
     public Object getParent(Object self, String treeItemId, IEditingContext editingContext) {
-        return this.explorerServices.getParent(self, treeItemId, editingContext);
+        return Optional.of(self)
+                .filter(Entity.class::isInstance)
+                .map(Entity.class::cast)
+                .map(Entity::getSupertype)
+                .map(Object.class::cast)
+                .orElseGet(() -> this.explorerServices.getParent(self, treeItemId, editingContext));
     }
 
     public Object getTreeItemObject(String treeItemId, IEditingContext editingContext) {
