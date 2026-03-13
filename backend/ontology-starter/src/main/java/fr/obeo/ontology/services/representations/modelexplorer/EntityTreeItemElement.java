@@ -81,8 +81,12 @@ public class EntityTreeItemElement implements TreeItemFragment {
 
     @Override
     public boolean hasChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
+        boolean hasReferences = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID) && this.hasOwnedReferences();
+
         boolean result =
-                !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) || !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID);
+                !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID)
+                        || !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)
+                        || hasReferences;
 
         result = result || Optional.ofNullable(this.entity.eContainer())
                 .filter(Namespace.class::isInstance)
@@ -90,9 +94,7 @@ public class EntityTreeItemElement implements TreeItemFragment {
                 .flatMap(namespace -> ((Namespace) namespace).getTypes().stream())
                 .filter(Entity.class::isInstance)
                 .map(Entity.class::cast)
-                .filter(entity -> this.entity.equals(entity.getSupertype()))
-                .findFirst()
-                .isPresent();
+                .anyMatch(entity -> this.entity.equals(entity.getSupertype()));
 
         result = result || this.hasRepresentation(this.entity, editingContext);
         return result;
@@ -127,6 +129,11 @@ public class EntityTreeItemElement implements TreeItemFragment {
             result.add(new AttributesTreeItemFragment(this.entity, this.identityService, this.labelService));
         }
 
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID)
+                && this.hasOwnedReferences()) {
+            result.add(new ReferencesTreeItemFragment(this.entity, this.identityService, this.labelService));
+        }
+
         result.addAll(Optional.ofNullable(this.entity.eContainer())
                 .filter(Namespace.class::isInstance)
                 .stream()
@@ -139,6 +146,11 @@ public class EntityTreeItemElement implements TreeItemFragment {
                 .toList());
 
         return result;
+    }
+
+    private boolean hasOwnedReferences() {
+        return !this.entity.getOwnedReferences().isEmpty();
+
     }
 
     public String getTreeItemId() {

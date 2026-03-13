@@ -146,7 +146,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .labelExpression("Delete")
                 .iconURLExpression("/customImages/delete.svg")
                 .body(new ChangeContextBuilder()
-                        .expression("aql:self.deleteObjet()")
+                        .expression("aql:self.deleteObject()")
                         .build())
                 .build();*/
 
@@ -169,6 +169,17 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                         .expression("aql:editingContext.createObject(selectedTreeItem)")
                         .build())
                 .build();
-        return List.of(deleteEntity, createSubEntity, createOrganizationObject);
+
+        SingleClickTreeItemContextMenuEntry createReference = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
+                .name("New Reference")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .labelExpression("New Reference")
+                .iconURLExpression("/customImages/create.svg")
+                .body(new ChangeContextBuilder()
+                        .expression("aql:self.createReference('New Reference')")
+                        .build())
+                .build();
+
+        return List.of(deleteEntity, createSubEntity, createReference, createOrganizationObject);
     }
 }
