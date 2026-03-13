@@ -159,6 +159,16 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                         .expression("aql:self.createSubEntity('New Sub Entity')")
                         .build())
                 .build();
-        return List.of(deleteEntity, createSubEntity);
+
+        SingleClickTreeItemContextMenuEntry createOrganizationObject = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
+                .name("Create Object")
+                .preconditionExpression("aql:selectedTreeItem.isCreateObjectAllowed()")
+                .labelExpression("aql:selectedTreeItem.getCreateObjectLabel()")
+                .iconURLExpression("/customImages/create.svg")
+                .body(new ChangeContextBuilder()
+                        .expression("aql:editingContext.createObject(selectedTreeItem)")
+                        .build())
+                .build();
+        return List.of(deleteEntity, createSubEntity, createOrganizationObject);
     }
 }

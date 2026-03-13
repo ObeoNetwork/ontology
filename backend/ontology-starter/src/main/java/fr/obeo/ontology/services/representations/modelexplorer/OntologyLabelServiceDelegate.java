@@ -1,12 +1,18 @@
 package fr.obeo.ontology.services.representations.modelexplorer;
 
+import fr.obeo.ontology.ontologymm.OntologyPackage;
+import fr.obeo.ontology.ontologymm.provider.OntologyItemProviderAdapterFactory;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.edit.provider.IItemStyledLabelProvider;
 import org.eclipse.sirius.components.core.api.IDefaultLabelService;
 import org.eclipse.sirius.components.core.api.ILabelServiceDelegate;
 import org.eclipse.sirius.components.core.api.labels.StyledString;
+import org.eclipse.sirius.components.emf.services.api.IStyledStringConverter;
 import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.MetaDataContainer;
 import org.springframework.stereotype.Service;
@@ -23,13 +29,16 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
 
     private final IDefaultLabelService defaultLabelService;
 
-    public OntologyLabelServiceDelegate(IDefaultLabelService defaultLabelService) {
+    private final IStyledStringConverter styledStringConverter;
+
+    public OntologyLabelServiceDelegate(IDefaultLabelService defaultLabelService, IStyledStringConverter styledStringConverter) {
         this.defaultLabelService = Objects.requireNonNull(defaultLabelService);
+        this.styledStringConverter = styledStringConverter;
     }
 
     @Override
     public boolean canHandle(Object object) {
-        return object instanceof MetaDataContainer || object instanceof Annotation;
+        return object instanceof MetaDataContainer || object instanceof Annotation || object instanceof EObject eObject && eObject.eClass().getEPackage().getNsURI().equals(OntologyPackage.eNS_URI);
     }
 
     @Override
@@ -41,7 +50,14 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
             String title = Optional.ofNullable(annotation.getTitle()).map(Object::toString).orElse("");
             styledString = StyledString.of(title);
         } else {
-            styledString = this.defaultLabelService.getStyledLabel(object);
+            // defaultLabelService does not fallback on xxxItemProviders so we need to call it explicitly
+            var adapter = new OntologyItemProviderAdapterFactory().adapt(object, IItemStyledLabelProvider.class);
+            if (adapter instanceof IItemStyledLabelProvider itemStyledLabelProvider) {
+                var rawStyledString = itemStyledLabelProvider.getStyledText(object);
+                if (rawStyledString instanceof org.eclipse.emf.edit.provider.StyledString emfStyledString) {
+                    styledString = this.styledStringConverter.convert(emfStyledString);
+                }
+            }
         }
         return styledString;
     }

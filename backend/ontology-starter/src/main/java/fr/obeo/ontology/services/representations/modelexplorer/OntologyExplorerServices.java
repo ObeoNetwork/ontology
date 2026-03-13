@@ -12,19 +12,28 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.modelexplorer;
 
+import fr.obeo.ontology.ontologymm.BusinessDomain;
+import fr.obeo.ontology.ontologymm.DataOwner;
+import fr.obeo.ontology.ontologymm.DataSource;
+import fr.obeo.ontology.ontologymm.OntologyFactory;
+import fr.obeo.ontology.ontologymm.OrganizationInformation;
 import fr.obeo.ontology.services.representations.EntityJavaService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.ILabelService;
+import org.eclipse.sirius.components.core.api.IObjectSearchService;
+import org.eclipse.sirius.components.trees.TreeItem;
 import org.eclipse.sirius.web.application.UUIDParser;
 import org.eclipse.sirius.web.application.editingcontext.EditingContext;
 import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerLabelService;
@@ -51,6 +60,8 @@ public class OntologyExplorerServices {
 
     private final ILabelService labelService;
 
+    private final IObjectSearchService objectSearchService;
+
     private final IRepresentationMetadataSearchService representationMetadataSearchService;
 
     private final IExplorerServices explorerServices;
@@ -61,11 +72,13 @@ public class OntologyExplorerServices {
 
     private final EntityJavaService entityJavaService;
 
-    public OntologyExplorerServices(IIdentityService identityService, ILabelService labelService, IRepresentationMetadataSearchService representationMetadataSearchService,
+    public OntologyExplorerServices(IIdentityService identityService, ILabelService labelService, IObjectSearchService objectSearchService,
+            IRepresentationMetadataSearchService representationMetadataSearchService,
             IExplorerServices explorerServices, IExplorerLabelService explorerLabelService,
             IProjectSemanticDataSearchService projectSemanticDataSearchService, EntityJavaService entityJavaService) {
         this.identityService = Objects.requireNonNull(identityService);
         this.labelService = labelService;
+        this.objectSearchService = objectSearchService;
         this.representationMetadataSearchService = Objects.requireNonNull(representationMetadataSearchService);
         this.explorerServices = Objects.requireNonNull(explorerServices);
         this.explorerLabelService = explorerLabelService;
@@ -164,6 +177,16 @@ public class OntologyExplorerServices {
                         .map(Root.class::cast)
                         .flatMap(root -> root.getOwnedNamespaces().stream())
                         .toList());
+
+                resource.getContents().stream()
+                        .filter(OrganizationInformation.class::isInstance)
+                        .map(OrganizationInformation.class::cast)
+                        .findFirst()
+                        .ifPresent(organizationInformation -> {
+                            result.add(new BusinessDomainsTreeItemFragment(organizationInformation, this.identityService));
+                            result.add(new DataOwnersTreeItemFragment(organizationInformation, this.identityService));
+                            result.add(new DataSourcesTreeItemFragment(organizationInformation, this.identityService));
+                        });
             } else if (self instanceof Namespace namespace) {
                 var semanticDataId = new UUIDParser().parse(editingContext.getId());
 
@@ -255,5 +278,57 @@ public class OntologyExplorerServices {
 
     public Entity deleteEntity(EntityTreeItemElement entityTreeItemElement) {
         return this.entityJavaService.deleteEntity(entityTreeItemElement.getEntity());
+    }
+
+    public boolean isCreateObjectAllowed(TreeItem treeItem) {
+        List<String> idPrefixes = List.of(BusinessDomainsTreeItemFragment.ID_PREFIX, DataSourcesTreeItemFragment.ID_PREFIX, DataOwnersTreeItemFragment.ID_PREFIX);
+        return Arrays.stream(treeItem.getId().split(" ")).anyMatch(idPrefixes::contains);
+    }
+
+    public Object createObject(IEditingContext editingContext, TreeItem treeItem) {
+        AtomicReference<Object> createObject = new AtomicReference<>();
+        String[] strings = treeItem.getId().split(" ");
+        if (strings.length == 2) {
+            String prefixId = strings[0];
+            String orgaContextId = strings[1];
+            this.objectSearchService.getObject(editingContext, orgaContextId)
+                    .filter(OrganizationInformation.class::isInstance)
+                    .map(OrganizationInformation.class::cast)
+                    .ifPresent(organizationInformation -> {
+                        if (DataOwnersTreeItemFragment.ID_PREFIX.equals(prefixId)) {
+                            DataOwner dataOwner = OntologyFactory.eINSTANCE.createDataOwner();
+                            dataOwner.setName("Data Owner " + (organizationInformation.getDataOwners().size() + 1));
+                            createObject.set(dataOwner);
+                            organizationInformation.getDataOwners().add((DataOwner) createObject.get());
+                        } else if (BusinessDomainsTreeItemFragment.ID_PREFIX.equals(prefixId)) {
+                            BusinessDomain businessDomain = OntologyFactory.eINSTANCE.createBusinessDomain();
+                            businessDomain.setName("Functional Area " + (organizationInformation.getBusinessDomains().size() + 1));
+                            createObject.set(businessDomain);
+                            organizationInformation.getBusinessDomains().add((BusinessDomain) createObject.get());
+                        } else if (DataSourcesTreeItemFragment.ID_PREFIX.equals(prefixId)) {
+                            DataSource dataSource = OntologyFactory.eINSTANCE.createDataSource();
+                            dataSource.setName("Data Source " + (organizationInformation.getDataSources().size() + 1));
+                            createObject.set(dataSource);
+                            organizationInformation.getDataSources().add((DataSource) createObject.get());
+                        }
+                    });
+        }
+        return createObject.get();
+    }
+
+    public String getCreateObjectLabel(TreeItem treeItem) {
+        String label = "";
+        String[] strings = treeItem.getId().split(" ");
+        if (strings.length == 2) {
+            String prefixId = strings[0];
+            if (DataOwnersTreeItemFragment.ID_PREFIX.equals(prefixId)) {
+                label = "New Data Owner";
+            } else if (BusinessDomainsTreeItemFragment.ID_PREFIX.equals(prefixId)) {
+                label = "New Functional Area";
+            } else if (DataSourcesTreeItemFragment.ID_PREFIX.equals(prefixId)) {
+                label = "New Data Source";
+            }
+        }
+        return label;
     }
 }
