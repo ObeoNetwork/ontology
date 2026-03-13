@@ -20,9 +20,7 @@ import java.util.List;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -147,17 +145,20 @@ public class DataOwnerItemProvider extends ItemProviderAdapter
 
     /**
      * This returns the label styled text for the adapted class. <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
-     * @generated
+     *
+     * @generated NOT
      */
     @Override
     public Object getStyledText(Object object) {
         String label = ((DataOwner) object).getName();
+        String code = ((DataOwner) object).getCode();
         StyledString styledLabel = new StyledString();
-        if (label == null || label.length() == 0) {
+        if ((label == null || label.length() == 0) && (code == null || code.length() == 0)) {
             styledLabel.append(getString("_UI_DataOwner_type"), StyledString.Style.QUALIFIER_STYLER);
         } else {
-            styledLabel.append(getString("_UI_DataOwner_type"), StyledString.Style.QUALIFIER_STYLER).append(" " + label);
+            styledLabel.append((code != null && code.length() > 0) ? code : "")
+                    .append(" - ")
+                    .append((label != null && label.length() > 0) ? label : "");
         }
         return styledLabel;
     }
