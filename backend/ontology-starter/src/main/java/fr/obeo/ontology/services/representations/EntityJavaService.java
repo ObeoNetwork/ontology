@@ -26,8 +26,10 @@ import org.eclipse.sirius.components.representations.MessageLevel;
 import org.eclipse.sirius.components.web.services.FeedbackMessageService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityFactory;
+import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.EnvironmentPackage;
 import org.obeonetwork.dsl.environment.Namespace;
+import org.obeonetwork.dsl.environment.Reference;
 import org.obeonetwork.dsl.environment.StructuredType;
 import org.obeonetwork.dsl.environment.TypesDefinition;
 import org.springframework.stereotype.Service;
@@ -183,7 +185,7 @@ public class EntityJavaService {
         return entity;
     }
 
-    public void deleteObjet(Object object) {
+    public void deleteObject(Object object) {
         this.editService.delete(object);
     }
 
@@ -196,6 +198,14 @@ public class EntityJavaService {
         }
 
         return level;
+    }
+
+    public Reference createReference(Entity entity, String name) {
+        Reference reference = EnvironmentFactory.eINSTANCE.createReference();
+        reference.setName(name);
+        reference.setContainingType(entity);
+
+        return reference;
     }
 
 //    public List<Entity> getEntitiesHierarchy(Entity entity) {
