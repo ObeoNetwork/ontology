@@ -13,12 +13,17 @@
 package fr.obeo.ontology.services.representations;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.sirius.components.collaborative.diagrams.DiagramContext;
 import org.eclipse.sirius.components.core.api.IEditService;
+import org.eclipse.sirius.components.core.api.IFeedbackMessageService;
+import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.eclipse.sirius.components.diagrams.Diagram;
 import org.eclipse.sirius.components.diagrams.Node;
 import org.eclipse.sirius.components.interpreter.SimpleCrossReferenceProvider;
 import org.eclipse.sirius.components.representations.Message;
@@ -46,11 +51,14 @@ public class EntityJavaService {
 
     private final int NB_LEVEL = 3;
 
-    private final FeedbackMessageService feedbackMessageService;
+    private final IFeedbackMessageService feedbackMessageService;
 
-    public EntityJavaService(IEditService editService, FeedbackMessageService feedbackMessageService) {
-        this.editService = editService;
-        this.feedbackMessageService = feedbackMessageService;
+    private final IIdentityService identityService;
+
+    public EntityJavaService(IEditService editService, FeedbackMessageService feedbackMessageService, IIdentityService identityService) {
+        this.editService = Objects.requireNonNull(editService);
+        this.feedbackMessageService = Objects.requireNonNull(feedbackMessageService);
+        this.identityService = Objects.requireNonNull(identityService);
     }
 
     public boolean canCreateEntityDiagram(Entity entity) {
@@ -206,6 +214,47 @@ public class EntityJavaService {
         reference.setContainingType(entity);
 
         return reference;
+    }
+
+    public boolean isMainEntity(Object self, DiagramContext diagramContext) {
+        if (!(self instanceof Entity entity)) {
+            return false;
+        }
+
+        return Optional.ofNullable(diagramContext)
+                .map(DiagramContext::diagram)
+                .map(Diagram::getTargetObjectId)
+                .map(targetObjectId -> targetObjectId.equals(this.identityService.getId(entity)))
+                .orElse(false);
+    }
+
+    public List<Entity> getRelationsSemanticCandidates(Entity entity) {
+        return Stream.concat(
+                Stream.of(entity),
+                entity.getOwnedReferences().stream()
+                        .map(Reference::getReferencedType)
+                        .filter(Entity.class::isInstance)
+                        .map(Entity.class::cast))
+                .distinct()
+                .toList();
+    }
+
+    public Entity getReferenceReferencedType(Reference reference) {
+        if (reference.getReferencedType() instanceof Entity entity) {
+            return entity;
+        }
+        return null;
+    }
+
+    public List<Reference> getReferences(Entity entity) {
+        return entity.getOwnedReferences();
+    }
+
+    public Entity getReferenceContainingType(Reference reference) {
+        if (reference.getContainingType() instanceof Entity entity) {
+            return entity;
+        }
+        return null;
     }
 
 //    public List<Entity> getEntitiesHierarchy(Entity entity) {

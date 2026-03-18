@@ -12,13 +12,15 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.providers;
 
-import java.util.List;
-
 import org.eclipse.sirius.components.view.ColorPalette;
+import org.eclipse.sirius.components.view.FixedColor;
 import org.eclipse.sirius.components.view.TextStyleDescription;
 import org.eclipse.sirius.components.view.TextStylePalette;
 import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.DefaultColorPalettesProvider;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ViewOntologyPaletteFactory {
 
@@ -30,8 +32,19 @@ public class ViewOntologyPaletteFactory {
 
     private static final String AQL_TRUE = "aql:true";
 
+    public static final String BLUE_GREY = "blue light ";
+
     public List<ColorPalette> createColorPalettes() {
-        return new DefaultColorPalettesProvider().getDefaultColorPalettes();
+        var palettes = new ArrayList<>(new DefaultColorPalettesProvider().getDefaultColorPalettes());
+
+        palettes.add(
+                new ViewBuilders().newColorPalette()
+                .name("Ontology Color Palette")
+                .colors(this.fixedColor(BLUE_GREY, "#E6F1FA"))
+                .build()
+        );
+
+        return palettes;
     }
 
     public TextStylePalette createTextStylePalette() {
@@ -61,6 +74,13 @@ public class ViewOntologyPaletteFactory {
     private TextStyleDescription getNormalStyle() {
         return new ViewBuilders().newTextStyleDescription()
                 .name(NORMAL_TEXT_STYLE_NAME)
+                .build();
+    }
+
+    private FixedColor fixedColor(String name, String value) {
+        return new ViewBuilders().newFixedColor()
+                .name(name)
+                .value(value)
                 .build();
     }
 }

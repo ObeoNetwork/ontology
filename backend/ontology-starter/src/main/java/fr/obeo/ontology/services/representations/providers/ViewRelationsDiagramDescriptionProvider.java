@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025, 2026 Obeo.
+ * Copyright (c) 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,8 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.providers;
 
-import fr.obeo.ontology.services.representations.diagrams.AbstractDescriptionProvider;
-import fr.obeo.ontology.services.representations.diagrams.entity.edges.CoreToLevelEdgeDescriptionProvider;
-import fr.obeo.ontology.services.representations.diagrams.entity.edges.LevelToNextLevelEdgeDescriptionProvider;
-import fr.obeo.ontology.services.representations.diagrams.entity.nodes.CoreEntityNodeDescriptionProvider;
-import fr.obeo.ontology.services.representations.diagrams.entity.nodes.LevelContainerEntityNodeDescriptionProvider;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import fr.obeo.ontology.services.representations.diagrams.relations.edges.ReferenceEdgeDescriptionProvider;
+import fr.obeo.ontology.services.representations.diagrams.relations.nodes.EntityNodeDescriptionProvider;
 import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.builder.DefaultViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
@@ -30,36 +23,40 @@ import org.eclipse.sirius.components.view.builder.providers.IDiagramElementDescr
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
 import org.eclipse.sirius.components.view.diagram.ArrangeLayoutDirection;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
-import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Builder of the "Diagram" view description.
+ * "Relations" diagram view description builder.
  *
- * @author lfasani
+ * @author ntinsalhi
  */
 @Service
-public class ViewDiagramDescriptionProvider implements IRepresentationDescriptionProvider {
+public class ViewRelationsDiagramDescriptionProvider implements IRepresentationDescriptionProvider {
 
-    public static final String ONTOLOGY_DIAGRAM_NAME = "Ontology Diagram";
+    public static final String RELATIONS_DIAGRAM_NAME = "Relations Diagram";
 
     private IColorProvider colorProvider;
+
+    private final DiagramToolbarBuilder diagramToolbarBuilder = new DiagramToolbarBuilder();
 
     @Override
     public RepresentationDescription create(IColorProvider colorProvider) {
         this.colorProvider = colorProvider;
-        return this.createOntologyDiagramDescription();
+        return this.createRelationsDiagramDescription();
     }
 
-    private DiagramDescription createOntologyDiagramDescription() {
+    private DiagramDescription createRelationsDiagramDescription() {
         var diagramDescription = new DiagramBuilders().newDiagramDescription()
-                .name(ONTOLOGY_DIAGRAM_NAME)
+                .name(RELATIONS_DIAGRAM_NAME)
                 .domainType("entity::Entity")
-                .titleExpression("aql:self.name")
-                .preconditionExpression("aql:self.supertype==null")
-                .toolbar(new DiagramToolbarBuilder().build())
-                .arrangeLayoutDirection(ArrangeLayoutDirection.DOWN)
+                .titleExpression("aql:self.name + ' Relations'")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .arrangeLayoutDirection(ArrangeLayoutDirection.RIGHT)
                 .autoLayout(true)
+                .toolbar(this.diagramToolbarBuilder.build())
                 .build();
 
         var cache = new DefaultViewDiagramElementFinder();
@@ -70,34 +67,16 @@ public class ViewDiagramDescriptionProvider implements IRepresentationDescriptio
             cache.put(diagramElementDescription);
         });
 
-        // link elements each other
         diagramElementDescriptionProviders.forEach(diagramElementDescriptionProvider -> diagramElementDescriptionProvider.link(diagramDescription, cache));
 
         return diagramDescription;
     }
 
     private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider colorProvider) {
-
         var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
-        diagramElementDescriptionProviders.add(new CoreEntityNodeDescriptionProvider(colorProvider));
-        diagramElementDescriptionProviders.add(new CoreToLevelEdgeDescriptionProvider(colorProvider));
-        diagramElementDescriptionProviders.addAll(this.createAllLevelContainerDescriptionProviders(colorProvider));
-
-        return diagramElementDescriptionProviders;
-    }
-
-    private List<IDiagramElementDescriptionProvider<?>> createAllLevelContainerDescriptionProviders(IColorProvider colorProvider) {
-        final var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
-
-        List<NodeDescription> containerDescriptions = new ArrayList<>();
-        for (int level = 1; level <= AbstractDescriptionProvider.NB_LEVEL; level++) {
-            diagramElementDescriptionProviders.add(new LevelContainerEntityNodeDescriptionProvider(level, colorProvider));
-        }
-
-        for (int level = 1; level < AbstractDescriptionProvider.NB_LEVEL; level++) {
-            diagramElementDescriptionProviders.add(new LevelToNextLevelEdgeDescriptionProvider(level, colorProvider));
-        }
+        diagramElementDescriptionProviders.add(new EntityNodeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new ReferenceEdgeDescriptionProvider(colorProvider));
 
         return diagramElementDescriptionProviders;
     }

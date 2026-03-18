@@ -10,7 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.diagrams.nodes;
+package fr.obeo.ontology.services.representations.diagrams.entity.nodes;
 
 import fr.obeo.ontology.services.representations.diagrams.AbstractDescriptionProvider;
 

@@ -10,9 +10,9 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.diagrams.nodes;
+package fr.obeo.ontology.services.representations.diagrams.entity.nodes;
 
-import static fr.obeo.ontology.services.representations.diagrams.nodes.LevelContainerEntityNodeDescriptionProvider.CONTAINER_NODE_LEVEL_NAME;
+import static fr.obeo.ontology.services.representations.diagrams.entity.nodes.LevelContainerEntityNodeDescriptionProvider.CONTAINER_NODE_LEVEL_NAME;
 
 import java.util.Objects;
 
