@@ -10,9 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.diagrams.nodes;
-
-import java.util.Objects;
+package fr.obeo.ontology.services.representations.diagrams.entity.nodes;
 
 import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
@@ -23,6 +21,8 @@ import org.eclipse.sirius.components.view.diagram.HeaderSeparatorDisplayMode;
 import org.eclipse.sirius.components.view.diagram.InsideLabelDescription;
 import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.eclipse.sirius.components.view.diagram.RectangularNodeStyleDescription;
+
+import java.util.Objects;
 
 /**
  * Used to create the container node for level>0.

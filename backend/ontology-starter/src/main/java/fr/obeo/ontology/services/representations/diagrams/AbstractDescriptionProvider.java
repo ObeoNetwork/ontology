@@ -20,6 +20,8 @@ package fr.obeo.ontology.services.representations.diagrams;
 public abstract class AbstractDescriptionProvider {
     public static final String ENTITY_ENTITY = "entity::Entity";
 
+    public static final String ENVIRONMENT_REFERENCE = "environment::Reference";
+
     public static final String BORDER_COLOR = "lightBlue 500";
 
     public static final String BACKGROUND_COLOR = "white";

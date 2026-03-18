@@ -10,9 +10,9 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.diagrams;
+package fr.obeo.ontology.services.representations.diagrams.entity;
 
-import fr.obeo.ontology.services.representations.diagrams.nodes.AbstractNodeDescriptionProvider;
+import fr.obeo.ontology.services.representations.diagrams.entity.nodes.AbstractNodeDescriptionProvider;
 import fr.obeo.ontology.services.representations.providers.ViewDiagramDescriptionProvider;
 
 import java.util.ArrayList;
