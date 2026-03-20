@@ -32,7 +32,9 @@ public class ViewOntologyPaletteFactory {
 
     private static final String AQL_TRUE = "aql:true";
 
-    public static final String BLUE_GREY = "blue light ";
+    public static final String BLUE_GREY = "blue grey";
+
+    public static final String COLOR_TRANSPARENT = "color_transparent";
 
     public List<ColorPalette> createColorPalettes() {
         var palettes = new ArrayList<>(new DefaultColorPalettesProvider().getDefaultColorPalettes());
@@ -40,7 +42,9 @@ public class ViewOntologyPaletteFactory {
         palettes.add(
                 new ViewBuilders().newColorPalette()
                 .name("Ontology Color Palette")
-                .colors(this.fixedColor(BLUE_GREY, "#E6F1FA"))
+                .colors(
+                        this.fixedColor(BLUE_GREY, "#E6F1FA"),
+                        this.fixedColor(COLOR_TRANSPARENT, "transparent"))
                 .build()
         );
 
