@@ -12,7 +12,10 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations;
 
+import fr.obeo.ontology.services.representations.diagrams.relationsoverview.nodes.EntityUnsynchronizedNodeDescriptionProvider;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -21,16 +24,21 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.sirius.components.collaborative.diagrams.DiagramContext;
 import org.eclipse.sirius.components.core.api.IEditService;
+import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IFeedbackMessageService;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.diagrams.Diagram;
 import org.eclipse.sirius.components.diagrams.Node;
+import org.eclipse.sirius.components.diagrams.ViewCreationRequest;
+import org.eclipse.sirius.components.diagrams.components.NodeContainmentKind;
 import org.eclipse.sirius.components.interpreter.SimpleCrossReferenceProvider;
 import org.eclipse.sirius.components.representations.Message;
 import org.eclipse.sirius.components.representations.MessageLevel;
+import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.eclipse.sirius.components.web.services.FeedbackMessageService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityFactory;
+import org.obeonetwork.dsl.environment.Attribute;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.EnvironmentPackage;
 import org.obeonetwork.dsl.environment.Namespace;
@@ -246,7 +254,7 @@ public class EntityJavaService {
         return null;
     }
 
-    public List<Reference> getReferences(Entity entity) {
+    public List<Reference> getOwnedReferences(Entity entity) {
         return entity.getOwnedReferences();
     }
 
@@ -255,6 +263,69 @@ public class EntityJavaService {
             return entity;
         }
         return null;
+    }
+
+    public List<Entity> getEntities(Entity entity) {
+        return Optional.of(entity)
+                .map(EObject::eContainer)
+                .filter(Namespace.class::isInstance)
+                .map(Namespace.class::cast).stream()
+                .flatMap(namespace -> namespace.getTypes().stream())
+                .filter(Entity.class::isInstance).map(Entity.class::cast)
+                .toList();
+    }
+
+    public Object dropIntoDiagramFromExplorer(Object droppedElement, Object selectedNode, IEditingContext editingContext, DiagramContext diagramContext,
+                                              Map<NodeDescription, org.eclipse.sirius.components.diagrams.description.NodeDescription> convertedNodes) {
+        if (Objects.isNull(selectedNode)) {
+            var droppedElementId = this.identityService.getId(droppedElement);
+            var diagramId = diagramContext.diagram().getId();
+
+            var descriptionId = convertedNodes.entrySet()
+                    .stream()
+                    .filter(entry ->
+                            entry.getKey()
+                                    .getName()
+                                    .equals(EntityUnsynchronizedNodeDescriptionProvider.ENTITY_UNSYNCHRONIZED_NODE_NAME)
+                    )
+                    .findFirst()
+                    .map(entry -> entry.getValue().getId())
+                    .orElse(null);
+
+            if (droppedElementId != null && diagramId != null && descriptionId != null) {
+                var viewCreationRequest = ViewCreationRequest.newViewCreationRequest()
+                        .parentElementId(diagramId)
+                        .targetObjectId(droppedElementId)
+                        .descriptionId(descriptionId)
+                        .containmentKind(NodeContainmentKind.CHILD_NODE)
+                        .build();
+
+                diagramContext.viewCreationRequests().add(viewCreationRequest);
+            }
+        }
+
+        return droppedElement;
+    }
+
+    public List<Reference> getReferences(Entity entity) {
+        return Optional.of(entity)
+                .map(EObject::eContainer)
+                .filter(Namespace.class::isInstance)
+                .map(Namespace.class::cast).stream()
+                .flatMap(namespace -> namespace.getTypes().stream())
+                .filter(Entity.class::isInstance)
+                .map(Entity.class::cast)
+                .flatMap(namespaceEntity -> namespaceEntity.getOwnedReferences().stream())
+                .toList();
+    }
+
+    public List<Attribute> getEntityAttributes(Entity entity) {
+        return entity.getAttributes();
+    }
+
+    public String getAttributeItemLabel(Attribute attribute) {
+        var attributeType = attribute.getType() != null ? attribute.getType() : "undefined";
+        return attribute.getName() + " : " + attributeType;
     }
 
 //    public List<Entity> getEntitiesHierarchy(Entity entity) {

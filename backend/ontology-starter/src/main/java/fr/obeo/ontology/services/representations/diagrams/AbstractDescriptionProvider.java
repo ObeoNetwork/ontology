@@ -22,6 +22,8 @@ public abstract class AbstractDescriptionProvider {
 
     public static final String ENVIRONMENT_REFERENCE = "environment::Reference";
 
+    public static final String ENVIRONMENT_ATTRIBUTE = "environment::Attribute";
+
     public static final String BORDER_COLOR = "lightBlue 500";
 
     public static final String BACKGROUND_COLOR = "white";

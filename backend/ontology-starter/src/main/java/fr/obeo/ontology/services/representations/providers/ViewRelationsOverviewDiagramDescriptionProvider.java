@@ -12,8 +12,13 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.providers;
 
-import fr.obeo.ontology.services.representations.diagrams.relations.edges.ReferenceEdgeDescriptionProvider;
-import fr.obeo.ontology.services.representations.diagrams.relations.nodes.EntitySynchronizedNodeDescriptionProvider;
+import fr.obeo.ontology.services.representations.diagrams.relationsoverview.RelationsOverviewDiagramPaletteProvider;
+import fr.obeo.ontology.services.representations.diagrams.relationsoverview.edges.ReferenceEdgeRelationsOverviewDescriptionProvider;
+import fr.obeo.ontology.services.representations.diagrams.relationsoverview.nodes.EntityUnsynchronizedNodeDescriptionProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.builder.DefaultViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
@@ -25,34 +30,33 @@ import org.eclipse.sirius.components.view.diagram.ArrangeLayoutDirection;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * "Relations" diagram view description builder.
+ * "Relations Overview" diagram view description builder.
  *
  * @author ntinsalhi
  */
 @Service
-public class ViewRelationsDiagramDescriptionProvider implements IRepresentationDescriptionProvider {
+public class ViewRelationsOverviewDiagramDescriptionProvider implements IRepresentationDescriptionProvider {
 
-    public static final String RELATIONS_DIAGRAM_NAME = "Relations Diagram";
+    public static final String RELATIONS_OVERVIEW_DIAGRAM_NAME = "Relations Overview Diagram";
 
     private IColorProvider colorProvider;
 
     private final DiagramToolbarBuilder diagramToolbarBuilder = new DiagramToolbarBuilder();
 
+    private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
+
     @Override
     public RepresentationDescription create(IColorProvider colorProvider) {
         this.colorProvider = colorProvider;
-        return this.createRelationsDiagramDescription();
+        return this.createRelationsOverviewDiagramDescription();
     }
 
-    private DiagramDescription createRelationsDiagramDescription() {
+    private DiagramDescription createRelationsOverviewDiagramDescription() {
         var diagramDescription = new DiagramBuilders().newDiagramDescription()
-                .name(RELATIONS_DIAGRAM_NAME)
+                .name(RELATIONS_OVERVIEW_DIAGRAM_NAME)
                 .domainType("entity::Entity")
-                .titleExpression("aql:self.name + ' Relations'")
+                .titleExpression("aql:self.name + ' Relations Overview'")
                 .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .arrangeLayoutDirection(ArrangeLayoutDirection.RIGHT)
                 .autoLayout(true)
@@ -69,14 +73,17 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
 
         diagramElementDescriptionProviders.forEach(diagramElementDescriptionProvider -> diagramElementDescriptionProvider.link(diagramDescription, cache));
 
+        var palette = new RelationsOverviewDiagramPaletteProvider(this.diagramBuilderHelper).createDiagramPalette(cache);
+        diagramDescription.setPalette(palette);
+
         return diagramDescription;
     }
 
     private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider colorProvider) {
         var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
-        diagramElementDescriptionProviders.add(new EntitySynchronizedNodeDescriptionProvider(colorProvider));
-        diagramElementDescriptionProviders.add(new ReferenceEdgeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new EntityUnsynchronizedNodeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new ReferenceEdgeRelationsOverviewDescriptionProvider(colorProvider));
 
         return diagramElementDescriptionProviders;
     }
