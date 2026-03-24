@@ -31,6 +31,8 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
 
     public static final String ENTITY_TABLE_ATTRIBUTES_COMMENTS = "Comments";
 
+    public static final String ENTITY_TABLE_REFERENCES = "References";
+
     public static final String AQL = "aql:";
 
     public static final String ENTITIES_TABLE_NAME = "Entities Table";
@@ -56,6 +58,14 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .isSortableExpression(AQL + "false")
                 .build();
 
+        var referencesColumnDescription = this.tableBuilders.newColumnDescription()
+                .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_REFERENCES + "'")
+                .headerLabelExpression(ENTITY_TABLE_REFERENCES)
+                .initialWidthExpression("250")
+                .isResizableExpression(AQL + "true")
+                .isSortableExpression(AQL + "false")
+                .build();
+
         var cellAttributesDescription = this.tableBuilders.newCellDescription()
                 .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_ATTRIBUTES_COLUMN + "'")
                 .valueExpression(AQL + "self.owned" + ENTITY_TABLE_ATTRIBUTES_COLUMN + ".name->sep(', ')->toString()")
@@ -67,6 +77,13 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .valueExpression(
                         AQL + "if self.metadatas.oclIsKindOf(environment::MetaDataContainer) then self.metadatas.metadatas->collect(m | '[' + m.title + ',' + m.body + ']')->toString() else '' endif")
                 .cellWidgetDescription(this.tableBuilders.newCellLabelWidgetDescription().build())
+                .build();
+
+        var cellReferencesDescription = this.tableBuilders.newCellDescription()
+                .name("reference-cell-description")
+                .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_REFERENCES + "'")
+                .valueExpression("aql:self.getEntityReferences()")
+                .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
                 .build();
 
         //TODO traiter la variable ExplandAll
@@ -84,8 +101,8 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .name(ENTITIES_TABLE_NAME)
                 .titleExpression("aql:self.name + ' Table'")
                 .domainType("environment::Namespace")
-                .columnDescriptions(attributesColumnDescription, commentsColumnDescription)
-                .cellDescriptions(cellAttributesDescription, cellCommentsDescription)
+                .columnDescriptions(attributesColumnDescription, commentsColumnDescription, referencesColumnDescription)
+                .cellDescriptions(cellAttributesDescription, cellCommentsDescription, cellReferencesDescription)
                 .rowDescription(rowDescription)
                 .enableSubRows(true)
                 .useStripedRowsExpression("true")

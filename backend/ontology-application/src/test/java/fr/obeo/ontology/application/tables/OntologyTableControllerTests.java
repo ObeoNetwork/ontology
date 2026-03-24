@@ -12,8 +12,8 @@
  *******************************************************************************/
 package fr.obeo.ontology.application.tables;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import fr.obeo.ontology.application.AbstractIntegrationTests;
 import fr.obeo.ontology.application.identifiers.OntologyProjectIdentifiers;
@@ -35,8 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Integration tests of the Ontology diagram.
@@ -87,7 +87,7 @@ public class OntologyTableControllerTests extends AbstractIntegrationTests {
                 .ifPresentOrElse(table -> {
                     assertThat(table).isNotNull();
                     assertThat(table).isNotNull();
-                    assertThat(table.getColumns()).hasSize(2);
+                    assertThat(table.getColumns()).hasSize(3);
                 }, () -> fail(MISSING_TABLE));
 
         StepVerifier.create(flux)
