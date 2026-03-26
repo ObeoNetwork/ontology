@@ -320,7 +320,7 @@ public class EntityJavaService {
     }
 
     public List<Attribute> getEntityAttributes(Entity entity) {
-        return entity.getAttributes();
+        return entity.getOwnedAttributes();
     }
 
     public String getAttributeItemLabel(Attribute attribute) {

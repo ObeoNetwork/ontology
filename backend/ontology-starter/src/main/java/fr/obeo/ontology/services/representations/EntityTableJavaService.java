@@ -15,7 +15,15 @@ package fr.obeo.ontology.services.representations;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import fr.obeo.ontology.services.representations.providers.ViewEntityTableDescriptionProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.sirius.components.core.api.IIdentityService;
@@ -23,12 +31,6 @@ import org.eclipse.sirius.components.tables.ColumnFilter;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.Namespace;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Java services for Entity Table.
