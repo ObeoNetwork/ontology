@@ -30,6 +30,7 @@ import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.services
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * This virtual tree item corresponds to an Entity.
@@ -49,6 +50,8 @@ public class EntityTreeItemElement implements TreeItemFragment {
     private final ILabelService labelService;
 
     private final IExplorerServices explorerServices;
+
+    static final String TYPE = "EntityTreeItemFragment";
 
     public EntityTreeItemElement(Entity entity, IProjectSemanticDataSearchService projectSemanticDataSearchService, IRepresentationMetadataSearchService representationMetadataSearchService,
             IIdentityService identityService, ILabelService labelService, IExplorerServices explorerServices) {
@@ -139,7 +142,11 @@ public class EntityTreeItemElement implements TreeItemFragment {
     }
 
     public String getTreeItemId() {
-        return this.explorerServices.getTreeItemId(this.getEntity());
+        return UriComponentsBuilder.fromUriString(OntologyExplorerServices.FRAGMENT_URI_PREFIX)
+                .queryParam(OntologyExplorerServices.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
+                .encode()
+                .build().toUri().toString();
     }
 
     public boolean isEditable() {
