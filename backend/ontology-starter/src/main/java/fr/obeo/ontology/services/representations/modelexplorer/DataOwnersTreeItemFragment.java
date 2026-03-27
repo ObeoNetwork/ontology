@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * This virtual tree item corresponds to a container of {@link fr.obeo.ontology.ontologymm.DataOwner}.
@@ -31,7 +32,7 @@ public class DataOwnersTreeItemFragment implements TreeItemFragment {
 
     private final IIdentityService identityService;
 
-    static final String ID_PREFIX = "OrganizationsTreeItemFragment";
+    static final String TYPE = "DataOwnersTreeItemFragment";
 
     public DataOwnersTreeItemFragment(OrganizationInformation organizationInformation, IIdentityService identityService) {
         this.organizationInformation = Objects.requireNonNull(organizationInformation);
@@ -60,7 +61,11 @@ public class DataOwnersTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return ID_PREFIX + " " + this.identityService.getId(this.organizationInformation);
+        return UriComponentsBuilder.fromUriString(OntologyExplorerServices.FRAGMENT_URI_PREFIX)
+                .queryParam(OntologyExplorerServices.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.organizationInformation))
+                .encode()
+                .build().toUri().toString();
     }
 
     @Override

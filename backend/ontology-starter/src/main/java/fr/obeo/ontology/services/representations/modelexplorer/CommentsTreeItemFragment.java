@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
@@ -24,6 +23,7 @@ import org.eclipse.sirius.components.core.api.ILabelService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.MetaDataContainer;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * This virtual tree item corresponds to a container of comments.
@@ -31,10 +31,9 @@ import org.obeonetwork.dsl.environment.MetaDataContainer;
  * @author lfasani
  */
 public class CommentsTreeItemFragment implements TreeItemFragment {
+    static final String TYPE = "CommentsTreeItemFragment";
 
     private final Entity entity;
-
-    private final String id = UUID.nameUUIDFromBytes("CommentsTreeItemFragment".getBytes()).toString();
 
     private final IIdentityService identityService;
 
@@ -92,7 +91,11 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return "CommentsTreeItemFragment " + this.identityService.getId(this.entity);
+        return UriComponentsBuilder.fromUriString(OntologyExplorerServices.FRAGMENT_URI_PREFIX)
+                .queryParam(OntologyExplorerServices.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
+                .encode()
+                .build().toUri().toString();
     }
 
     @Override

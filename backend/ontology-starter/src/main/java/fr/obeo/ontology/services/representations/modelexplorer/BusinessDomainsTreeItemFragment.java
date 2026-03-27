@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * This virtual tree item corresponds to a container of {@link fr.obeo.ontology.ontologymm.BusinessDomain}.
@@ -29,7 +30,7 @@ public class BusinessDomainsTreeItemFragment implements TreeItemFragment {
 
     private final OrganizationInformation organizationInformation;
 
-    static final String ID_PREFIX = "BusinessDomainsTreeItemFragment";
+    static final String TYPE = "BusinessDomainsTreeItemFragment";
 
     final IIdentityService identityService;
 
@@ -60,7 +61,11 @@ public class BusinessDomainsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return ID_PREFIX + " " + this.identityService.getId(this.organizationInformation);
+        return UriComponentsBuilder.fromUriString(OntologyExplorerServices.FRAGMENT_URI_PREFIX)
+                .queryParam(OntologyExplorerServices.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.organizationInformation))
+                .encode()
+                .build().toUri().toString();
     }
 
     @Override

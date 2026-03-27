@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.ILabelService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * This virtual tree item corresponds to a container of attributes.
@@ -31,9 +31,9 @@ import org.obeonetwork.dsl.environment.EnvironmentFactory;
  */
 public class AttributesTreeItemFragment implements TreeItemFragment {
 
-    private final Entity entity;
+    static final String TYPE = "AttributesTreeItemFragment";
 
-    private final String id = UUID.nameUUIDFromBytes("AttributesTreeItemFragment".getBytes()).toString();
+    private final Entity entity;
 
     private final IIdentityService identityService;
 
@@ -85,7 +85,11 @@ public class AttributesTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return "AttributesTreeItemFragment " + this.identityService.getId(this.entity);
+        return UriComponentsBuilder.fromUriString(OntologyExplorerServices.FRAGMENT_URI_PREFIX)
+                .queryParam(OntologyExplorerServices.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
+                .encode()
+                .build().toUri().toString();
     }
 
     @Override
