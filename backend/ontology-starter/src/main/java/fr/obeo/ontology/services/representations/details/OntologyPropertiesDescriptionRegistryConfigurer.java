@@ -1,5 +1,10 @@
 package fr.obeo.ontology.services.representations.details;
 
+import fr.obeo.ontology.ontologymm.BusinessDomain;
+import fr.obeo.ontology.ontologymm.DataOwner;
+import fr.obeo.ontology.ontologymm.DataSource;
+import fr.obeo.ontology.ontologymm.OntologyPackage;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,8 +22,10 @@ import org.eclipse.sirius.components.collaborative.forms.services.api.IPropertie
 import org.eclipse.sirius.components.collaborative.forms.services.api.IPropertiesDescriptionRegistryConfigurer;
 import org.eclipse.sirius.components.forms.description.AbstractControlDescription;
 import org.eclipse.sirius.components.forms.description.GroupDescription;
+import org.eclipse.sirius.components.forms.description.MultiSelectDescription;
 import org.eclipse.sirius.components.forms.description.PageDescription;
 import org.eclipse.sirius.components.forms.description.RadioDescription;
+import org.eclipse.sirius.components.forms.description.SelectDescription;
 import org.eclipse.sirius.components.forms.description.TextfieldDescription;
 import org.eclipse.sirius.components.representations.VariableManager;
 import org.eclipse.sirius.components.view.emf.compatibility.IPropertiesConfigurerService;
@@ -47,18 +54,23 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
 
     public static final String NAME = "Name";
 
+    public static final String DESCRIPTION = "Description";
+
     private final IPropertiesWidgetCreationService propertiesWidgetCreationService;
 
     private final List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors;
 
     private final RadioDescriptionProvider radioDescriptionProvider;
 
+    private final WidgetDescriptionCreationService widgetDescriptionCreationService;
+
     public OntologyPropertiesDescriptionRegistryConfigurer(IPropertiesConfigurerService propertiesConfigurerService,
             IPropertiesWidgetCreationService propertiesWidgetCreationService, List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors,
-            RadioDescriptionProvider radioDescriptionProvider) {
+            RadioDescriptionProvider radioDescriptionProvider, WidgetDescriptionCreationService widgetDescriptionCreationService) {
         this.propertiesWidgetCreationService = Objects.requireNonNull(propertiesWidgetCreationService);
-        this.composedAdapterFactoryDescriptors = composedAdapterFactoryDescriptors;
+        this.composedAdapterFactoryDescriptors = Objects.requireNonNull(composedAdapterFactoryDescriptors);
         this.radioDescriptionProvider = Objects.requireNonNull(radioDescriptionProvider);
+        this.widgetDescriptionCreationService = Objects.requireNonNull(widgetDescriptionCreationService);
     }
 
     @Override
@@ -68,6 +80,9 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         registry.add(this.createRootPageDescription());
         registry.add(this.createAttributePageDescription());
         registry.add(this.createReferencePageDescription());
+        registry.add(this.createBusinessDomainPageDescription());
+        registry.add(this.createDataSourcePageDescription());
+        registry.add(this.createDataOwnerPageDescription());
     }
 
     private PageDescription createEntityPageDescription() {
@@ -120,6 +135,36 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         return this.propertiesWidgetCreationService.createSimplePageDescription(formDescriptionId, groupDescription, canCreatePagePredicate);
     }
 
+    private PageDescription createBusinessDomainPageDescription() {
+        String formDescriptionId = UUID.nameUUIDFromBytes("businessDomainProperties".getBytes()).toString();
+
+        List<AbstractControlDescription> controls = this.createBusinessDomainControls();
+
+        Predicate<VariableManager> canCreatePagePredicate = variableManager -> variableManager.get(VariableManager.SELF, BusinessDomain.class).isPresent();
+        GroupDescription groupDescription = this.propertiesWidgetCreationService.createSimpleGroupDescription(controls);
+        return this.propertiesWidgetCreationService.createSimplePageDescription(formDescriptionId, groupDescription, canCreatePagePredicate);
+    }
+
+    private PageDescription createDataOwnerPageDescription() {
+        String formDescriptionId = UUID.nameUUIDFromBytes("dataOwnerProperties".getBytes()).toString();
+
+        List<AbstractControlDescription> controls = this.createDataOwnerControls();
+
+        Predicate<VariableManager> canCreatePagePredicate = variableManager -> variableManager.get(VariableManager.SELF, DataOwner.class).isPresent();
+        GroupDescription groupDescription = this.propertiesWidgetCreationService.createSimpleGroupDescription(controls);
+        return this.propertiesWidgetCreationService.createSimplePageDescription(formDescriptionId, groupDescription, canCreatePagePredicate);
+    }
+
+    private PageDescription createDataSourcePageDescription() {
+        String formDescriptionId = UUID.nameUUIDFromBytes("dataSourceProperties".getBytes()).toString();
+
+        List<AbstractControlDescription> controls = this.createDataSourceControls();
+
+        Predicate<VariableManager> canCreatePagePredicate = variableManager -> variableManager.get(VariableManager.SELF, DataSource.class).isPresent();
+        GroupDescription groupDescription = this.propertiesWidgetCreationService.createSimpleGroupDescription(controls);
+        return this.propertiesWidgetCreationService.createSimplePageDescription(formDescriptionId, groupDescription, canCreatePagePredicate);
+    }
+
     private List<AbstractControlDescription> createNamespaceControls() {
         TextfieldDescription nameDescription = this.propertiesWidgetCreationService.createTextField("namespace.name", NAME, namespace -> ((Namespace) namespace).getName(), (namespace, newName) -> {
             ((Namespace) namespace).setName(newName);
@@ -142,9 +187,68 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         }, EnvironmentPackage.Literals.TYPE__NAME);
         TextfieldDescription descriptionDescription = this.getDescriptionTextfieldDescription();
 
-        ReferenceWidgetDescription superTypeDescription = this.propertiesWidgetCreationService.createReferenceWidget("entity.superType", "Super Type",
+        SelectDescription superTypeDescription = this.widgetDescriptionCreationService.createSelectWidgetDescription("entity.superType", "Super Type", true,
                 EnvironmentPackage.Literals.STRUCTURED_TYPE__SUPERTYPE, variableManager -> this.getChoiceOfValue(variableManager, EnvironmentPackage.Literals.STRUCTURED_TYPE__SUPERTYPE));
-        return List.of(nameDescription, descriptionDescription, superTypeDescription);
+        SelectDescription businessDomainDescription = this.widgetDescriptionCreationService.createBusinessAreaSelectWidgetDescription();
+        SelectDescription dataOwnerSelectWidgetDescription = this.widgetDescriptionCreationService.createDataOwnerSelectWidgetDescription();
+        MultiSelectDescription dataSourceSelectWidgetDescription = this.widgetDescriptionCreationService.createDataSourceMultiSelectWidgetDescription();
+
+        return List.of(nameDescription, descriptionDescription, superTypeDescription, businessDomainDescription, dataOwnerSelectWidgetDescription, dataSourceSelectWidgetDescription);
+    }
+
+    private List<AbstractControlDescription> createBusinessDomainControls() {
+        TextfieldDescription nameDescription = this.propertiesWidgetCreationService.createTextField("businessDomain.name", NAME,
+                bd -> ((BusinessDomain) bd).getName(),
+                (bd, newName) -> {
+                    ((BusinessDomain) bd).setName(newName);
+                }, OntologyPackage.Literals.BUSINESS_DOMAIN__NAME);
+        TextfieldDescription descriptionDescription = this.propertiesWidgetCreationService.createTextField("businessDomain.description", DESCRIPTION,
+                bd -> ((BusinessDomain) bd).getDescription(),
+                (bd, newName) -> {
+                    ((BusinessDomain) bd).setDescription(newName);
+                }, OntologyPackage.Literals.BUSINESS_DOMAIN__DESCRIPTION);
+
+        return List.of(nameDescription, descriptionDescription);
+    }
+
+    private List<AbstractControlDescription> createDataOwnerControls() {
+        TextfieldDescription codeDescription = this.propertiesWidgetCreationService.createTextField("dataOwner.code", "Code",
+                bd -> ((DataOwner) bd).getCode(),
+                (bd, newName) -> {
+                    ((DataOwner) bd).setName(newName);
+                }, OntologyPackage.Literals.DATA_OWNER__CODE);
+        TextfieldDescription nameDescription = this.propertiesWidgetCreationService.createTextField("dataOwner.name", NAME,
+                bd -> ((DataOwner) bd).getName(),
+                (bd, newName) -> {
+                    ((DataOwner) bd).setName(newName);
+                }, OntologyPackage.Literals.DATA_OWNER__NAME);
+        TextfieldDescription descriptionDescription = this.propertiesWidgetCreationService.createTextField("dataOwner.description", DESCRIPTION,
+                bd -> ((DataOwner) bd).getDescription(),
+                (bd, newName) -> {
+                    ((DataOwner) bd).setDescription(newName);
+                }, OntologyPackage.Literals.DATA_OWNER__DESCRIPTION);
+
+        return List.of(codeDescription, nameDescription, descriptionDescription);
+    }
+
+    private List<AbstractControlDescription> createDataSourceControls() {
+        TextfieldDescription codeDescription = this.propertiesWidgetCreationService.createTextField("dataSource.code", "Code",
+                bd -> ((DataSource) bd).getCode(),
+                (bd, newName) -> {
+                    ((DataSource) bd).setName(newName);
+                }, OntologyPackage.Literals.DATA_SOURCE__CODE);
+        TextfieldDescription nameDescription = this.propertiesWidgetCreationService.createTextField("dataSource.name", NAME,
+                bd -> ((DataSource) bd).getName(),
+                (bd, newName) -> {
+                    ((DataSource) bd).setName(newName);
+                }, OntologyPackage.Literals.DATA_SOURCE__NAME);
+        TextfieldDescription descriptionDescription = this.propertiesWidgetCreationService.createTextField("dataSource.description", DESCRIPTION,
+                bd -> ((DataSource) bd).getDescription(),
+                (bd, newName) -> {
+                    ((DataSource) bd).setDescription(newName);
+                }, OntologyPackage.Literals.DATA_SOURCE__DESCRIPTION);
+
+        return List.of(codeDescription, nameDescription, descriptionDescription);
     }
 
     private List<AbstractControlDescription> createAttributeControls() {
