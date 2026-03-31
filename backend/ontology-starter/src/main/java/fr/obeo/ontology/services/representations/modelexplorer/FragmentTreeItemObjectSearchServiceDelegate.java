@@ -32,15 +32,15 @@ import org.springframework.stereotype.Service;
  * @author lfasani
  */
 @Service
-public class FragmentTreeItemObjectService implements IObjectSearchServiceDelegate {
+public class FragmentTreeItemObjectSearchServiceDelegate implements IObjectSearchServiceDelegate {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FragmentTreeItemObjectService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FragmentTreeItemObjectSearchServiceDelegate.class);
 
     private final IDefaultObjectSearchService objectService;
 
     private final IURLParser urlParser;
 
-    public FragmentTreeItemObjectService(IDefaultObjectSearchService objectService, IURLParser urlParser) {
+    public FragmentTreeItemObjectSearchServiceDelegate(IDefaultObjectSearchService objectService, IURLParser urlParser) {
         super();
         this.objectService = Objects.requireNonNull(objectService);
         this.urlParser = Objects.requireNonNull(urlParser);
@@ -57,10 +57,11 @@ public class FragmentTreeItemObjectService implements IObjectSearchServiceDelega
         try {
             Map<String, List<String>> parameters = this.urlParser.getParameterValues(objectId);
             if (parameters != null) {
-                List<String> semanticObjectId = parameters.get(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM);
+                String semanticObjectId = parameters.get(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM).get(0);
+                String fragmentType = parameters.get(OntologyExplorerServices.FRAGMENT_TYPE_PARAM).get(0);
 
-                if (semanticObjectId != null && !semanticObjectId.isEmpty()) {
-                    result = this.objectService.getObject(editingContext, semanticObjectId.get(0));
+                if (EntityTreeItemElement.TYPE.equals(fragmentType)) {
+                    result = this.objectService.getObject(editingContext, semanticObjectId);
                 }
             }
         } catch (IllegalStateException e) {
