@@ -39,8 +39,8 @@ public class OntologyTreeFilterProvider implements ITreeFilterProvider {
     public List<TreeFilter> get(String editingContextId, TreeDescription treeDescription) {
         List<TreeFilter> filters = new ArrayList<>();
 //        if (treeDescription.getLabel().equals(ViewExplorerTreeDescriptionBuilder.ONTOLOGY_EXPLORER_DESCRIPTION_NAME)) {
-        filters.add(new TreeFilter(HIDE_COMMENTS_TREE_ITEM_FILTER_ID, "Hide Comments", true));
-        filters.add(new TreeFilter(HIDE_ATTRIBUTES_TREE_FILTER_ID, "Hide Attributes", true));
+        filters.add(new TreeFilter(HIDE_COMMENTS_TREE_ITEM_FILTER_ID, "Hide Comments", false));
+        filters.add(new TreeFilter(HIDE_ATTRIBUTES_TREE_FILTER_ID, "Hide Attributes", false));
         filters.add(new TreeFilter(HIDE_REFERENCES_TREE_FILTER_ID, "Hide References", false));
 //        }
 

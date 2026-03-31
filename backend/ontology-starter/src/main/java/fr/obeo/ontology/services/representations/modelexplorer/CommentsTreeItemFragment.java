@@ -12,7 +12,7 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.modelexplorer;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,8 +21,9 @@ import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.ILabelService;
 import org.obeonetwork.dsl.entity.Entity;
+import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
-import org.obeonetwork.dsl.environment.MetaDataContainer;
+import org.obeonetwork.dsl.environment.ObeoDSMObject;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -61,32 +62,22 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public boolean hasChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
-        boolean result = Optional.of(this.entity)
-                .map(entity -> entity.getMetadatas())
-                .filter(MetaDataContainer.class::isInstance)
-                .map(dataContainer -> dataContainer)
-                .map(metaDataContainer -> metaDataContainer.getMetadatas())
+        return Optional.of(this.entity)
+                .map(ObeoDSMObject::getMetadatas)
                 .stream()
-                .flatMap(metaDataContainer -> metaDataContainer.stream())
-                .findFirst()
-                .isPresent();
-        return result;
+                .flatMap(metaDataContainer -> metaDataContainer.getMetadatas().stream())
+                .anyMatch(Annotation.class::isInstance);
     }
 
     @Override
     public List<Object> getChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
-        List<Object> result = new ArrayList<>();
-
-        result.addAll(Optional.of(this.entity)
-                .map(entity -> entity.getMetadatas())
-                .filter(MetaDataContainer.class::isInstance)
-                .map(dataContainer -> dataContainer)
-                .map(metaDataContainer -> metaDataContainer.getMetadatas())
+        return Optional.of(this.entity)
+                .map(ObeoDSMObject::getMetadatas)
                 .stream()
-                .flatMap(metaDataContainer -> metaDataContainer.stream())
-                .toList());
-
-        return result;
+                .flatMap(metaDataContainer -> metaDataContainer.getMetadatas().stream())
+                .filter(Annotation.class::isInstance)
+                .map(Object.class::cast)
+                .toList();
     }
 
     @Override

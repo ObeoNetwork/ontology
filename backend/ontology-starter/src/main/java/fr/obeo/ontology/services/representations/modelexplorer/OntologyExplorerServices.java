@@ -52,12 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 /**
  * Java service for Explorer tree.
  *
@@ -386,6 +380,18 @@ public class OntologyExplorerServices {
 
     public Entity createSubEntity(EntityTreeItemElement entityTreeItemElement, String name) {
         return this.entityJavaService.createSubEntity(entityTreeItemElement.getEntity(), name);
+    }
+
+    public Annotation createComment(EntityTreeItemElement entityTreeItemElement, String title) {
+        return this.entityJavaService.createComment(entityTreeItemElement.getEntity(), title);
+    }
+
+    public Attribute createAttribute(EntityTreeItemElement entityTreeItemElement, String name) {
+        return this.entityJavaService.createAttribute(entityTreeItemElement.getEntity(), name);
+    }
+
+    public Reference createReference(EntityTreeItemElement entityTreeItemElement, String name) {
+        return this.entityJavaService.createReference(entityTreeItemElement.getEntity(), name);
     }
 
     public boolean isDeleteAuthorized(EObject eObject) {

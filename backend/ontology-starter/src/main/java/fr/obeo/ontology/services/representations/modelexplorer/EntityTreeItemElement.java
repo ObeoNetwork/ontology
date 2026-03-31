@@ -81,12 +81,11 @@ public class EntityTreeItemElement implements TreeItemFragment {
 
     @Override
     public boolean hasChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
+        boolean hasComments = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && this.hasComments();
+        boolean hasAttributes = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID) && this.hasOwnedAttributes();
         boolean hasReferences = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID) && this.hasOwnedReferences();
 
-        boolean result =
-                !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID)
-                        || !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)
-                        || hasReferences;
+        boolean result = hasComments || hasAttributes || hasReferences;
 
         result = result || Optional.ofNullable(this.entity.eContainer())
                 .filter(Namespace.class::isInstance)
@@ -121,11 +120,12 @@ public class EntityTreeItemElement implements TreeItemFragment {
             }
         }
 
-        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID)) {
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && this.hasComments()) {
             result.add(new CommentsTreeItemFragment(this.entity, this.identityService, this.labelService));
         }
 
-        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)) {
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)
+                && this.hasOwnedAttributes()) {
             result.add(new AttributesTreeItemFragment(this.entity, this.identityService, this.labelService));
         }
 
@@ -148,9 +148,19 @@ public class EntityTreeItemElement implements TreeItemFragment {
         return result;
     }
 
+    private boolean hasComments() {
+        var metadatas = this.entity.getMetadatas();
+        return metadatas != null
+                && metadatas.getMetadatas() != null
+                && !metadatas.getMetadatas().isEmpty();
+    }
+
+    private boolean hasOwnedAttributes() {
+        return !this.entity.getOwnedAttributes().isEmpty();
+    }
+
     private boolean hasOwnedReferences() {
         return !this.entity.getOwnedReferences().isEmpty();
-
     }
 
     public String getTreeItemId() {

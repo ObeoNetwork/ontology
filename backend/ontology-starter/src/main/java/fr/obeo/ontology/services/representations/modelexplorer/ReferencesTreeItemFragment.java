@@ -14,13 +14,13 @@ package fr.obeo.ontology.services.representations.modelexplorer;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.ILabelService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Virtual tree item representing references container.
@@ -29,9 +29,7 @@ import org.obeonetwork.dsl.environment.EnvironmentFactory;
  */
 public class ReferencesTreeItemFragment implements TreeItemFragment {
 
-    private final static String LABEL = "References";
-
-    private final String id = UUID.nameUUIDFromBytes("ReferencesTreeItemFragment".getBytes()).toString();
+    private final static String TYPE = "ReferencesTreeItemFragment";
 
     private final Entity entity;
 
@@ -51,12 +49,12 @@ public class ReferencesTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getLabel() {
-        return LABEL;
+        return "References";
     }
 
     @Override
     public List<String> getIconURL() {
-        return this.labelService.getImagePaths(EnvironmentFactory.eINSTANCE.createMetaDataContainer());
+        return this.labelService.getImagePaths(EnvironmentFactory.eINSTANCE.createReference());
     }
 
     @Override
@@ -74,7 +72,11 @@ public class ReferencesTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return this.id + this.identityService.getId(this.entity);
+        return UriComponentsBuilder.fromUriString(OntologyExplorerServices.FRAGMENT_URI_PREFIX)
+                .queryParam(OntologyExplorerServices.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
+                .encode()
+                .build().toUri().toString();
     }
 
     @Override
