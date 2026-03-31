@@ -170,9 +170,30 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                         .build())
                 .build();
 
+
+        SingleClickTreeItemContextMenuEntry createComment = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
+                .name("New Comment")
+                .preconditionExpression("aql:self.isEntityFragment()")
+                .labelExpression("New Comment")
+                .iconURLExpression("/customImages/create.svg")
+                .body(new ChangeContextBuilder()
+                        .expression("aql:self.createComment('New Comment')")
+                        .build())
+                .build();
+
+        SingleClickTreeItemContextMenuEntry createAttribute = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
+                .name("New Attribute")
+                .preconditionExpression("aql:self.isEntityFragment()")
+                .labelExpression("New Attribute")
+                .iconURLExpression("/customImages/create.svg")
+                .body(new ChangeContextBuilder()
+                        .expression("aql:self.createAttribute('New Attribute')")
+                        .build())
+                .build();
+
         SingleClickTreeItemContextMenuEntry createReference = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Reference")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression("aql:self.isEntityFragment()")
                 .labelExpression("New Reference")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
@@ -180,6 +201,6 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                         .build())
                 .build();
 
-        return List.of(deleteEntity, createSubEntity, createReference, createOrganizationObject);
+        return List.of(deleteEntity, createSubEntity, createOrganizationObject, createComment, createAttribute, createReference);
     }
 }

@@ -38,6 +38,7 @@ import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.eclipse.sirius.components.web.services.FeedbackMessageService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityFactory;
+import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.Attribute;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.EnvironmentPackage;
@@ -214,6 +215,28 @@ public class EntityJavaService {
         }
 
         return level;
+    }
+
+    public Annotation createComment(Entity entity, String title) {
+        Annotation comment = EnvironmentFactory.eINSTANCE.createAnnotation();
+        comment.setTitle(title);
+
+        if (Objects.isNull(entity.getMetadatas())) {
+            var metadatasContainer = EnvironmentFactory.eINSTANCE.createMetaDataContainer();
+            entity.setMetadatas(metadatasContainer);
+        }
+
+        entity.getMetadatas().getMetadatas().add(comment);
+
+        return comment;
+    }
+
+    public Attribute createAttribute(Entity entity, String name) {
+        Attribute attribute = EnvironmentFactory.eINSTANCE.createAttribute();
+        attribute.setName(name);
+        attribute.setContainingType(entity);
+
+        return attribute;
     }
 
     public Reference createReference(Entity entity, String name) {
