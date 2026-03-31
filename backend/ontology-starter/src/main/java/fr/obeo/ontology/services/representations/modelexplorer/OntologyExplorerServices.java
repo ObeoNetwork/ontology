@@ -353,6 +353,10 @@ public class OntologyExplorerServices {
         return this.entityJavaService.deleteEntity(entityTreeItemElement.getEntity());
     }
 
+    public boolean isEntityFragment(Object object) {
+        return object instanceof EntityTreeItemElement;
+    }
+    
     public boolean isCreateObjectAllowed(TreeItem treeItem) {
         return Optional.ofNullable(this.urlParser.getParameterValues(treeItem.getId()))
                 .map(stringListMap -> stringListMap.get(FRAGMENT_TYPE_PARAM))
