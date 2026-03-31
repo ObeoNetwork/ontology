@@ -130,7 +130,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
     private List<TreeItemContextMenuEntry> createContextMenuEntries() {
         SingleClickTreeItemContextMenuEntry deleteEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("Delete Entity Entry")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression("aql:self.isEntityFragment()")
                 .labelExpression("Delete")
                 .iconURLExpression("/customImages/delete.svg")
                 .body(new ChangeContextBuilder()
@@ -152,7 +152,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createSubEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Sub Entity")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression("aql:self.isEntityFragment()")
                 .labelExpression("New Sub Entity")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
