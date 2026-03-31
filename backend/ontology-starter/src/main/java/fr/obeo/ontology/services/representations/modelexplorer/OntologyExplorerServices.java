@@ -226,12 +226,41 @@ public class OntologyExplorerServices {
     }
 
     public Object getParent(Object self, String treeItemId, IEditingContext editingContext) {
-        return Optional.of(self)
-                .filter(Entity.class::isInstance)
-                .map(Entity.class::cast)
-                .map(Entity::getSupertype)
-                .map(Object.class::cast)
-                .orElseGet(() -> this.explorerServices.getParent(self, treeItemId, editingContext));
+        Object result = null;
+        if (self instanceof Entity entity && entity.getSupertype() != null) {
+            result = createFragment(entity.getSupertype(), EntityTreeItemElement.TYPE);
+        } else if (self instanceof EntityTreeItemElement entityTreeItemElement) {
+            result = getSemanticObjectFromFragmentId(editingContext, treeItemId)
+                    .map(semanticObject -> {
+                        if (semanticObject instanceof Entity entity) {
+                            if (entity.getSupertype() == null) {
+                                return entity.eContainer();
+                            } else {
+                                return createFragment(entity.getSupertype(), EntityTreeItemElement.TYPE);
+                            }
+                        }
+                        return null;
+                    })
+                    .orElse(null);
+        } else {
+            result = this.explorerServices.getParent(self, treeItemId, editingContext);
+        }
+
+        return result;
+    }
+
+    private Optional<EObject> getSemanticObjectFromFragmentId(IEditingContext editingContext, String itemId) {
+        try {
+            Map<String, List<String>> parameters = this.urlParser.getParameterValues(itemId);
+            if (parameters != null) {
+                String semanticObjectId = parameters.get(SEMANTIC_OBJECT_ID_PARAM).get(0);
+                return this.objectSearchService.getObject(editingContext, semanticObjectId).map(EObject.class::cast);
+            }
+        } catch (IllegalStateException e) {
+            LOGGER.warn("Unparsable id {} : {}", itemId, e.getCause());
+        }
+
+        return Optional.empty();
     }
 
     public Object getTreeItemObject(String treeItemId, IEditingContext editingContext) {
@@ -259,43 +288,52 @@ public class OntologyExplorerServices {
             Map<String, List<String>> parameters = this.urlParser.getParameterValues(itemId);
             if (parameters != null) {
                 String semanticObjectId = parameters.get(SEMANTIC_OBJECT_ID_PARAM).get(0);
-                Optional<Object> semanticObject = this.objectSearchService.getObject(editingContext, semanticObjectId);
-                String fragmentType = parameters.get(FRAGMENT_TYPE_PARAM).get(0);
-
-                result = switch (fragmentType) {
-                    case EntityTreeItemElement.TYPE -> semanticObject.filter(Entity.class::isInstance)
-                            .map(Entity.class::cast)
-                            .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.identityService, this.labelService,
-                                    this.explorerServices))
-                            .orElse(null);
-                    case AttributesTreeItemFragment.TYPE -> semanticObject.filter(Entity.class::isInstance)
-                            .map(Entity.class::cast)
-                            .map(e -> new AttributesTreeItemFragment(e, this.identityService, this.labelService))
-                            .orElse(null);
-                    case CommentsTreeItemFragment.TYPE -> semanticObject.filter(Entity.class::isInstance)
-                            .map(Entity.class::cast)
-                            .map(e -> new CommentsTreeItemFragment(e, this.identityService, this.labelService))
-                            .orElse(null);
-                    case BusinessDomainsTreeItemFragment.TYPE -> semanticObject.filter(OrganizationInformation.class::isInstance)
-                            .map(OrganizationInformation.class::cast)
-                            .map(organizationInformation -> new BusinessDomainsTreeItemFragment(organizationInformation, this.identityService))
-                            .orElse(null);
-                    case DataOwnersTreeItemFragment.TYPE -> semanticObject.filter(OrganizationInformation.class::isInstance)
-                            .map(OrganizationInformation.class::cast)
-                            .map(organizationInformation -> new DataOwnersTreeItemFragment(organizationInformation, this.identityService))
-                            .orElse(null);
-                    case DataSourcesTreeItemFragment.TYPE -> semanticObject.filter(OrganizationInformation.class::isInstance)
-                            .map(OrganizationInformation.class::cast)
-                            .map(organizationInformation -> new DataSourcesTreeItemFragment(organizationInformation, this.identityService))
-                            .orElse(null);
-                    default -> null;
-                };
+                result = this.objectSearchService.getObject(editingContext, semanticObjectId)
+                        .filter(EObject.class::isInstance)
+                        .map(EObject.class::cast)
+                        .map(eObject -> {
+                            String fragmentType = parameters.get(FRAGMENT_TYPE_PARAM).get(0);
+                            return createFragment(eObject, fragmentType);
+                        })
+                        .orElse(null);
             }
         } catch (IllegalStateException e) {
             LOGGER.warn("Unparsable id {} : {}", itemId, e.getCause());
         }
 
         return result;
+    }
+
+    private TreeItemFragment createFragment(EObject semanticObject, String fragmentType) {
+
+        return switch (fragmentType) {
+            case EntityTreeItemElement.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
+                    .map(Entity.class::cast)
+                    .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.identityService, this.labelService,
+                            this.explorerServices))
+                    .orElse(null);
+            case AttributesTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
+                    .map(Entity.class::cast)
+                    .map(e -> new AttributesTreeItemFragment(e, this.identityService, this.labelService))
+                    .orElse(null);
+            case CommentsTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
+                    .map(Entity.class::cast)
+                    .map(e -> new CommentsTreeItemFragment(e, this.identityService, this.labelService))
+                    .orElse(null);
+            case BusinessDomainsTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(OrganizationInformation.class::isInstance)
+                    .map(OrganizationInformation.class::cast)
+                    .map(organizationInformation -> new BusinessDomainsTreeItemFragment(organizationInformation, this.identityService))
+                    .orElse(null);
+            case DataOwnersTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(OrganizationInformation.class::isInstance)
+                    .map(OrganizationInformation.class::cast)
+                    .map(organizationInformation -> new DataOwnersTreeItemFragment(organizationInformation, this.identityService))
+                    .orElse(null);
+            case DataSourcesTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(OrganizationInformation.class::isInstance)
+                    .map(OrganizationInformation.class::cast)
+                    .map(organizationInformation -> new DataSourcesTreeItemFragment(organizationInformation, this.identityService))
+                    .orElse(null);
+            default -> null;
+        };
     }
 
     public boolean isEditable(Object self) {
