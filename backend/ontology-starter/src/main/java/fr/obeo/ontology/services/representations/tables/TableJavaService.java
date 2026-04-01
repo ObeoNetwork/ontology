@@ -35,6 +35,7 @@ import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.ILabelService;
 import org.eclipse.sirius.components.tables.ColumnFilter;
 import org.obeonetwork.dsl.entity.Entity;
+import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.stereotype.Service;
@@ -198,5 +199,33 @@ public class TableJavaService {
         return entityJavaService.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class)
                 .map(object -> labelService.getStyledLabel(object).toString())
                 .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    public Entity createSubEntity(Entity entity, String name) {
+        return this.entityJavaService.createSubEntity(entity, name);
+    }
+
+    public boolean canCreateNewSubEntity(Entity entity) {
+        return this.entityJavaService.getEntityLevel(entity) < 3;
+    }
+
+    public Entity createSiblingEntry(Entity entity) {
+        var entitySupertype = entity.getSupertype();
+        Entity newSiblingEntity = null;
+
+        if (Objects.isNull(entitySupertype) && entity.eContainer() instanceof Namespace namespace) {
+            newSiblingEntity = EntityFactory.eINSTANCE.createEntity();
+            newSiblingEntity.setName("New Core Entity");
+            namespace.getTypes().add(newSiblingEntity);
+
+        } else if (entitySupertype instanceof Entity parentEntity) {
+            newSiblingEntity = this.createSubEntity(parentEntity, "New Sub Entity");
+        }
+
+        return newSiblingEntity;
+    }
+
+    public Entity deleteEntity(Entity entity) {
+        return this.entityJavaService.deleteEntity(entity);
     }
 }

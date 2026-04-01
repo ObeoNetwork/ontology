@@ -14,8 +14,10 @@ package fr.obeo.ontology.services.representations.providers;
 
 import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.builder.generated.table.TableBuilders;
+import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
+import org.eclipse.sirius.components.view.table.RowContextMenuEntry;
 import org.springframework.stereotype.Service;
 
 /**
@@ -44,6 +46,8 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
     public static final String ENTITIES_TABLE_NAME = "Entities Table";
 
     private final TableBuilders tableBuilders = new TableBuilders();
+
+    private final ViewBuilders viewBuilders = new ViewBuilders();
 
     @Override
     public RepresentationDescription create(IColorProvider colorProvider) {
@@ -137,6 +141,34 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
                 .build();
 
+        RowContextMenuEntry newSiblingEntity = this.tableBuilders.newRowContextMenuEntry()
+                .name("new-sibling-entity-entry")
+                .labelExpression("New Sibling Entry")
+                .iconURLExpression("customImages/create.svg")
+                .body(this.viewBuilders.newChangeContext()
+                        .expression(AQL + "self.createSiblingEntry()")
+                        .build())
+                .build();
+
+        RowContextMenuEntry newSubEntityEntry = this.tableBuilders.newRowContextMenuEntry()
+                .name("new-sub-entity-entry")
+                .labelExpression("New Sub Entity")
+                .preconditionExpression(AQL + "self.canCreateNewSubEntity()")
+                .iconURLExpression("customImages/create-sub.svg")
+                .body(this.viewBuilders.newChangeContext()
+                        .expression(AQL + "self.createSubEntity('New Sub Entity')")
+                        .build())
+                .build();
+
+        RowContextMenuEntry deleteEntityEntry = this.tableBuilders.newRowContextMenuEntry()
+                .name("delete-entity-entry")
+                .labelExpression("Delete")
+                .iconURLExpression("customImages/delete.svg")
+                .body(this.viewBuilders.newChangeContext()
+                        .expression(AQL + "self.deleteEntity()")
+                        .build())
+                .build();
+
         //TODO traiter la variable ExplandAll
         var rowDescription = this.tableBuilders.newRowDescription()
                 .semanticCandidatesExpression(AQL + "self.getAllOrderedEntities(expandedIds, globalFilterData, columnFilters)->toPaginatedData(cursor,direction,size)")
@@ -146,6 +178,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .headerIndexLabelExpression(AQL + "self.getLevelLabel()")
                 .depthLevelExpression(AQL + "self.getEntityLevel()")
                 .initialHeightExpression("35")
+                .contextMenuEntries(newSubEntityEntry, deleteEntityEntry, newSiblingEntity)
                 .build();
 
         return this.tableBuilders.newTableDescription()
@@ -157,7 +190,8 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .cellDescriptions(cellAttributesDescription, cellCommentsDescription, cellReferencesDescription, cellBusinessDomainDescription, cellDataOwnerDescription, cellDataSourcesDescription)
                 .rowDescription(rowDescription)
                 .enableSubRows(true)
-                .useStripedRowsExpression("true").rowFilters()
+                .useStripedRowsExpression("true")
+                .pageSizeOptionsExpression("aql:Sequence{10,20,50}")
                 .build();
     }
 }

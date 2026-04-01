@@ -369,6 +369,7 @@ public class EntityJavaService {
                 .map(clazz::cast);
     }
 
+
     public <T> Optional<T> objectReferencingEntity(Entity coreObject, EStructuralFeature feature, Class<T> clazz) {
         return objectsReferencingEntity(coreObject, feature, clazz)
                 .findFirst();
