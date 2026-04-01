@@ -75,7 +75,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .titleExpression("Ontology Explorer")
                 .treeItemIdExpression("aql:self.getTreeItemId()")
                 .treeItemObjectExpression("aql:id.getTreeItemObject(editingContext)")
-                .treeItemLabelDescriptions(this.createEntityTreeItemLabel(), this.createDefaultStyle())
+                .treeItemLabelDescriptions(this.createEntityLabel(), this.createDefaultStyle())
                 .contextMenuEntries(this.createContextMenuEntries().toArray(new TreeItemContextMenuEntry[] {}))
                 .build();
 
@@ -108,17 +108,17 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                         .build()).build();
     }
 
-    private TreeItemLabelDescription createEntityTreeItemLabel() {
+    private TreeItemLabelDescription createEntityLabel() {
         return new TreeBuilders().newTreeItemLabelDescription()
                 .name("entityFragment style")
-                .preconditionExpression("aql:self.isEntityTreeItemElement()")
-                .children(this.getEntityTreeItemLabelPrefix(), this.getDefaultLabelFragmentDescription())
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .children(this.getEntityLabelPrefix(), this.getDefaultLabelFragmentDescription())
                 .build();
     }
 
-    private TreeItemLabelElementDescription getEntityTreeItemLabelPrefix() {
+    private TreeItemLabelElementDescription getEntityLabelPrefix() {
         return new TreeBuilders().newTreeItemLabelFragmentDescription()
-                .labelExpression("aql:self.getEntityTreeItemLabelPrefix()")
+                .labelExpression("aql:self.getEntityLabelPrefix()")
                 .style(this.getTextStyleByName(ViewOntologyPaletteFactory.BLUE_BOLD_TEXT_STYLE_NAME))
                 .build();
     }
@@ -128,16 +128,6 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
     }
 
     private List<TreeItemContextMenuEntry> createContextMenuEntries() {
-        SingleClickTreeItemContextMenuEntry deleteEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
-                .name("Delete Entity Entry")
-                .preconditionExpression("aql:self.isEntityFragment()")
-                .labelExpression("Delete")
-                .iconURLExpression("/customImages/delete.svg")
-                .body(new ChangeContextBuilder()
-                        .expression("aql:self.deleteEntity()")
-                        .build())
-                .build();
-
         // TODO It is currently not possible to hide default Rename et Delete menu entry
         // So we must not add our own contextual menu
 /*        SingleClickTreeItemContextMenuEntry deleteOthers = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
@@ -152,7 +142,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createSubEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Sub Entity")
-                .preconditionExpression("aql:self.isEntityFragment()")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .labelExpression("New Sub Entity")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
@@ -173,7 +163,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createComment = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Comment")
-                .preconditionExpression("aql:self.isEntityFragment()")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .labelExpression("New Comment")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
@@ -183,7 +173,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createAttribute = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Attribute")
-                .preconditionExpression("aql:self.isEntityFragment()")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .labelExpression("New Attribute")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
@@ -193,7 +183,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createReference = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Reference")
-                .preconditionExpression("aql:self.isEntityFragment()")
+                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .labelExpression("New Reference")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
@@ -201,6 +191,6 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                         .build())
                 .build();
 
-        return List.of(deleteEntity, createSubEntity, createOrganizationObject, createComment, createAttribute, createReference);
+        return List.of(createSubEntity, createOrganizationObject, createComment, createAttribute, createReference);
     }
 }

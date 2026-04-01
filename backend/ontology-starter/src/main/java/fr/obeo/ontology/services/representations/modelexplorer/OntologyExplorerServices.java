@@ -108,14 +108,6 @@ public class OntologyExplorerServices {
         return results;
     }
 
-    public List<Object> getElements(Object self, List<String> activeFilterIds) {
-        List<Object> results = new ArrayList<>();
-        if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            results.add(entityTreeItemElement.getEntity());
-        }
-        return results;
-    }
-
     public String getTreeItemId(Object self) {
         String id = null;
         if (self instanceof TreeItemFragment treeItemFragment) {
@@ -172,10 +164,27 @@ public class OntologyExplorerServices {
                     .filter(Entity.class::isInstance)
                     .map(Entity.class::cast)
                     .anyMatch(entity -> entity.getSupertype() == null);
+        } else if (self instanceof Entity entity) {
+            boolean hasComments = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && hasComments(entity);
+            boolean hasAttributes = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID) && hasOwnedAttributes(entity);
+            boolean hasReferences = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID) && hasOwnedReferences(entity);
+
+            hasChildren = hasComments || hasAttributes || hasReferences;
+
+            hasChildren = hasChildren || !entityJavaService.getSubEntities(entity).isEmpty();
+
+            hasChildren = hasChildren || this.hasRepresentation(entity, editingContext);
         } else if (self instanceof EObject eObject) {
             hasChildren = !eObject.eContents().isEmpty();
         }
         return hasChildren;
+    }
+
+    private boolean hasRepresentation(EObject self, IEditingContext editingContext) {
+        String id = this.identityService.getId(self);
+        return new UUIDParser().parse(editingContext.getId())
+                .map(uuid -> this.representationMetadataSearchService.existAnyRepresentationMetadataForSemanticDataAndTargetObjectId(AggregateReference.to(uuid), id))
+                .orElse(false);
     }
 
     public List<Object> getChildren(Object self, IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds, List<RepresentationMetadata> existingRepresentations) {
@@ -215,14 +224,53 @@ public class OntologyExplorerServices {
                         .filter(Entity.class::isInstance)
                         .map(Entity.class::cast)
                         .filter(entity -> entity.getSupertype() == null)
-                        .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.identityService, this.labelService,
-                                this.explorerServices))
                         .toList());
+            } else if (self instanceof Entity entity) {
+                var semanticDataId = new UUIDParser().parse(editingContext.getId());
+
+                if (semanticDataId.isPresent()) {
+                    var representationMetadata = new ArrayList<>(
+                            this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()),
+                                    this.identityService.getId(entity)));
+                    representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
+                    result.addAll(representationMetadata);
+                }
+
+                if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && this.hasComments(entity)) {
+                    result.add(new CommentsTreeItemFragment(entity, this.identityService, this.labelService));
+                }
+
+                if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)
+                        && this.hasOwnedAttributes(entity)) {
+                    result.add(new AttributesTreeItemFragment(entity, this.identityService, this.labelService));
+                }
+
+                if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID)
+                        && this.hasOwnedReferences(entity)) {
+                    result.add(new ReferencesTreeItemFragment(entity, this.identityService, this.labelService));
+                }
+
+                result.addAll(entityJavaService.getSubEntities(entity));
             } else {
                 result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds, existingRepresentations));
             }
         }
         return result;
+    }
+
+    private boolean hasComments(Entity entity) {
+        var metadatas = entity.getMetadatas();
+        return metadatas != null
+                && metadatas.getMetadatas() != null
+                && !metadatas.getMetadatas().isEmpty();
+    }
+
+    private boolean hasOwnedAttributes(Entity entity) {
+        return !entity.getOwnedAttributes().isEmpty();
+    }
+
+    private boolean hasOwnedReferences(Entity entity) {
+        return !entity.getOwnedReferences().isEmpty();
     }
 
     public Object getParent(Object self, String treeItemId, IEditingContext editingContext) {
@@ -231,21 +279,15 @@ public class OntologyExplorerServices {
             result = createFragment(attribute.eContainer(), AttributesTreeItemFragment.TYPE);
         } else if (self instanceof Reference reference) {
             result = createFragment(reference.eContainer(), ReferencesTreeItemFragment.TYPE);
-        } else if (self instanceof Entity entity && entity.getSupertype() != null) {
-            result = createFragment(entity.getSupertype(), EntityTreeItemElement.TYPE);
+        } else if (self instanceof Entity entity) {
+            result = entity.getSupertype() != null ? entity.getSupertype() : entity.eContainer();
         } else if (self instanceof TreeItemFragment treeItemElement) {
-            result = this.objectSearchService.getObject(editingContext, treeItemId)
+            result = this.getSemanticObjectFromFragmentId(editingContext, treeItemId)
                     .map(semanticObject -> {
                         if (semanticObject instanceof Entity entity) {
                             String fragmentType = getFragmentType(editingContext, treeItemId);
-                            if (EntityTreeItemElement.TYPE.equals(fragmentType)) {
-                                if (entity.getSupertype() == null) {
-                                    return entity.eContainer();
-                                } else {
-                                    return createFragment(entity.getSupertype(), EntityTreeItemElement.TYPE);
-                                }
-                            } else if (ReferencesTreeItemFragment.TYPE.equals(fragmentType) || AttributesTreeItemFragment.TYPE.equals(fragmentType)) {
-                                return createFragment(entity, EntityTreeItemElement.TYPE);
+                            if (ReferencesTreeItemFragment.TYPE.equals(fragmentType) || AttributesTreeItemFragment.TYPE.equals(fragmentType)) {
+                                return entity;
                             }
                         }
                         return null;
@@ -256,6 +298,20 @@ public class OntologyExplorerServices {
         }
 
         return result;
+    }
+
+    private Optional<EObject> getSemanticObjectFromFragmentId(IEditingContext editingContext, String itemId) {
+        try {
+            Map<String, List<String>> parameters = this.urlParser.getParameterValues(itemId);
+            if (parameters != null) {
+                String semanticObjectId = parameters.get(SEMANTIC_OBJECT_ID_PARAM).get(0);
+                return this.objectSearchService.getObject(editingContext, semanticObjectId).map(EObject.class::cast);
+            }
+        } catch (IllegalStateException e) {
+            LOGGER.warn("Unparsable id {} : {}", itemId, e.getCause());
+        }
+
+        return Optional.empty();
     }
 
     private String getFragmentType(IEditingContext editingContext, String itemId) {
@@ -315,11 +371,6 @@ public class OntologyExplorerServices {
     private TreeItemFragment createFragment(EObject semanticObject, String fragmentType) {
 
         return switch (fragmentType) {
-            case EntityTreeItemElement.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
-                    .map(Entity.class::cast)
-                    .map(e -> new EntityTreeItemElement(e, this.projectSemanticDataSearchService, this.representationMetadataSearchService, this.identityService, this.labelService,
-                            this.explorerServices))
-                    .orElse(null);
             case AttributesTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
                     .map(Entity.class::cast)
                     .map(e -> new AttributesTreeItemFragment(e, this.identityService, this.labelService))
@@ -372,51 +423,23 @@ public class OntologyExplorerServices {
         return true;
     }
 
-    public boolean isEntityTreeItemElement(Object object) {
-        return object instanceof EntityTreeItemElement;
-    }
+//    public boolean isEntityTreeItemElement(Object object) {
+//        return object instanceof EntityTreeItemElement;
+//    }
 
-    public int getEntityLevel(EntityTreeItemElement entityTreeItemElement) {
-        Entity entity = entityTreeItemElement.getEntity();
-        return this.entityJavaService.getEntityLevel(entity);
-    }
+//    public int getEntityLevel(EntityTreeItemElement entityTreeItemElement) {
+//        Entity entity = entityTreeItemElement.getEntity();
+//        return this.entityJavaService.getEntityLevel(entity);
+//    }
 
-    public String getEntityTreeItemLabelPrefix(EntityTreeItemElement entityTreeItemElement) {
-        int entityLevel = this.getEntityLevel(entityTreeItemElement);
+    public String getEntityLabelPrefix(Entity entity) {
+        int entityLevel = entityJavaService.getEntityLevel(entity);
         return entityLevel > 0 ? "[" + entityLevel + "] " : "";
-    }
-
-    public String getEntityTreeItemLabelValue(EntityTreeItemElement entityTreeItemElement) {
-        return entityTreeItemElement.getLabel();
-    }
-
-    public Entity createSubEntity(EntityTreeItemElement entityTreeItemElement, String name) {
-        return this.entityJavaService.createSubEntity(entityTreeItemElement.getEntity(), name);
-    }
-
-    public Annotation createComment(EntityTreeItemElement entityTreeItemElement, String title) {
-        return this.entityJavaService.createComment(entityTreeItemElement.getEntity(), title);
-    }
-
-    public Attribute createAttribute(EntityTreeItemElement entityTreeItemElement, String name) {
-        return this.entityJavaService.createAttribute(entityTreeItemElement.getEntity(), name);
-    }
-
-    public Reference createReference(EntityTreeItemElement entityTreeItemElement, String name) {
-        return this.entityJavaService.createReference(entityTreeItemElement.getEntity(), name);
     }
 
     public boolean isDeleteAuthorized(EObject eObject) {
         return List.of(Attribute.class, Annotation.class, Reference.class).stream()
                 .anyMatch(clazz -> clazz.isInstance(eObject));
-    }
-
-    public Entity deleteEntity(EntityTreeItemElement entityTreeItemElement) {
-        return this.entityJavaService.deleteEntity(entityTreeItemElement.getEntity());
-    }
-
-    public boolean isEntityFragment(Object object) {
-        return object instanceof EntityTreeItemElement;
     }
 
     public boolean isCreateObjectAllowed(TreeItem treeItem) {
@@ -429,7 +452,6 @@ public class OntologyExplorerServices {
                     return idTypes.contains(type);
                 })
                 .orElse(false);
-//        return Arrays.stream(treeItem.getId().split(" ")).anyMatch(idPrefixes::contains) || treeItem.getId().contains(DataOwnersTreeItemFragment.TYPE);
     }
 
     public Object createObject(IEditingContext editingContext, TreeItem treeItem) {
