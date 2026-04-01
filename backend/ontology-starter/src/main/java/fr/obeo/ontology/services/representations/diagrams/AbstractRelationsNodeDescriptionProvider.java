@@ -15,9 +15,11 @@ package fr.obeo.ontology.services.representations.diagrams;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.generated.diagram.NodePaletteBuilder;
 import org.eclipse.sirius.components.view.builder.generated.view.ChangeContextBuilder;
+import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.builder.providers.INodeDescriptionProvider;
 import org.eclipse.sirius.components.view.diagram.ConditionalNodeStyle;
+import org.eclipse.sirius.components.view.diagram.DeleteTool;
 import org.eclipse.sirius.components.view.diagram.HeaderSeparatorDisplayMode;
 import org.eclipse.sirius.components.view.diagram.InsideLabelDescription;
 import org.eclipse.sirius.components.view.diagram.InsideLabelPosition;
@@ -43,19 +45,32 @@ public abstract class AbstractRelationsNodeDescriptionProvider extends AbstractD
 
     private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
 
+    protected final ViewBuilders viewBuilderHelper = new ViewBuilders();
+
     protected NodePaletteBuilder createEntityNodePaletteBuilder() {
-        return diagramBuilderHelper.newNodePalette()
+        return this.diagramBuilderHelper.newNodePalette()
                 .labelEditTool(new DiagramBuilders().newLabelEditTool()
                         .name("Label Edit Tool")
                         .body(new ChangeContextBuilder()
                                 .expression("aql:self.defaultEditLabel(newLabel)")
                                 .build())
                         .build())
-                .deleteTool(new DiagramBuilders().newDeleteTool()
-                        .body(new ChangeContextBuilder()
-                                .expression("aql:self.deleteEntity()")
-                                .build())
-                        .build());
+                .deleteTool(this.deleteFromModelTool());
+    }
+
+    private DeleteTool deleteFromModelTool() {
+        var changeContext = this.viewBuilderHelper.newChangeContext()
+                .expression("aql:self.deleteEntity()")
+                .build();
+
+        var isOtherEntityIf = this.viewBuilderHelper.newIf()
+                .conditionExpression("aql:self.canUseDeleteFromModelTool(diagramContext)")
+                .children(changeContext)
+                .build();
+
+        return new DiagramBuilders().newDeleteTool()
+                .body(isOtherEntityIf)
+                .build();
     }
 
     protected InsideLabelDescription entityInsideLabelDescription() {
