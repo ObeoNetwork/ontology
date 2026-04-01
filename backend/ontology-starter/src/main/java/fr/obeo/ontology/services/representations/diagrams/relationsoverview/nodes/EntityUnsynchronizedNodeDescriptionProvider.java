@@ -43,7 +43,7 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
 
     @Override
     public NodeDescription create() {
-        NodeDescription attributeItemNodeDescription = this.attributeItemNodeDescription();
+        var attributeContainerNodeDescription = this.attributesContainerNodeDescription(this.colorProvider);
         var entityNodePalette = this.createEntityNodePaletteBuilder()
                 .quickAccessTools(this.getDeleteFromDiagramTool())
                 .build();
@@ -60,7 +60,7 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
                 .palette(entityNodePalette)
                 .isCollapsedByDefaultExpression("aql:true")
                 .collapsible(true)
-                .childrenDescriptions(attributeItemNodeDescription)
+                .childrenDescriptions(attributeContainerNodeDescription)
                 .build();
     }
 
