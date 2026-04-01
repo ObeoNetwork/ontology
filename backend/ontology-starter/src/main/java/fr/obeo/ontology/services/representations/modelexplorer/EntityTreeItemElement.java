@@ -108,16 +108,13 @@ public class EntityTreeItemElement implements TreeItemFragment {
 
     public List<Object> getChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
         List<Object> result = new ArrayList<>();
+        var semanticDataId = new UUIDParser().parse(editingContext.getId());
 
-        if (this.entity.getSupertype() == null) {
-            var semanticDataId = new UUIDParser().parse(editingContext.getId());
-
-            if (semanticDataId.isPresent()) {
-                var representationMetadata = new ArrayList<>(
-                        this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()), this.getId()));
-                representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
-                result.addAll(representationMetadata);
-            }
+        if (semanticDataId.isPresent()) {
+            var representationMetadata = new ArrayList<>(
+                    this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()), this.getId()));
+            representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
+            result.addAll(representationMetadata);
         }
 
         if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && this.hasComments()) {
