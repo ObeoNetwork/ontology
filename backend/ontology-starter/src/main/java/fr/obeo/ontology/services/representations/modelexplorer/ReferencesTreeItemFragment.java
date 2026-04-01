@@ -29,7 +29,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class ReferencesTreeItemFragment implements TreeItemFragment {
 
-    private final static String TYPE = "ReferencesTreeItemFragment";
+    public final static String TYPE = "ReferencesTreeItemFragment";
 
     private final Entity entity;
 
