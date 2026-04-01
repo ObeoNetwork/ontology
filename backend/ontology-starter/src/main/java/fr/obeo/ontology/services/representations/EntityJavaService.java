@@ -259,6 +259,16 @@ public class EntityJavaService {
                 .orElse(false);
     }
 
+    public boolean canUseDeleteFromModelTool(Object self, DiagramContext diagramContext) {
+        var isMainEntity = this.isMainEntity(self, diagramContext);
+
+        if (isMainEntity) {
+            this.feedbackMessageService.addFeedbackMessage(new Message("This operation is not authorized on diagram main entity", MessageLevel.INFO));
+        }
+
+        return !isMainEntity;
+    }
+
     public List<Entity> getRelationsSemanticCandidates(Entity entity) {
         return Stream.concat(
                 Stream.of(entity),

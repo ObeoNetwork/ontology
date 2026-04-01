@@ -48,7 +48,7 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
                 .quickAccessTools(this.getDeleteFromDiagramTool())
                 .build();
 
-        return diagramBuilderHelper.newNodeDescription()
+        return this.diagramBuilderHelper.newNodeDescription()
                 .name(ENTITY_UNSYNCHRONIZED_NODE_NAME)
                 .domainType(ENTITY_ENTITY)
                 .semanticCandidatesExpression("aql:self.getEntities()")

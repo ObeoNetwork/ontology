@@ -13,14 +13,15 @@
 package fr.obeo.ontology.services.representations.diagrams.relations.nodes;
 
 import fr.obeo.ontology.services.representations.diagrams.AbstractRelationsNodeDescriptionProvider;
+
+import java.util.Objects;
+
 import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.eclipse.sirius.components.view.diagram.SynchronizationPolicy;
-
-import java.util.Objects;
 
 /**
  * Used to create synchronized entity nodes.
@@ -35,14 +36,15 @@ public class EntitySynchronizedNodeDescriptionProvider extends AbstractRelations
 
     private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
 
+
     public EntitySynchronizedNodeDescriptionProvider(IColorProvider colorProvider) {
         this.colorProvider = Objects.requireNonNull(colorProvider);
     }
 
     @Override
     public NodeDescription create() {
-        var entityNodePalette = this.createEntityNodePaletteBuilder().build();
         var attributeItemNodeDescription = this.attributeItemNodeDescription();
+        var entityNodePalette = this.createEntityNodePaletteBuilder().build();
 
         return this.diagramBuilderHelper.newNodeDescription()
                 .name(ENTITY_SYNCHRONIZED_NODE_NAME)
