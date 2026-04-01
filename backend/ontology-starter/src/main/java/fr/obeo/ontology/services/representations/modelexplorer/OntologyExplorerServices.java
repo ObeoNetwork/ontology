@@ -58,6 +58,12 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
  * @author lfasani
  */
 public class OntologyExplorerServices {
+    public static final String FRAGMENT_URI_PREFIX = "o://fragment";
+
+    public static final String SEMANTIC_OBJECT_ID_PARAM = "objectId";
+
+    public static final String FRAGMENT_TYPE_PARAM = "fragmentType";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OntologyExplorerServices.class);
 
     private final IIdentityService identityService;
@@ -77,12 +83,6 @@ public class OntologyExplorerServices {
     private final EntityJavaService entityJavaService;
 
     private final IURLParser urlParser;
-
-    public static final String FRAGMENT_URI_PREFIX = "o://fragment";
-
-    public static final String SEMANTIC_OBJECT_ID_PARAM = "objectId";
-
-    public static final String FRAGMENT_TYPE_PARAM = "fragmentType";
 
     public OntologyExplorerServices(IIdentityService identityService, ILabelService labelService, IObjectSearchService objectSearchService,
             IRepresentationMetadataSearchService representationMetadataSearchService,
@@ -227,16 +227,25 @@ public class OntologyExplorerServices {
 
     public Object getParent(Object self, String treeItemId, IEditingContext editingContext) {
         Object result = null;
-        if (self instanceof Entity entity && entity.getSupertype() != null) {
+        if (self instanceof Attribute attribute) {
+            result = createFragment(attribute.eContainer(), AttributesTreeItemFragment.TYPE);
+        } else if (self instanceof Reference reference) {
+            result = createFragment(reference.eContainer(), ReferencesTreeItemFragment.TYPE);
+        } else if (self instanceof Entity entity && entity.getSupertype() != null) {
             result = createFragment(entity.getSupertype(), EntityTreeItemElement.TYPE);
-        } else if (self instanceof EntityTreeItemElement entityTreeItemElement) {
-            result = getSemanticObjectFromFragmentId(editingContext, treeItemId)
+        } else if (self instanceof TreeItemFragment treeItemElement) {
+            result = this.objectSearchService.getObject(editingContext, treeItemId)
                     .map(semanticObject -> {
                         if (semanticObject instanceof Entity entity) {
-                            if (entity.getSupertype() == null) {
-                                return entity.eContainer();
-                            } else {
-                                return createFragment(entity.getSupertype(), EntityTreeItemElement.TYPE);
+                            String fragmentType = getFragmentType(editingContext, treeItemId);
+                            if (EntityTreeItemElement.TYPE.equals(fragmentType)) {
+                                if (entity.getSupertype() == null) {
+                                    return entity.eContainer();
+                                } else {
+                                    return createFragment(entity.getSupertype(), EntityTreeItemElement.TYPE);
+                                }
+                            } else if (ReferencesTreeItemFragment.TYPE.equals(fragmentType) || AttributesTreeItemFragment.TYPE.equals(fragmentType)) {
+                                return createFragment(entity, EntityTreeItemElement.TYPE);
                             }
                         }
                         return null;
@@ -249,18 +258,17 @@ public class OntologyExplorerServices {
         return result;
     }
 
-    private Optional<EObject> getSemanticObjectFromFragmentId(IEditingContext editingContext, String itemId) {
+    private String getFragmentType(IEditingContext editingContext, String itemId) {
         try {
             Map<String, List<String>> parameters = this.urlParser.getParameterValues(itemId);
             if (parameters != null) {
-                String semanticObjectId = parameters.get(SEMANTIC_OBJECT_ID_PARAM).get(0);
-                return this.objectSearchService.getObject(editingContext, semanticObjectId).map(EObject.class::cast);
+                return parameters.get(FRAGMENT_TYPE_PARAM).get(0);
             }
         } catch (IllegalStateException e) {
             LOGGER.warn("Unparsable id {} : {}", itemId, e.getCause());
         }
 
-        return Optional.empty();
+        return "";
     }
 
     public Object getTreeItemObject(String treeItemId, IEditingContext editingContext) {
@@ -315,6 +323,10 @@ public class OntologyExplorerServices {
             case AttributesTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
                     .map(Entity.class::cast)
                     .map(e -> new AttributesTreeItemFragment(e, this.identityService, this.labelService))
+                    .orElse(null);
+            case ReferencesTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
+                    .map(Entity.class::cast)
+                    .map(e -> new ReferencesTreeItemFragment(e, this.identityService, this.labelService))
                     .orElse(null);
             case CommentsTreeItemFragment.TYPE -> Optional.of(semanticObject).filter(Entity.class::isInstance)
                     .map(Entity.class::cast)
@@ -406,7 +418,7 @@ public class OntologyExplorerServices {
     public boolean isEntityFragment(Object object) {
         return object instanceof EntityTreeItemElement;
     }
-    
+
     public boolean isCreateObjectAllowed(TreeItem treeItem) {
         return Optional.ofNullable(this.urlParser.getParameterValues(treeItem.getId()))
                 .map(stringListMap -> stringListMap.get(FRAGMENT_TYPE_PARAM))
@@ -430,25 +442,25 @@ public class OntologyExplorerServices {
                 String fragmentType = parameters.get(FRAGMENT_TYPE_PARAM).get(0);
 
                 semanticObject.filter(OrganizationInformation.class::isInstance)
-                    .map(OrganizationInformation.class::cast)
-                    .ifPresent(organizationInformation -> {
-                        if (fragmentType.equals(DataOwnersTreeItemFragment.TYPE)) {
-                            DataOwner dataOwner = OntologyFactory.eINSTANCE.createDataOwner();
-                            dataOwner.setName("Data Owner " + (organizationInformation.getDataOwners().size() + 1));
-                            createObject.set(dataOwner);
-                            organizationInformation.getDataOwners().add((DataOwner) createObject.get());
-                        } else if (fragmentType.equals(BusinessDomainsTreeItemFragment.TYPE)) {
-                            BusinessDomain businessDomain = OntologyFactory.eINSTANCE.createBusinessDomain();
-                            businessDomain.setName("Functional Area " + (organizationInformation.getBusinessDomains().size() + 1));
-                            createObject.set(businessDomain);
-                            organizationInformation.getBusinessDomains().add((BusinessDomain) createObject.get());
-                        } else if (fragmentType.equals(DataSourcesTreeItemFragment.TYPE)) {
-                            DataSource dataSource = OntologyFactory.eINSTANCE.createDataSource();
-                            dataSource.setName("Data Source " + (organizationInformation.getDataSources().size() + 1));
-                            createObject.set(dataSource);
-                            organizationInformation.getDataSources().add((DataSource) createObject.get());
-                        }
-                    });
+                        .map(OrganizationInformation.class::cast)
+                        .ifPresent(organizationInformation -> {
+                            if (fragmentType.equals(DataOwnersTreeItemFragment.TYPE)) {
+                                DataOwner dataOwner = OntologyFactory.eINSTANCE.createDataOwner();
+                                dataOwner.setName("Data Owner " + (organizationInformation.getDataOwners().size() + 1));
+                                createObject.set(dataOwner);
+                                organizationInformation.getDataOwners().add((DataOwner) createObject.get());
+                            } else if (fragmentType.equals(BusinessDomainsTreeItemFragment.TYPE)) {
+                                BusinessDomain businessDomain = OntologyFactory.eINSTANCE.createBusinessDomain();
+                                businessDomain.setName("Functional Area " + (organizationInformation.getBusinessDomains().size() + 1));
+                                createObject.set(businessDomain);
+                                organizationInformation.getBusinessDomains().add((BusinessDomain) createObject.get());
+                            } else if (fragmentType.equals(DataSourcesTreeItemFragment.TYPE)) {
+                                DataSource dataSource = OntologyFactory.eINSTANCE.createDataSource();
+                                dataSource.setName("Data Source " + (organizationInformation.getDataSources().size() + 1));
+                                createObject.set(dataSource);
+                                organizationInformation.getDataSources().add((DataSource) createObject.get());
+                            }
+                        });
             }
         } catch (IllegalStateException e) {
             LOGGER.warn("Unparsable id {} : {}", treeItem.getId(), e.getCause());
