@@ -43,7 +43,7 @@ public class EntitySynchronizedNodeDescriptionProvider extends AbstractRelations
 
     @Override
     public NodeDescription create() {
-        var attributeItemNodeDescription = this.attributeItemNodeDescription();
+        var attributeContainerNodeDescription = this.attributesContainerNodeDescription(this.colorProvider);
         var entityNodePalette = this.createEntityNodePaletteBuilder().build();
 
         return this.diagramBuilderHelper.newNodeDescription()
@@ -59,7 +59,7 @@ public class EntitySynchronizedNodeDescriptionProvider extends AbstractRelations
                 .palette(entityNodePalette)
                 .isCollapsedByDefaultExpression("aql:true")
                 .collapsible(true)
-                .childrenDescriptions(attributeItemNodeDescription)
+                .childrenDescriptions(attributeContainerNodeDescription)
                 .build();
     }
 

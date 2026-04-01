@@ -12,6 +12,8 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.diagrams;
 
+import fr.obeo.ontology.services.representations.providers.ViewOntologyPaletteFactory;
+
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.generated.diagram.NodePaletteBuilder;
 import org.eclipse.sirius.components.view.builder.generated.view.ChangeContextBuilder;
@@ -29,8 +31,6 @@ import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.eclipse.sirius.components.view.diagram.RectangularNodeStyleDescription;
 import org.eclipse.sirius.components.view.diagram.SynchronizationPolicy;
 
-import static fr.obeo.ontology.services.representations.providers.ViewOntologyPaletteFactory.BLUE_GREY;
-
 /**
  * Abstract class for relations diagram node description providers.
  *
@@ -42,6 +42,8 @@ public abstract class AbstractRelationsNodeDescriptionProvider extends AbstractD
     public static final int DEFAULT_ENTITY_NODE_WIDTH = 100;
 
     public static final String ATTRIBUTE_ITEM_NODE = "AttributeItemNode";
+
+    public static final String ATTRIBUTE_CONTAINER_NODE = "AttributeContainerNode";
 
     private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
 
@@ -96,7 +98,7 @@ public abstract class AbstractRelationsNodeDescriptionProvider extends AbstractD
                 .build();
 
         RectangularNodeStyleDescription mainEntityRectangularNodeStyleDescription = diagramBuilderHelper.newRectangularNodeStyleDescription()
-                .background(colorProvider.getColor(BLUE_GREY))
+                .background(colorProvider.getColor(ViewOntologyPaletteFactory.BLUE_GREY))
                 .borderSize(2)
                 .childrenLayoutStrategy(entityLayoutChildrenNodesLayoutStrategy)
                 .build();
@@ -120,7 +122,7 @@ public abstract class AbstractRelationsNodeDescriptionProvider extends AbstractD
                 .build();
     }
 
-    protected NodeDescription attributeItemNodeDescription() {
+    private NodeDescription attributeItemNodeDescription() {
         var attributeInsideLabelStyle = new DiagramBuilders()
                 .newInsideLabelStyle()
                 .fontSize(12)
@@ -131,7 +133,7 @@ public abstract class AbstractRelationsNodeDescriptionProvider extends AbstractD
         var attributeItemLabel = this.diagramBuilderHelper.newInsideLabelDescription()
                 .labelExpression("aql:self.getAttributeItemLabel()")
                 .textAlign(LabelTextAlign.LEFT)
-                .position(InsideLabelPosition.TOP_LEFT)
+                .position(InsideLabelPosition.MIDDLE_LEFT)
                 .style(attributeInsideLabelStyle)
                 .overflowStrategy(LabelOverflowStrategy.WRAP)
                 .build();
@@ -144,6 +146,49 @@ public abstract class AbstractRelationsNodeDescriptionProvider extends AbstractD
                 .synchronizationPolicy(SynchronizationPolicy.SYNCHRONIZED)
                 .semanticCandidatesExpression("aql:self.getEntityAttributes()")
                 .insideLabel(attributeItemLabel)
+                .style(nodeStyle)
+                .build();
+    }
+
+    protected NodeDescription attributesContainerNodeDescription(IColorProvider colorProvider) {
+        var attributeItemNodeDescription = this.attributeItemNodeDescription();
+
+        var containerInsideLabelStyle = new DiagramBuilders()
+                .newInsideLabelStyle()
+                .fontSize(13)
+                .borderSize(0)
+                .italic(true)
+                .headerSeparatorDisplayMode(HeaderSeparatorDisplayMode.NEVER)
+                .withHeader(true)
+                .showIconExpression("aql:false")
+                .build();
+
+        var containerItemLabel = this.diagramBuilderHelper.newInsideLabelDescription()
+                .labelExpression("Attributes")
+                .textAlign(LabelTextAlign.CENTER)
+                .position(InsideLabelPosition.TOP_CENTER)
+                .style(containerInsideLabelStyle)
+                .overflowStrategy(LabelOverflowStrategy.WRAP)
+                .build();
+
+        var containerChildrenNodesLayoutStrategy = this.diagramBuilderHelper
+                .newListLayoutStrategyDescription()
+                .bottomGapExpression("10")
+                .build();
+
+        var nodeStyle = this.diagramBuilderHelper.newRectangularNodeStyleDescription()
+                .background(colorProvider.getColor(ViewOntologyPaletteFactory.COLOR_TRANSPARENT))
+                .childrenLayoutStrategy(containerChildrenNodesLayoutStrategy)
+                .build();
+
+        return this.diagramBuilderHelper.newNodeDescription()
+                .name(ATTRIBUTE_CONTAINER_NODE)
+                .domainType(ENTITY_ENTITY)
+                .semanticCandidatesExpression("aql:self")
+                .childrenDescriptions(attributeItemNodeDescription)
+                .insideLabel(containerItemLabel)
+                .defaultWidthExpression(String.valueOf(DEFAULT_ENTITY_NODE_HEIGHT))
+                .defaultHeightExpression(String.valueOf(DEFAULT_ENTITY_NODE_WIDTH))
                 .style(nodeStyle)
                 .build();
     }
