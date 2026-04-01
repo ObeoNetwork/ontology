@@ -31,7 +31,13 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
 
     public static final String ENTITY_TABLE_ATTRIBUTES_COMMENTS = "Comments";
 
-    public static final String ENTITY_TABLE_REFERENCES = "References";
+    public static final String ENTITY_TABLE_REFERENCES_COLUMN = "References";
+
+    public static final String ENTITY_TABLE_BUSINESSDOMAIN_COLUMN = "BusinessDomain";
+
+    public static final String ENTITY_TABLE_DATAOWNER_COLUMN = "DataOwner";
+
+    public static final String ENTITY_TABLE_DATASOURCES_COLUMN = "DataSource";
 
     public static final String AQL = "aql:";
 
@@ -59,8 +65,32 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .build();
 
         var referencesColumnDescription = this.tableBuilders.newColumnDescription()
-                .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_REFERENCES + "'")
-                .headerLabelExpression(ENTITY_TABLE_REFERENCES)
+                .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_REFERENCES_COLUMN + "'")
+                .headerLabelExpression(ENTITY_TABLE_REFERENCES_COLUMN)
+                .initialWidthExpression("250")
+                .isResizableExpression(AQL + "true")
+                .isSortableExpression(AQL + "false")
+                .build();
+
+        var businessDomainColumnDescription = this.tableBuilders.newColumnDescription()
+                .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_BUSINESSDOMAIN_COLUMN + "'")
+                .headerLabelExpression(ENTITY_TABLE_REFERENCES_COLUMN)
+                .initialWidthExpression("250")
+                .isResizableExpression(AQL + "true")
+                .isSortableExpression(AQL + "false")
+                .build();
+
+        var dataOwnerColumnDescription = this.tableBuilders.newColumnDescription()
+                .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_DATAOWNER_COLUMN + "'")
+                .headerLabelExpression(ENTITY_TABLE_DATAOWNER_COLUMN)
+                .initialWidthExpression("250")
+                .isResizableExpression(AQL + "true")
+                .isSortableExpression(AQL + "false")
+                .build();
+
+        var dataSourceColumnDescription = this.tableBuilders.newColumnDescription()
+                .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_DATASOURCES_COLUMN + "'")
+                .headerLabelExpression(ENTITY_TABLE_DATASOURCES_COLUMN)
                 .initialWidthExpression("250")
                 .isResizableExpression(AQL + "true")
                 .isSortableExpression(AQL + "false")
@@ -79,9 +109,30 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .cellWidgetDescription(this.tableBuilders.newCellLabelWidgetDescription().build())
                 .build();
 
+        var cellBusinessDomainDescription = this.tableBuilders.newCellDescription()
+                .name("businessDomain-cell-description")
+                .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_BUSINESSDOMAIN_COLUMN + "'")
+                .valueExpression("aql:self.getEntityReferences()")
+                .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
+                .build();
+
+        var cellDataOwnerDescription = this.tableBuilders.newCellDescription()
+                .name("dataOwner-cell-description")
+                .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_DATAOWNER_COLUMN + "'")
+                .valueExpression("aql:self.getEntityReferences()")
+                .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
+                .build();
+
+        var cellDataSourcesDescription = this.tableBuilders.newCellDescription()
+                .name("dataSources-cell-description")
+                .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_DATASOURCES_COLUMN + "'")
+                .valueExpression("aql:self.getEntityReferences()")
+                .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
+                .build();
+
         var cellReferencesDescription = this.tableBuilders.newCellDescription()
                 .name("reference-cell-description")
-                .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_REFERENCES + "'")
+                .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_REFERENCES_COLUMN + "'")
                 .valueExpression("aql:self.getEntityReferences()")
                 .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
                 .build();
@@ -101,8 +152,9 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .name(ENTITIES_TABLE_NAME)
                 .titleExpression("aql:self.name + ' Table'")
                 .domainType("environment::Namespace")
-                .columnDescriptions(attributesColumnDescription, commentsColumnDescription, referencesColumnDescription)
-                .cellDescriptions(cellAttributesDescription, cellCommentsDescription, cellReferencesDescription)
+                .columnDescriptions(attributesColumnDescription, commentsColumnDescription, referencesColumnDescription, businessDomainColumnDescription, dataOwnerColumnDescription,
+                        dataSourceColumnDescription)
+                .cellDescriptions(cellAttributesDescription, cellCommentsDescription, cellReferencesDescription, cellBusinessDomainDescription, cellDataOwnerDescription, cellDataSourcesDescription)
                 .rowDescription(rowDescription)
                 .enableSubRows(true)
                 .useStripedRowsExpression("true")
