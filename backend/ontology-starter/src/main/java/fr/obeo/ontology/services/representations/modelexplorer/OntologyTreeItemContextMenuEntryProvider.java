@@ -94,12 +94,7 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
     private List<ITreeItemContextMenuEntry> getObjectContextMenuEntries(IEMFEditingContext editingContext, TreeItem treeItem) {
 
         return this.objectSearchService.getObject(editingContext, treeItem.getId())
-                .filter(object -> {
-                    if (object instanceof Entity entity) {
-                        return this.entityJavaService.getEntityLevel(entity) == 0;
-                    }
-                    return object instanceof Namespace;
-                })
+                .filter(object -> object instanceof Namespace || object instanceof Entity)
                 .filter(object -> !this.readOnlyObjectPredicate.test(object))
                 .map(object -> {
                     return List.of(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.NEW_REPRESENTATION, "", List.of(), false, List.of()));

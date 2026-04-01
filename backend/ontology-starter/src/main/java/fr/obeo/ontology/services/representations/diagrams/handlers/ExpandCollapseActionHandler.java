@@ -10,7 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations.handlers;
+package fr.obeo.ontology.services.representations.diagrams.handlers;
 
 import org.eclipse.sirius.components.collaborative.diagrams.DiagramContext;
 import org.eclipse.sirius.components.collaborative.diagrams.api.IActionHandler;
@@ -22,8 +22,6 @@ import org.eclipse.sirius.components.representations.IStatus;
 import org.eclipse.sirius.components.representations.Success;
 import org.springframework.stereotype.Service;
 
-import static fr.obeo.ontology.services.representations.handlers.ExpandCollapseNodeAction.EXPAND_COLLAPSE_ACTION_ID;
-
 /**
  * Expand/Collapse node action handler.
  *
@@ -34,7 +32,7 @@ public class ExpandCollapseActionHandler implements IActionHandler {
 
     @Override
     public boolean canHandle(IEditingContext editingContext, DiagramContext diagramContext, IDiagramElement diagramElement, String actionId) {
-        return actionId.equals(EXPAND_COLLAPSE_ACTION_ID);
+        return actionId.equals(ExpandCollapseNodeAction.EXPAND_COLLAPSE_ACTION_ID);
     }
 
     @Override
