@@ -31,7 +31,6 @@ import org.eclipse.sirius.components.trees.TreeItem;
 import org.eclipse.sirius.components.trees.description.TreeDescription;
 import org.eclipse.sirius.components.view.emf.ViewRepresentationDescriptionPredicate;
 import org.eclipse.sirius.web.application.views.explorer.services.ExplorerTreeItemContextMenuEntryProvider;
-import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.services.api.ISemanticDataSearchService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.stereotype.Service;
@@ -50,17 +49,13 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
 
     private final IReadOnlyObjectPredicate readOnlyObjectPredicate;
 
-    private final ISemanticDataSearchService semanticDataSearchService;
-
     private final EntityJavaService entityJavaService;
 
     public OntologyTreeItemContextMenuEntryProvider(ViewRepresentationDescriptionPredicate viewRepresentationDescriptionPredicate, IObjectSearchService objectSearchService,
-            IReadOnlyObjectPredicate readOnlyObjectPredicate, ISemanticDataSearchService semanticDataSearchService,
-            EntityJavaService entityJavaService) {
+            IReadOnlyObjectPredicate readOnlyObjectPredicate, EntityJavaService entityJavaService) {
         this.viewRepresentationDescriptionPredicate = viewRepresentationDescriptionPredicate;
         this.objectSearchService = Objects.requireNonNull(objectSearchService);
         this.readOnlyObjectPredicate = Objects.requireNonNull(readOnlyObjectPredicate);
-        this.semanticDataSearchService = Objects.requireNonNull(semanticDataSearchService);
         this.entityJavaService = entityJavaService;
     }
 
@@ -77,7 +72,7 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
             result.addAll(this.getObjectContextMenuEntries(emfEditingContext, treeItem));
         }
         if (treeItem.isHasChildren()) {
-            result.add(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.EXPAND_ALL, "", List.of(), false));
+            result.add(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.EXPAND_ALL, "", List.of(), false, List.of()));
         }
         return result;
     }
@@ -90,7 +85,7 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
             var resource = optionalResource.get();
 
             List<ITreeItemContextMenuEntry> entries = new ArrayList<>();
-            entries.add(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.DOWNLOAD_DOCUMENT, "", List.of(), false));
+            entries.add(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.DOWNLOAD_DOCUMENT, "", List.of(), false, List.of()));
             return entries;
         }
         return List.of();
@@ -107,7 +102,7 @@ public class OntologyTreeItemContextMenuEntryProvider implements ITreeItemContex
                 })
                 .filter(object -> !this.readOnlyObjectPredicate.test(object))
                 .map(object -> {
-                    return List.of(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.NEW_REPRESENTATION, "", List.of(), false));
+                    return List.of(new SingleClickTreeItemContextMenuEntry(ExplorerTreeItemContextMenuEntryProvider.NEW_REPRESENTATION, "", List.of(), false, List.of()));
                 })
                 .stream().flatMap(list -> list.stream())
                 .map(ITreeItemContextMenuEntry.class::cast)
