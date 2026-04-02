@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TableJavaService {
+
     private final IIdentityService identityService;
 
     private final ObjectMapper objectMapper;
@@ -62,15 +63,20 @@ public class TableJavaService {
         this.labelService = Objects.requireNonNull(labelService);
     }
 
-    public List<Entity> getAllOrderedEntities(Namespace namespace, List<Object> expandedIds, String globalFilter, List<ColumnFilter> columnFilters) {
+    public List<Entity> getAllOrderedEntities(Namespace namespace, List<Object> expandedIds, String globalFilter, List<ColumnFilter> columnFilters, List<String> activeRowFilterIds) {
         List<Entity> entities = new ArrayList<>();
         namespace.getTypes()
                 .stream()
                 .filter(Entity.class::isInstance)
                 .map(Entity.class::cast)
-                .filter(entity -> entity.getSupertype() == null)
+                .filter(entity -> entity.getSupertype() == null && this.matchesRowFilters(entity, activeRowFilterIds))
                 .forEach(entity -> this.addEntityAndSubTypes(null, entity, entities, expandedIds, globalFilter, columnFilters));
         return entities;
+    }
+
+    private boolean matchesRowFilters(Entity entity, List<String> activeRowFilterIds) {
+        var entityId = this.identityService.getId(entity);
+        return activeRowFilterIds.stream().anyMatch(rowFilterId -> this.contains(rowFilterId, entityId));
     }
 
     private void addEntityAndSubTypes(Entity parent, Entity entity, List<Entity> entities, List<Object> expandedIds, String globalFilter, List<ColumnFilter> columnFilters) {
@@ -124,6 +130,7 @@ public class TableJavaService {
             isValidCandidate = isValidCandidate || entity.getOwnedAttributes() != null && this.isValidAttributesFilter(entity, globalFilter);
             isValidCandidate = isValidCandidate || entity.getMetadatas() != null && this.isValidMetadataFilter(entity, globalFilter);
         }
+
         isValidCandidate = isValidCandidate && columnFilters.stream().allMatch(columnFilter -> {
             boolean isCandidate = true;
             String columnFilterValue = this.getColumnFilterValue(columnFilter);
@@ -134,6 +141,7 @@ public class TableJavaService {
             }
             return isCandidate;
         });
+
         return isValidCandidate;
     }
 

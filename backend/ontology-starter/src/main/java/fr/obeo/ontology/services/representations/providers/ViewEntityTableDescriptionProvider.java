@@ -171,7 +171,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
 
         //TODO traiter la variable ExplandAll
         var rowDescription = this.tableBuilders.newRowDescription()
-                .semanticCandidatesExpression(AQL + "self.getAllOrderedEntities(expandedIds, globalFilterData, columnFilters)->toPaginatedData(cursor,direction,size)")
+                .semanticCandidatesExpression(AQL + "self.getAllOrderedEntities(expandedIds, globalFilterData, columnFilters, activeRowFilterIds)->toPaginatedData(cursor,direction,size)")
                 .initialHeightExpression("-1")
                 .isResizableExpression(AQL + "true")
                 .headerLabelExpression(AQL + "self.name")
