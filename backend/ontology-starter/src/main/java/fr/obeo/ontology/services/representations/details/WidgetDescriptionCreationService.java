@@ -17,6 +17,7 @@ import fr.obeo.ontology.ontologymm.DataOwner;
 import fr.obeo.ontology.ontologymm.DataSource;
 import fr.obeo.ontology.ontologymm.OntologyPackage;
 import fr.obeo.ontology.ontologymm.OrganizationInformation;
+import fr.obeo.ontology.services.representations.EntityJavaService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
@@ -44,7 +44,6 @@ import org.eclipse.sirius.components.forms.WidgetIdProvider;
 import org.eclipse.sirius.components.forms.components.SelectComponent;
 import org.eclipse.sirius.components.forms.description.MultiSelectDescription;
 import org.eclipse.sirius.components.forms.description.SelectDescription;
-import org.eclipse.sirius.components.interpreter.SimpleCrossReferenceProvider;
 import org.eclipse.sirius.components.representations.Failure;
 import org.eclipse.sirius.components.representations.IStatus;
 import org.eclipse.sirius.components.representations.Message;
@@ -80,13 +79,16 @@ public class WidgetDescriptionCreationService {
 
     private final IFeedbackMessageService feedbackMessageService;
 
+    private final EntityJavaService entityJavaService;
+
     public WidgetDescriptionCreationService(IPropertiesConfigurerService propertiesConfigurerService, IIdentityService identityService, ILabelService labelService,
-            IObjectSearchService objectSearchService, IFeedbackMessageService feedbackMessageService) {
+            IObjectSearchService objectSearchService, IFeedbackMessageService feedbackMessageService, EntityJavaService entityJavaService) {
         this.propertiesConfigurerService = Objects.requireNonNull(propertiesConfigurerService);
         this.identityService = Objects.requireNonNull(identityService);
         this.labelService = Objects.requireNonNull(labelService);
         this.objectSearchService = Objects.requireNonNull(objectSearchService);
         this.feedbackMessageService = Objects.requireNonNull(feedbackMessageService);
+        this.entityJavaService = Objects.requireNonNull(entityJavaService);
     }
 
     public MultiSelectDescription createDataSourceMultiSelectWidgetDescription() {
@@ -104,7 +106,7 @@ public class WidgetDescriptionCreationService {
         Function<VariableManager, List<String>> valuesProvider = variableManager -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
                     .stream()
-                    .flatMap(entity -> this.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class))
+                    .flatMap(entity -> entityJavaService.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class))
                     .map(identityService::getId)
                     .toList();
         };
@@ -112,7 +114,7 @@ public class WidgetDescriptionCreationService {
         BiFunction<VariableManager, List<String>, IStatus> newHandlerProvider = (variableManager, newValues) -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
                     .map(entity -> {
-                        this.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class)
+                        entityJavaService.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class)
                                 .forEach(ds -> ds.getEntities().remove(entity));
 
                         variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class).stream()
@@ -165,7 +167,7 @@ public class WidgetDescriptionCreationService {
         };
         Function<VariableManager, String> valueProvider = variableManager -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
-                    .flatMap(entity -> this.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class))
+                    .flatMap(entity -> entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class))
                     .map(identityService::getId)
                     .orElse(null);
         };
@@ -173,7 +175,7 @@ public class WidgetDescriptionCreationService {
         BiFunction<VariableManager, String, IStatus> newHandlerProvider = (variableManager, newValue) -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
                     .map(entity -> {
-                        this.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class)
+                        entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class)
                                 .ifPresent(bd -> bd.getEntities().remove(entity));
 
                         variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
@@ -204,7 +206,7 @@ public class WidgetDescriptionCreationService {
                 };
         Function<VariableManager, String> valueProvider = variableManager -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
-                    .flatMap(entity -> this.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class))
+                    .flatMap(entity -> entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class))
                     .map(identityService::getId)
                     .orElse(null);
                 };
@@ -212,7 +214,7 @@ public class WidgetDescriptionCreationService {
         BiFunction<VariableManager, String, IStatus> newHandlerProvider = (variableManager, newValue) -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
                     .map(entity -> {
-                        this.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class)
+                        entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class)
                                 .ifPresent(bd -> bd.getEntities().remove(entity));
 
                         variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
@@ -252,19 +254,6 @@ public class WidgetDescriptionCreationService {
                 .kindProvider(this.propertiesConfigurerService.getKindProvider())
                 .messageProvider(this.propertiesConfigurerService.getMessageProvider())
                 .build();
-    }
-
-    public <T> Stream<T> objectsReferencingEntity(Entity coreObject, EStructuralFeature feature, Class<T> clazz) {
-        return new SimpleCrossReferenceProvider().getInverseReferences(coreObject).stream()
-                .filter(setting -> setting.getEStructuralFeature().equals(feature))
-                .map(EStructuralFeature.Setting::getEObject)
-                .filter(clazz::isInstance)
-                .map(clazz::cast);
-    }
-
-    public <T> Optional<T> objectReferencingEntity(Entity coreObject, EStructuralFeature feature, Class<T> clazz) {
-        return objectsReferencingEntity(coreObject, feature, clazz)
-                .findFirst();
     }
 
     public SelectDescription createSelectWidgetDescription(String widgetDescriptionId, String label, boolean isReadOnly, Object feature, Function<VariableManager, List<?>> optionsProvider) {

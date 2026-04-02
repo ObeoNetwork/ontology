@@ -10,12 +10,17 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.services.representations;
+package fr.obeo.ontology.services.representations.tables;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import fr.obeo.ontology.ontologymm.BusinessDomain;
+import fr.obeo.ontology.ontologymm.DataOwner;
+import fr.obeo.ontology.ontologymm.DataSource;
+import fr.obeo.ontology.ontologymm.OntologyPackage;
+import fr.obeo.ontology.services.representations.EntityJavaService;
 import fr.obeo.ontology.services.representations.providers.ViewEntityTableDescriptionProvider;
 
 import java.util.ArrayList;
@@ -27,29 +32,33 @@ import java.util.stream.Collectors;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.eclipse.sirius.components.core.api.ILabelService;
 import org.eclipse.sirius.components.tables.ColumnFilter;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.Namespace;
+import org.springframework.stereotype.Service;
 
 /**
- * Java services for Entity Table.
+ * Java Service for the Table view.
  *
- * @author fbarbin
+ * @author lfasani
  */
-public class EntityTableJavaService {
-
+@Service
+public class TableJavaService {
     private final IIdentityService identityService;
 
     private final ObjectMapper objectMapper;
 
     private final EntityJavaService entityJavaService;
 
-    public EntityTableJavaService(IIdentityService identityService, ObjectMapper objectMapper,
-            EntityJavaService entityJavaService) {
+    private final ILabelService labelService;
+
+    public TableJavaService(IIdentityService identityService, ObjectMapper objectMapper, EntityJavaService entityJavaService, ILabelService labelService) {
         this.identityService = Objects.requireNonNull(identityService);
         this.objectMapper = Objects.requireNonNull(objectMapper);
-        this.entityJavaService = entityJavaService;
+        this.entityJavaService = Objects.requireNonNull(entityJavaService);
+        this.labelService = Objects.requireNonNull(labelService);
     }
 
     public List<Entity> getAllOrderedEntities(Namespace namespace, List<Object> expandedIds, String globalFilter, List<ColumnFilter> columnFilters) {
@@ -161,10 +170,33 @@ public class EntityTableJavaService {
         return label;
     }
 
-    public String getEntityReferences(Entity self) {
-        return self.getOwnedReferences()
-                .stream()
-                .map(reference -> reference.getName())
+    public String getEntityReferencesCellLabel(Entity self) {
+        return self.getOwnedReferences().stream()
+                .map(object -> labelService.getStyledLabel(object).toString())
+                .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    public String getAttributesCellLabel(Entity entity) {
+        return entity.getOwnedAttributes().stream()
+                .map(object -> labelService.getStyledLabel(object).toString())
+                .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    public String getBusinessDomainCellLabel(Entity entity) {
+        return entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class)
+                .map(object -> labelService.getStyledLabel(object).toString())
+                .orElse("");
+    }
+
+    public String getDataOwnerCellLabel(Entity entity) {
+        return entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class)
+                .map(object -> labelService.getStyledLabel(object).toString())
+                .orElse("");
+    }
+
+    public String getDataSourceCellLabel(Entity entity) {
+        return entityJavaService.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class)
+                .map(object -> labelService.getStyledLabel(object).toString())
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 }

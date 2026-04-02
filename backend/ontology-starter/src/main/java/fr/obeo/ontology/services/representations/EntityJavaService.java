@@ -361,77 +361,16 @@ public class EntityJavaService {
         return attribute.getName() + " : " + attributeType;
     }
 
-//    public List<Entity> getEntitiesHierarchy(Entity entity) {
-//        ArrayList<Entity> entities = new ArrayList<>();
-//        entities.add(entity);
-//        Namespace level0 = (Namespace) entity.eContainer();
-//        Namespace entityNamespace = level0.getOwnedNamespaces().stream().filter(n -> n.getName() != null && n.getName().equals(entity.getName())).findFirst().get();
-//        if (entityNamespace != null) {
-//            for (Namespace namespace : entityNamespace.getOwnedNamespaces()) {
-//                entities.addAll(this.getEntities(namespace));
-//            }
-//        }
-//        return entities;
-//    }
+    public <T> Stream<T> objectsReferencingEntity(Entity coreObject, EStructuralFeature feature, Class<T> clazz) {
+        return new SimpleCrossReferenceProvider().getInverseReferences(coreObject).stream()
+                .filter(setting -> setting.getEStructuralFeature().equals(feature))
+                .map(EStructuralFeature.Setting::getEObject)
+                .filter(clazz::isInstance)
+                .map(clazz::cast);
+    }
 
-//    public Entity getEntitySuperType(Entity entity) {
-//        StructuredType superType = entity.getSupertype();
-//        if (superType instanceof Entity) {
-//            return (Entity) superType;
-//        }
-//        return null;
-//    }
-//
-//    public boolean hideEntityBorder(Entity entity) {
-//        String name = entity.getName();
-//        return entity.getSupertype() == null;
-//    }
-//
-//    public boolean hideEntityBorderLevel0(Entity entity, IDiagramContext diagramContext, IEditingContext editingContext) {
-//        Entity rootEntity = null;
-//        Diagram diagram = diagramContext.getDiagram();
-//        String targetObjectId = diagram.getTargetObjectId();
-//        Optional<Object> object = this.identityService.getObject(editingContext, targetObjectId);
-//        if (object.isPresent()) {
-//            rootEntity = (Entity) object.get();
-//        }
-//        ;
-//        return entity.getSupertype() == null && !entity.equals(rootEntity);
-//    }
-
-//    public Entity createEntity(Namespace namespace) {
-//        Entity newEntity = EntityFactory.eINSTANCE.createEntity();
-//        newEntity.setName("NewEntity");
-//        namespace.getTypes().add(newEntity);
-//        return newEntity;
-//    }
-
-//    public List<Entity> getEntityAndSiblings(Entity entity) {
-//        ArrayList<Entity> entities = new ArrayList<>();
-//        Namespace level0 = (Namespace) entity.eContainer();
-//        entities.addAll(level0.getTypes().stream().filter(Entity.class::isInstance).map(Entity.class::cast).collect(Collectors.toList()));
-//        return entities;
-//    }
-//
-//    public EList<Reference> getReferences(Entity entity) {
-//        return entity.getOwnedReferences();
-//    }
-//
-//    public Entity getReferencedType(EObject reference) {
-//        return (Entity) ((Reference) reference).getReferencedType();
-//
-//    }
-//
-//    public Entity getSource(EObject reference) {
-//        return (Entity) reference.eContainer();
-//
-//    }
-//
-//    public Reference createUnknownReference(Entity entitySource, Entity entityTarget) {
-//        Reference newReference = EnvironmentFactory.eINSTANCE.createReference();
-//        entitySource.getOwnedReferences().add(newReference);
-//        newReference.setReferencedType(entityTarget);
-//        return newReference;
-//    }
-
+    public <T> Optional<T> objectReferencingEntity(Entity coreObject, EStructuralFeature feature, Class<T> clazz) {
+        return objectsReferencingEntity(coreObject, feature, clazz)
+                .findFirst();
+    }
 }

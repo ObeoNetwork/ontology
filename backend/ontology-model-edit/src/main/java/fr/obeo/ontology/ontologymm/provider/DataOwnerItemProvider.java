@@ -153,13 +153,11 @@ public class DataOwnerItemProvider extends ItemProviderAdapter
         String label = ((DataOwner) object).getName();
         String code = ((DataOwner) object).getCode();
         StyledString styledLabel = new StyledString();
-        if ((label == null || label.length() == 0) && (code == null || code.length() == 0)) {
-            styledLabel.append(getString("_UI_DataOwner_type"), StyledString.Style.QUALIFIER_STYLER);
-        } else {
-            styledLabel.append((code != null && code.length() > 0) ? code : "")
-                    .append(" - ")
-                    .append((label != null && label.length() > 0) ? label : "");
-        }
+        boolean emptyCode = code == null || code.isEmpty();
+        boolean emptyLabel = label == null || label.isEmpty();
+        styledLabel.append(emptyCode ? getString("nocode") : code)
+                .append(" - ")
+                .append(emptyLabel ? getString("unnamed") : label);
         return styledLabel;
     }
 
