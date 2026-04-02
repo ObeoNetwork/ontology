@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
@@ -43,6 +45,7 @@ import org.eclipse.sirius.components.forms.WidgetIdProvider;
 import org.eclipse.sirius.components.forms.components.SelectComponent;
 import org.eclipse.sirius.components.forms.description.MultiSelectDescription;
 import org.eclipse.sirius.components.forms.description.SelectDescription;
+import org.eclipse.sirius.components.interpreter.SimpleCrossReferenceProvider;
 import org.eclipse.sirius.components.representations.Failure;
 import org.eclipse.sirius.components.representations.IStatus;
 import org.eclipse.sirius.components.representations.Message;
@@ -56,6 +59,7 @@ import org.eclipse.sirius.components.view.emf.form.converters.OptionIdProvider;
 import org.eclipse.sirius.components.view.emf.form.converters.TargetObjectIdProvider;
 import org.eclipse.sirius.components.view.emf.form.converters.validation.DiagnosticKindProvider;
 import org.eclipse.sirius.components.view.emf.form.converters.validation.DiagnosticMessageProvider;
+import org.eclipse.sirius.components.widget.reference.ReferenceWidgetComponent;
 import org.obeonetwork.dsl.entity.Entity;
 import org.springframework.stereotype.Service;
 
@@ -329,5 +333,22 @@ public class WidgetDescriptionCreationService {
         errorMessages.add(new Message(message, MessageLevel.ERROR));
         errorMessages.addAll(this.feedbackMessageService.getFeedbackMessages());
         return new Failure(errorMessages);
+    }
+
+    private IStatus handleSetReference(VariableManager variableManager, Object feature) {
+        IStatus result = new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
+        EObject referenceOwner = variableManager.get(VariableManager.SELF, EObject.class).orElse(null);
+        Optional<Object> item = variableManager.get(ReferenceWidgetComponent.NEW_VALUE, Object.class);
+
+        if (referenceOwner != null && feature instanceof EReference reference && item.isPresent()) {
+            if (reference.isMany()) {
+                result = this.createErrorStatus("Multiple-valued reference can only accept a list of values");
+            } else {
+                referenceOwner.eSet(reference, item.get());
+            }
+        } else {
+            result = this.createErrorStatus("Something went wrong while setting the reference value.");
+        }
+        return result;
     }
 }
