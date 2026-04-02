@@ -215,7 +215,7 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         TextfieldDescription codeDescription = this.propertiesWidgetCreationService.createTextField("dataOwner.code", "Code",
                 bd -> ((DataOwner) bd).getCode(),
                 (bd, newName) -> {
-                    ((DataOwner) bd).setName(newName);
+                    ((DataOwner) bd).setCode(newName);
                 }, OntologyPackage.Literals.DATA_OWNER__CODE);
         TextfieldDescription nameDescription = this.propertiesWidgetCreationService.createTextField("dataOwner.name", NAME,
                 bd -> ((DataOwner) bd).getName(),
@@ -235,7 +235,7 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         TextfieldDescription codeDescription = this.propertiesWidgetCreationService.createTextField("dataSource.code", "Code",
                 bd -> ((DataSource) bd).getCode(),
                 (bd, newName) -> {
-                    ((DataSource) bd).setName(newName);
+                    ((DataSource) bd).setCode(newName);
                 }, OntologyPackage.Literals.DATA_SOURCE__CODE);
         TextfieldDescription nameDescription = this.propertiesWidgetCreationService.createTextField("dataSource.name", NAME,
                 bd -> ((DataSource) bd).getName(),
