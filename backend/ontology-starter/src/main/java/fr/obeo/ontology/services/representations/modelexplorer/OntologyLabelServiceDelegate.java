@@ -14,7 +14,9 @@ import org.eclipse.sirius.components.core.api.ILabelServiceDelegate;
 import org.eclipse.sirius.components.core.api.labels.StyledString;
 import org.eclipse.sirius.components.emf.services.api.IStyledStringConverter;
 import org.obeonetwork.dsl.environment.Annotation;
+import org.obeonetwork.dsl.environment.Attribute;
 import org.obeonetwork.dsl.environment.MetaDataContainer;
+import org.obeonetwork.dsl.environment.Reference;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +29,8 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
 
     public static final String COMMENTS = "Comments";
 
+    public static final String UNNAMED = "(unnamed)";
+
     private final IDefaultLabelService defaultLabelService;
 
     private final IStyledStringConverter styledStringConverter;
@@ -38,7 +42,8 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
 
     @Override
     public boolean canHandle(Object object) {
-        return object instanceof MetaDataContainer || object instanceof Annotation || object instanceof EObject eObject && eObject.eClass().getEPackage().getNsURI().equals(OntologyPackage.eNS_URI);
+        return object instanceof MetaDataContainer || object instanceof Annotation || object instanceof Attribute || object instanceof Reference
+                || object instanceof EObject eObject && eObject.eClass().getEPackage().getNsURI().equals(OntologyPackage.eNS_URI);
     }
 
     @Override
@@ -47,7 +52,13 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
         if (object instanceof MetaDataContainer metaDataContainer) {
             styledString = StyledString.of(COMMENTS);
         } else if (object instanceof Annotation annotation) {
-            String title = Optional.ofNullable(annotation.getTitle()).map(Object::toString).orElse("");
+            String title = Optional.ofNullable(annotation.getTitle()).map(Object::toString).filter(str -> !str.isBlank()).orElse(UNNAMED);
+            styledString = StyledString.of(title);
+        } else if (object instanceof Attribute attribute) {
+            String title = Optional.ofNullable(attribute.getName()).map(Object::toString).filter(str -> !str.isBlank()).orElse(UNNAMED);
+            styledString = StyledString.of(title);
+        } else if (object instanceof Reference reference) {
+            String title = Optional.ofNullable(reference.getName()).map(Object::toString).filter(str -> !str.isBlank()).orElse(UNNAMED);
             styledString = StyledString.of(title);
         } else {
             // defaultLabelService does not fallback on xxxItemProviders so we need to call it explicitly

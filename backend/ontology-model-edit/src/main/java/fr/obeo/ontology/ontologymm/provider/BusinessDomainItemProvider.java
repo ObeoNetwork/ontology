@@ -141,7 +141,7 @@ public class BusinessDomainItemProvider extends ItemProviderAdapter
         String label = ((BusinessDomain) object).getName();
         StyledString styledLabel = new StyledString();
         if (label == null || label.length() == 0) {
-            styledLabel.append(getString("_UI_BusinessDomain_type"), StyledString.Style.QUALIFIER_STYLER);
+            styledLabel.append(getString("unnamed"), StyledString.Style.QUALIFIER_STYLER);
         } else {
             styledLabel.append(label);
         }
