@@ -12,7 +12,7 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations;
 
-import fr.obeo.ontology.services.representations.modelexplorer.OntologyExplorerServices;
+import fr.obeo.ontology.services.representations.modelexplorer.OntologyExplorerJavaService;
 import fr.obeo.ontology.services.representations.tables.TableJavaService;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class EntityJavaServiceProvider implements IJavaServiceProvider {
         boolean isEntityView = view.getDescriptions().stream()
                 .anyMatch(representationDescription -> representationDescription.getDomainType().equals("entity::Entity"));
         if (isEntityView) {
-            return List.of(EntityJavaService.class, OntologyExplorerServices.class, TableJavaService.class);
+            return List.of(EntityJavaService.class, OntologyExplorerJavaService.class, TableJavaService.class);
         }
         return List.of();
     }

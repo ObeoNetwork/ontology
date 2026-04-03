@@ -142,11 +142,21 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createSubEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Sub Entity")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression("aql:self.canCreateNewSubEntityExplorer()")
                 .labelExpression("New Sub Entity")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
                         .expression("aql:self.createSubEntity('New Sub Entity')")
+                        .build())
+                .build();
+
+        SingleClickTreeItemContextMenuEntry createCoreEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
+                .name("New Sub Entity")
+                .preconditionExpression("aql:self.oclIsKindOf(environment::Namespace)")
+                .labelExpression("New Core Entity")
+                .iconURLExpression("/customImages/create.svg")
+                .body(new ChangeContextBuilder()
+                        .expression("aql:self.createCoreEntity('New Core Entity')")
                         .build())
                 .build();
 
@@ -191,6 +201,6 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                         .build())
                 .build();
 
-        return List.of(createSubEntity, createOrganizationObject, createComment, createAttribute, createReference);
+        return List.of(createSubEntity, createCoreEntity, createOrganizationObject, createComment, createAttribute, createReference);
     }
 }

@@ -214,7 +214,7 @@ public class TableJavaService {
     }
 
     public boolean canCreateNewSubEntity(Entity entity) {
-        return this.entityJavaService.getEntityLevel(entity) < 3;
+        return this.entityJavaService.canCreateNewSubEntity(entity);
     }
 
     public Entity createSiblingEntry(Entity entity) {

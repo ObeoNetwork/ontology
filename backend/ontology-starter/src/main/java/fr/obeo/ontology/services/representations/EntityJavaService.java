@@ -185,13 +185,22 @@ public class EntityJavaService {
     }
 
     public Entity createSubEntity(Entity entity, String name) {
-        Entity subEntity = EntityFactory.eINSTANCE.createEntity();
-        subEntity.setName(name);
-        subEntity.setSupertype(entity);
+        Entity subEntity = null;
 
-        if (entity.eContainer() instanceof TypesDefinition typesDefinition) {
-            typesDefinition.getTypes().add(subEntity);
+        if (this.canCreateNewSubEntity(entity)) {
+            subEntity = EntityFactory.eINSTANCE.createEntity();
+            subEntity.setName(name);
+            subEntity.setSupertype(entity);
+
+            if (entity.eContainer() instanceof TypesDefinition typesDefinition) {
+                typesDefinition.getTypes().add(subEntity);
+            }
+
+        } else {
+            String message = "Cannot create sub-entity: maximum depth of " + NB_LEVEL + " levels reached";
+            this.feedbackMessageService.addFeedbackMessage(new Message(message, MessageLevel.ERROR));
         }
+
         return subEntity;
     }
 
@@ -374,4 +383,9 @@ public class EntityJavaService {
         return objectsReferencingEntity(coreObject, feature, clazz)
                 .findFirst();
     }
+
+    public boolean canCreateNewSubEntity(Entity entity) {
+        return this.getEntityLevel(entity) < NB_LEVEL;
+    }
+
 }

@@ -43,6 +43,7 @@ import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.service
 import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.RepresentationMetadata;
 import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.services.api.IRepresentationMetadataSearchService;
 import org.obeonetwork.dsl.entity.Entity;
+import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.entity.Root;
 import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.Attribute;
@@ -57,14 +58,14 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
  *
  * @author lfasani
  */
-public class OntologyExplorerServices {
+public class OntologyExplorerJavaService {
     public static final String FRAGMENT_URI_PREFIX = "o://fragment";
 
     public static final String SEMANTIC_OBJECT_ID_PARAM = "objectId";
 
     public static final String FRAGMENT_TYPE_PARAM = "fragmentType";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OntologyExplorerServices.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OntologyExplorerJavaService.class);
 
     private final IIdentityService identityService;
 
@@ -84,10 +85,10 @@ public class OntologyExplorerServices {
 
     private final IURLParser urlParser;
 
-    public OntologyExplorerServices(IIdentityService identityService, ILabelService labelService, IObjectSearchService objectSearchService,
-            IRepresentationMetadataSearchService representationMetadataSearchService,
-            IExplorerServices explorerServices, IExplorerLabelService explorerLabelService,
-            IProjectSemanticDataSearchService projectSemanticDataSearchService, EntityJavaService entityJavaService, IURLParser urlParser) {
+    public OntologyExplorerJavaService(IIdentityService identityService, ILabelService labelService, IObjectSearchService objectSearchService,
+                                       IRepresentationMetadataSearchService representationMetadataSearchService,
+                                       IExplorerServices explorerServices, IExplorerLabelService explorerLabelService,
+                                       IProjectSemanticDataSearchService projectSemanticDataSearchService, EntityJavaService entityJavaService, IURLParser urlParser) {
         this.identityService = Objects.requireNonNull(identityService);
         this.labelService = labelService;
         this.objectSearchService = objectSearchService;
@@ -508,5 +509,18 @@ public class OntologyExplorerServices {
                     return label;
                 })
                 .orElse("");
+    }
+
+    public boolean canCreateNewSubEntityExplorer(Object self) {
+        return self instanceof Entity entity
+                && this.entityJavaService.canCreateNewSubEntity(entity);
+    }
+
+    public Entity createCoreEntity(Namespace namespace, String name) {
+        Entity newCoreEntity = EntityFactory.eINSTANCE.createEntity();
+        newCoreEntity.setName(name);
+        namespace.getTypes().add(newCoreEntity);
+
+        return newCoreEntity;
     }
 }

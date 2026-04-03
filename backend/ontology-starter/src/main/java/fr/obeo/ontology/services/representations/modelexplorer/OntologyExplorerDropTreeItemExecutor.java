@@ -55,13 +55,15 @@ public class OntologyExplorerDropTreeItemExecutor implements IExplorerDropTreeIt
         List<String> failingDropMessages = new ArrayList<>();
         var optionalTarget = this.objectSearchService.getObject(editingContext, targetElementId);
 
+        String invalidDropTargetMessage = "Unable to move the element to the selected target";
+
         if (optionalTarget.isPresent() && optionalTarget.get() instanceof Entity target) {
 
             List<Entity> droppedEntities = droppedElementIds.stream()
                     .map(droppedElementId -> this.isEntity(editingContext, droppedElementId))
                     .peek(optTarget -> {
                         if (optTarget.isEmpty()) {
-                            failingDropMessages.add("Unable to move the element in selected target");
+                            failingDropMessages.add(invalidDropTargetMessage);
                         }
                     })
                     .flatMap(Optional::stream)
@@ -83,13 +85,13 @@ public class OntologyExplorerDropTreeItemExecutor implements IExplorerDropTreeIt
                 droppedEntities.forEach(droppedEntity -> droppedEntity.setSupertype(null));
             }
         } else {
-            failingDropMessages.add("Unable to move the element in selected target");
+            failingDropMessages.add(invalidDropTargetMessage);
         }
 
         if (atLeastOneSuccessDrop) {
-            return new Success(failingDropMessages.stream().map(m -> new Message(m, MessageLevel.WARNING)).toList());
+            return new Success(failingDropMessages.stream().map(msg -> new Message(msg, MessageLevel.WARNING)).toList());
         } else {
-            return new Failure(failingDropMessages.stream().map(m -> new Message(m, MessageLevel.WARNING)).toList());
+            return new Failure(failingDropMessages.stream().map(msg -> new Message(msg, MessageLevel.WARNING)).toList());
         }
     }
 
@@ -107,11 +109,11 @@ public class OntologyExplorerDropTreeItemExecutor implements IExplorerDropTreeIt
         if (droppedElement.getSupertype() == target) {
             result = false;
         } else if (this.isTargetDescendantOf(droppedElement, target)) {
-            failingDropMessages.add("The target element cannot be a descendant of the moved element.");
+            failingDropMessages.add("The target element cannot be a descendant of the moved element");
             result = false;
         } else if (targetLevel + droppedElementSubtreeDepth > 3) {
             failingDropMessages.add("The target element cannot accept the dropped element because the maximum depth of "
-                    + 3 + " levels would be exceeded.");
+                    + 3 + " levels would be exceeded");
             result = false;
         }
 
