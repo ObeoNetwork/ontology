@@ -23,6 +23,8 @@ import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.entity.Root;
 import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.Namespace;
+import org.obeonetwork.dsl.environment.PrimitiveType;
+import org.obeonetwork.dsl.environment.PrimitiveTypeKind;
 
 /**
  * Builder for samples of Ontology.
@@ -37,6 +39,7 @@ public class OntologySampleBuilder {
 
         Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
         namespace.setName("Core entities");
+        namespace.getTypes().addAll(this.createPrimitiveTypes());
         root.getOwnedNamespaces().add(namespace);
 
         Entity coreEntity = EntityFactory.eINSTANCE.createEntity();
@@ -50,5 +53,25 @@ public class OntologySampleBuilder {
         organizationInformation.setName("Organization Information");
 
         return List.of(root, organizationInformation);
+    }
+
+    private List<PrimitiveType> createPrimitiveTypes() {
+        PrimitiveType booleanType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        booleanType.setName("Boolean");
+        booleanType.setKind(PrimitiveTypeKind.OTHER);
+
+        PrimitiveType integerType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        integerType.setName("Int");
+        integerType.setKind(PrimitiveTypeKind.NUMBER);
+
+        PrimitiveType doubleType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        doubleType.setName("Double");
+        doubleType.setKind(PrimitiveTypeKind.NUMBER);
+
+        PrimitiveType stringType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        stringType.setName("String");
+        stringType.setKind(PrimitiveTypeKind.TEXT);
+
+        return List.of(booleanType, integerType, doubleType, stringType);
     }
 }
