@@ -55,7 +55,7 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
                 .titleExpression("aql:self.name + ' Relations'")
                 .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .arrangeLayoutDirection(ArrangeLayoutDirection.RIGHT)
-                .autoLayout(true)
+                .autoLayout(false)
                 .toolbar(this.diagramToolbarBuilder.build())
                 .build();
 

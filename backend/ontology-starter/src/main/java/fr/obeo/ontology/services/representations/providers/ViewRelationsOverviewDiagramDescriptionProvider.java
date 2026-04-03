@@ -59,7 +59,7 @@ public class ViewRelationsOverviewDiagramDescriptionProvider implements IReprese
                 .titleExpression("aql:self.name + ' Relations Overview'")
                 .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .arrangeLayoutDirection(ArrangeLayoutDirection.RIGHT)
-                .autoLayout(true)
+                .autoLayout(false)
                 .toolbar(this.diagramToolbarBuilder.build())
                 .build();
 
