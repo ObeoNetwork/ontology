@@ -357,7 +357,7 @@ public class EntityJavaService {
     }
 
     public String getAttributeItemLabel(Attribute attribute) {
-        var attributeType = attribute.getType() != null ? attribute.getType() : "undefined";
+        var attributeType = attribute.getType() != null ? attribute.getType().getName() : "undefined";
         return attribute.getName() + " : " + attributeType;
     }
 
