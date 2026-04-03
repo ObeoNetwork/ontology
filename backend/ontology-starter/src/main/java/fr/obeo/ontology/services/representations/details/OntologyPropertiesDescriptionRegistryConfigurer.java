@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
@@ -30,11 +29,11 @@ import org.eclipse.sirius.components.forms.description.TextfieldDescription;
 import org.eclipse.sirius.components.representations.VariableManager;
 import org.eclipse.sirius.components.view.emf.compatibility.IPropertiesConfigurerService;
 import org.eclipse.sirius.components.view.emf.compatibility.IPropertiesWidgetCreationService;
-import org.eclipse.sirius.components.widget.reference.ReferenceWidgetDescription;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityPackage;
 import org.obeonetwork.dsl.entity.Root;
 import org.obeonetwork.dsl.environment.Attribute;
+import org.obeonetwork.dsl.environment.DataType;
 import org.obeonetwork.dsl.environment.EnvironmentPackage;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.NamespacesContainer;
@@ -188,7 +187,16 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         TextfieldDescription descriptionDescription = this.getDescriptionTextfieldDescription();
 
         SelectDescription superTypeDescription = this.widgetDescriptionCreationService.createSelectWidgetDescription("entity.superType", "Super Type", true,
-                EnvironmentPackage.Literals.STRUCTURED_TYPE__SUPERTYPE, variableManager -> this.getChoiceOfValue(variableManager, EnvironmentPackage.Literals.STRUCTURED_TYPE__SUPERTYPE));
+                EnvironmentPackage.Literals.STRUCTURED_TYPE__SUPERTYPE, variableManager -> {
+                    return variableManager.get(VariableManager.SELF, Entity.class)
+                            .map(EObject::eContainer)
+                            .filter(Namespace.class::isInstance).stream()
+                            .map(Namespace.class::cast)
+                            .flatMap(namespace -> namespace.getTypes().stream())
+                            .filter(Entity.class::isInstance)
+                            .map(Entity.class::cast)
+                            .toList();
+                });
         SelectDescription businessDomainDescription = this.widgetDescriptionCreationService.createBusinessAreaSelectWidgetDescription();
         SelectDescription dataOwnerSelectWidgetDescription = this.widgetDescriptionCreationService.createDataOwnerSelectWidgetDescription();
         MultiSelectDescription dataSourceSelectWidgetDescription = this.widgetDescriptionCreationService.createDataSourceMultiSelectWidgetDescription();
@@ -256,9 +264,18 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         TextfieldDescription descriptionDescription = this.getDescriptionTextfieldDescription();
         RadioDescription multiplicityRadioDescription = this.getMultiplicityRadioDescription();
 
-        EReference attributeType = EnvironmentPackage.Literals.ATTRIBUTE__TYPE;
-        ReferenceWidgetDescription typeDescription = this.propertiesWidgetCreationService.createReferenceWidget("attribute.type", "Type",
-                attributeType, variableManager -> this.getChoiceOfValue(variableManager, attributeType));
+        SelectDescription typeDescription = this.widgetDescriptionCreationService.createSelectWidgetDescription("attribute.type", "Type", false,
+                EnvironmentPackage.Literals.ATTRIBUTE__TYPE, variableManager -> {
+                    return variableManager.get(VariableManager.SELF, Attribute.class)
+                            .map(EObject::eContainer)
+                            .map(EObject::eContainer)
+                            .filter(Namespace.class::isInstance).stream()
+                            .map(Namespace.class::cast)
+                            .flatMap(namespace -> namespace.getTypes().stream())
+                            .filter(DataType.class::isInstance)
+                            .map(DataType.class::cast)
+                            .toList();
+                });
 
         return List.of(nameDescription, descriptionDescription, typeDescription, multiplicityRadioDescription);
     }
@@ -272,9 +289,18 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         TextfieldDescription descriptionDescription = this.getDescriptionTextfieldDescription();
         RadioDescription multiplicityRadioDescription = this.getMultiplicityRadioDescription();
 
-        EReference attributeType = EnvironmentPackage.Literals.REFERENCE__REFERENCED_TYPE;
-        ReferenceWidgetDescription typeDescription = this.propertiesWidgetCreationService.createReferenceWidget("reference.referencedType", "Referenced Type",
-                attributeType, variableManager -> this.getChoiceOfValue(variableManager, attributeType));
+        SelectDescription typeDescription = this.widgetDescriptionCreationService.createSelectWidgetDescription("reference.referencedType", "Referenced Type", false,
+                EnvironmentPackage.Literals.REFERENCE__REFERENCED_TYPE, variableManager -> {
+                    return variableManager.get(VariableManager.SELF, Reference.class)
+                            .map(EObject::eContainer)
+                            .map(EObject::eContainer)
+                            .filter(Namespace.class::isInstance).stream()
+                            .map(Namespace.class::cast)
+                            .flatMap(namespace -> namespace.getTypes().stream())
+                            .filter(Entity.class::isInstance)
+                            .map(Entity.class::cast)
+                            .toList();
+                });
 
         return List.of(nameDescription, descriptionDescription, typeDescription, multiplicityRadioDescription);
     }
