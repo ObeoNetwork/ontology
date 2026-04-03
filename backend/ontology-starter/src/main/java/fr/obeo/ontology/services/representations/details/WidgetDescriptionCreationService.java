@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -57,7 +56,6 @@ import org.eclipse.sirius.components.view.emf.form.converters.OptionIdProvider;
 import org.eclipse.sirius.components.view.emf.form.converters.TargetObjectIdProvider;
 import org.eclipse.sirius.components.view.emf.form.converters.validation.DiagnosticKindProvider;
 import org.eclipse.sirius.components.view.emf.form.converters.validation.DiagnosticMessageProvider;
-import org.eclipse.sirius.components.widget.reference.ReferenceWidgetComponent;
 import org.obeonetwork.dsl.entity.Entity;
 import org.springframework.stereotype.Service;
 
@@ -256,7 +254,8 @@ public class WidgetDescriptionCreationService {
                 .build();
     }
 
-    public SelectDescription createSelectWidgetDescription(String widgetDescriptionId, String label, boolean isReadOnly, Object feature, Function<VariableManager, List<?>> optionsProvider) {
+    public SelectDescription createSelectWidgetDescription(String widgetDescriptionId, String label, boolean isReadOnly, EStructuralFeature feature,
+            Function<VariableManager, List<?>> optionsProvider) {
         return SelectDescription.newSelectDescription(widgetDescriptionId)
                 .isReadOnlyProvider(__ -> isReadOnly)
                 .idProvider(variableManager -> widgetDescriptionId)
@@ -279,10 +278,19 @@ public class WidgetDescriptionCreationService {
                 .build();
     }
 
-    private BiFunction<VariableManager, String, IStatus> getSelectNewValueHandler(Object feature) {
+    private BiFunction<VariableManager, String, IStatus> getSelectNewValueHandler(EStructuralFeature feature) {
         return (variableManager, newValue) -> {
-            variableManager.put(ReferenceWidgetComponent.NEW_VALUE, newValue);
-            return this.handleSetReference(variableManager, feature);
+            return variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
+                    .flatMap(iEditingContext -> objectSearchService.getObject(iEditingContext, newValue))
+                    .map(newObjectValue -> {
+                        return variableManager.get(VariableManager.SELF, EObject.class)
+                                .map(referenceOwner -> {
+                                    referenceOwner.eSet(feature, newObjectValue);
+                                    return (IStatus) new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
+                                })
+                                .orElseGet(() -> this.createErrorStatus("Something went wrong while setting the reference value."));
+                    })
+                    .orElseGet(() -> this.createErrorStatus("Something went wrong while setting the reference value."));
         };
     }
 
@@ -312,22 +320,5 @@ public class WidgetDescriptionCreationService {
         errorMessages.add(new Message(message, MessageLevel.ERROR));
         errorMessages.addAll(this.feedbackMessageService.getFeedbackMessages());
         return new Failure(errorMessages);
-    }
-
-    private IStatus handleSetReference(VariableManager variableManager, Object feature) {
-        IStatus result = new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
-        EObject referenceOwner = variableManager.get(VariableManager.SELF, EObject.class).orElse(null);
-        Optional<Object> item = variableManager.get(ReferenceWidgetComponent.NEW_VALUE, Object.class);
-
-        if (referenceOwner != null && feature instanceof EReference reference && item.isPresent()) {
-            if (reference.isMany()) {
-                result = this.createErrorStatus("Multiple-valued reference can only accept a list of values");
-            } else {
-                referenceOwner.eSet(reference, item.get());
-            }
-        } else {
-            result = this.createErrorStatus("Something went wrong while setting the reference value.");
-        }
-        return result;
     }
 }
