@@ -85,9 +85,9 @@ public class AttributesTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return UriComponentsBuilder.fromUriString(OntologyExplorerServices.FRAGMENT_URI_PREFIX)
-                .queryParam(OntologyExplorerServices.FRAGMENT_TYPE_PARAM, TYPE)
-                .queryParam(OntologyExplorerServices.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
+        return UriComponentsBuilder.fromUriString(OntologyExplorerJavaService.FRAGMENT_URI_PREFIX)
+                .queryParam(OntologyExplorerJavaService.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(OntologyExplorerJavaService.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
                 .encode()
                 .build().toUri().toString();
     }
