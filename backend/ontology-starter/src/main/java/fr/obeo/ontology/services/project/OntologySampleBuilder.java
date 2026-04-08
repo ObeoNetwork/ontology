@@ -32,6 +32,15 @@ import org.obeonetwork.dsl.environment.PrimitiveTypeKind;
  * @author lfasani
  */
 public class OntologySampleBuilder {
+
+    public static final String BOOLEAN_TYPE = "Boolean";
+
+    public static final String INT_TYPE = "Int";
+
+    public static final String DOUBLE_TYPE = "Double";
+
+    public static final String STRING_TYPE = "String";
+
     public List<EObject> getEmptySampleContent() {
 
         Root root = EntityFactory.eINSTANCE.createRoot();
@@ -57,19 +66,19 @@ public class OntologySampleBuilder {
 
     private List<PrimitiveType> createPrimitiveTypes() {
         PrimitiveType booleanType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
-        booleanType.setName("Boolean");
+        booleanType.setName(BOOLEAN_TYPE);
         booleanType.setKind(PrimitiveTypeKind.OTHER);
 
         PrimitiveType integerType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
-        integerType.setName("Int");
+        integerType.setName(INT_TYPE);
         integerType.setKind(PrimitiveTypeKind.NUMBER);
 
         PrimitiveType doubleType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
-        doubleType.setName("Double");
+        doubleType.setName(DOUBLE_TYPE);
         doubleType.setKind(PrimitiveTypeKind.NUMBER);
 
         PrimitiveType stringType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
-        stringType.setName("String");
+        stringType.setName(STRING_TYPE);
         stringType.setKind(PrimitiveTypeKind.TEXT);
 
         return List.of(booleanType, integerType, doubleType, stringType);

@@ -108,7 +108,7 @@ public class BusinessDomainItemProvider extends ItemProviderAdapter
      */
     @Override
     public Object getImage(Object object) {
-        return overlayImage(object, getResourceLocator().getImage("full/obj16/BusinessDomain"));
+        return overlayImage(object, getResourceLocator().getImage("full/obj16/BusinessDomain.svg"));
     }
 
     /**

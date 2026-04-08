@@ -120,7 +120,7 @@ public class DataOwnerItemProvider extends ItemProviderAdapter
      */
     @Override
     public Object getImage(Object object) {
-        return overlayImage(object, getResourceLocator().getImage("full/obj16/DataOwner"));
+        return overlayImage(object, getResourceLocator().getImage("full/obj16/DataOwner.svg"));
     }
 
     /**
