@@ -31,6 +31,7 @@ import org.eclipse.sirius.components.core.api.IEditService;
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IFeedbackMessageService;
 import org.eclipse.sirius.components.core.api.IIdentityService;
+import org.eclipse.sirius.components.core.api.IObjectSearchService;
 import org.eclipse.sirius.components.diagrams.Diagram;
 import org.eclipse.sirius.components.diagrams.Node;
 import org.eclipse.sirius.components.diagrams.ViewCreationRequest;
@@ -68,22 +69,16 @@ public class EntityJavaService {
 
     private final IIdentityService identityService;
 
-    public EntityJavaService(IEditService editService, FeedbackMessageService feedbackMessageService, IIdentityService identityService) {
+    private final IObjectSearchService objectSearchService;
+
+    public EntityJavaService(IEditService editService, FeedbackMessageService feedbackMessageService, IIdentityService identityService, IObjectSearchService objectSearchService) {
         this.editService = Objects.requireNonNull(editService);
         this.feedbackMessageService = Objects.requireNonNull(feedbackMessageService);
         this.identityService = Objects.requireNonNull(identityService);
+        this.objectSearchService = Objects.requireNonNull(objectSearchService);
     }
 
-    public boolean canCreateEntityDiagram(Entity entity) {
-        // TODO : condition de création
-        return true;
-    }
-
-    public boolean isDropableInThisContainer(EObject eObject) {
-        return true;
-    }
-
-    public void dropEntity(Entity droppedElement, Node targetNode, DiagramContext diagramContext) {
+    public void dropEntityInContainer(Entity droppedElement, Node targetNode, DiagramContext diagramContext) {
         List<String> nodeIds = diagramContext.diagram().getNodes().stream()
                 .map(Node::getId)
                 .toList();
@@ -92,28 +87,40 @@ public class EntityJavaService {
         int sourceLevel = this.getEntityLevel(droppedElement);
 
         StructuredType superType = droppedElement.getSupertype();
-        if (targetLevel == (sourceLevel + 1) && superType instanceof Entity superEntity) {
-            if (this.isDropAuthorized(droppedElement, sourceLevel)) {
+        if (this.isDropAuthorized(droppedElement, targetLevel)) {
+            if (targetLevel == (sourceLevel + 1) && superType instanceof Entity superEntity) {
                 // We create an intermediary entity between the super entity and the dropped entity
                 Entity newEntity = this.createSubEntity(superEntity, "New entity");
                 droppedElement.setSupertype(newEntity);
+            } else if (targetLevel == (sourceLevel - 1) && superType instanceof Entity superEntity) {
+                // the super entity is now the super entity of the super entity
+                droppedElement.setSupertype(superType.getSupertype());
             }
-
-        } else if (targetLevel == (sourceLevel - 1) && superType instanceof Entity superEntity) {
-            // the super entity is now the super entity of the super entity
-            droppedElement.setSupertype(superType.getSupertype());
         }
+    }
+
+    public void dropEntityInEntity(Entity droppedElement, IEditingContext editingContext, Node targetNode, DiagramContext diagramContext) {
+        objectSearchService.getObject(editingContext, targetNode.getTargetObjectId())
+                .filter(Entity.class::isInstance)
+                .map(Entity.class::cast)
+                .ifPresent(targetEntity -> {
+                    int targetLevel = this.getEntityLevel(targetEntity) + 1;
+
+                    if (this.isDropAuthorized(droppedElement, targetLevel)) {
+                        droppedElement.setSupertype(targetEntity);
+                    }
+                });
     }
 
     /**
      * Send a message is the drop is forbidden. The drop is authorized if the "moved" tree of entities results in entities with level NB_LEVEL at maximum.
      */
-    private boolean isDropAuthorized(Entity entity, int currentLevel) {
+    private boolean isDropAuthorized(Entity droppedEntity, int targetLevel) {
         int subEntitiesDepth = 0;
-        List<Entity> subEntities = this.getSubEntities(entity);
+        List<Entity> subEntities = this.getSubEntities(droppedEntity);
         while (!subEntities.isEmpty()) {
             subEntitiesDepth = subEntitiesDepth + 1;
-            if (subEntitiesDepth + currentLevel >= this.NB_LEVEL) {
+            if (targetLevel + subEntitiesDepth > this.NB_LEVEL) {
                 break;
             }
             subEntities = subEntities.stream()
@@ -121,9 +128,8 @@ public class EntityJavaService {
                     .toList();
         }
 
-        if (subEntitiesDepth + currentLevel >= this.NB_LEVEL) {
-            var message = "The operation is not authorized because the maximum depth of " + NB_LEVEL + " levels would be exceeded";
-            this.feedbackMessageService.addFeedbackMessage(new Message(message, MessageLevel.INFO));
+        if (targetLevel + subEntitiesDepth > this.NB_LEVEL) {
+            var message = "The operation is not authorized because the maximum depth of " + NB_LEVEL + " levels would be exceeded";            this.feedbackMessageService.addFeedbackMessage(new Message(message, MessageLevel.INFO));
             return false;
         }
         return true;
@@ -283,11 +289,11 @@ public class EntityJavaService {
 
     public List<Entity> getRelationsSemanticCandidates(Entity entity) {
         return Stream.concat(
-                Stream.of(entity),
-                entity.getOwnedReferences().stream()
-                        .map(Reference::getReferencedType)
-                        .filter(Entity.class::isInstance)
-                        .map(Entity.class::cast))
+                        Stream.of(entity),
+                        entity.getOwnedReferences().stream()
+                                .map(Reference::getReferencedType)
+                                .filter(Entity.class::isInstance)
+                                .map(Entity.class::cast))
                 .distinct()
                 .toList();
     }
@@ -321,7 +327,7 @@ public class EntityJavaService {
     }
 
     public Object dropIntoDiagramFromExplorer(Object droppedElement, Object selectedNode, IEditingContext editingContext, DiagramContext diagramContext,
-                                              Map<NodeDescription, org.eclipse.sirius.components.diagrams.description.NodeDescription> convertedNodes) {
+            Map<NodeDescription, org.eclipse.sirius.components.diagrams.description.NodeDescription> convertedNodes) {
         if (Objects.isNull(selectedNode)) {
             var droppedElementId = this.identityService.getId(droppedElement);
             var diagramId = diagramContext.diagram().getId();

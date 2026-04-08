@@ -12,6 +12,8 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.diagrams.entity.nodes;
 
+import java.util.Objects;
+
 import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.generated.view.ChangeContextBuilder;
@@ -21,8 +23,6 @@ import org.eclipse.sirius.components.view.diagram.HeaderSeparatorDisplayMode;
 import org.eclipse.sirius.components.view.diagram.InsideLabelDescription;
 import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.eclipse.sirius.components.view.diagram.RectangularNodeStyleDescription;
-
-import java.util.Objects;
 
 /**
  * Used to create the container node for level>0.
@@ -117,13 +117,28 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
             containerNodeDescription.setPalette(new DiagramBuilders().newNodePalette()
                     .dropNodeTool(new DiagramBuilders().newDropNodeTool()
                             .name("DropEntityNodeTool" + this.level)
-                            .preconditionExpression("aql:self.isDropableInThisContainer()")
                             .acceptedNodeTypes(nodeDescriptionOfOtherContainer)
                             .body(new ChangeContextBuilder()
-                                    .expression("aql:droppedElements.dropEntity(targetNode,diagramContext)")
+                                    .expression("aql:droppedElements.dropEntityInContainer(targetNode,diagramContext)")
                                     .build())
                             .build())
                     .build());
+
+            // Allow dragging entity node to other entity node
+            NodeDescription[] allNodeDescriptions = cache.getNodeDescriptions().stream()
+                    .filter(nodeDescription -> nodeDescription.getName().startsWith(CONTAINER_NODE_LEVEL_NAME))
+                    .map(nodeDescription -> nodeDescription.getChildrenDescriptions().get(0))
+                    .toList()
+                    .toArray(NodeDescription[]::new);
+
+            containerNodeDescription.getChildrenDescriptions().get(0).getPalette().setDropNodeTool(
+                    new DiagramBuilders().newDropNodeTool()
+                            .name("DropEntityInEntityNodeTool" + this.level)
+                            .acceptedNodeTypes(allNodeDescriptions)
+                            .body(new ChangeContextBuilder()
+                                    .expression("aql:droppedElements.dropEntityInEntity(editingContext, targetNode,diagramContext)")
+                                    .build())
+                            .build());
         });
     }
 }
