@@ -120,7 +120,7 @@ public class DataSourceItemProvider extends ItemProviderAdapter
      */
     @Override
     public Object getImage(Object object) {
-        return overlayImage(object, getResourceLocator().getImage("full/obj16/DataSource"));
+        return overlayImage(object, getResourceLocator().getImage("full/obj16/DataSource.svg"));
     }
 
     /**

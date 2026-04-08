@@ -46,7 +46,7 @@ public class BusinessDomainsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public List<String> getIconURL() {
-        return List.of();
+        return List.of("customImages/businessDomain_many.svg");
     }
 
     @Override

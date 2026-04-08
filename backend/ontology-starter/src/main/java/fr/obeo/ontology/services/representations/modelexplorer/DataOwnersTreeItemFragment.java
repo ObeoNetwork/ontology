@@ -46,7 +46,7 @@ public class DataOwnersTreeItemFragment implements TreeItemFragment {
 
     @Override
     public List<String> getIconURL() {
-        return List.of();
+        return List.of("customImages/dataOwner_many.svg");
     }
 
     @Override

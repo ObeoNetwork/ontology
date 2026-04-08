@@ -46,7 +46,7 @@ public class DataSourcesTreeItemFragment implements TreeItemFragment {
 
     @Override
     public List<String> getIconURL() {
-        return List.of();
+        return List.of("customImages/dataSource_many.svg");
     }
 
     @Override
