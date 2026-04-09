@@ -118,7 +118,7 @@ public class EntityJavaService {
         }
 
         if (subEntitiesDepth + currentLevel >= this.NB_LEVEL) {
-            var message = "The operation is not authorized because the move operation includes entities of level " + this.NB_LEVEL;
+            var message = "The operation is not authorized because the maximum depth of " + NB_LEVEL + " levels would be exceeded";
             this.feedbackMessageService.addFeedbackMessage(new Message(message, MessageLevel.INFO));
             return false;
         }
