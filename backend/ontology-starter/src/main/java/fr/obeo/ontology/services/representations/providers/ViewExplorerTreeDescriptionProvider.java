@@ -146,7 +146,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .labelExpression("New Sub Entity")
                 .iconURLExpression("/customImages/create.svg")
                 .body(new ChangeContextBuilder()
-                        .expression("aql:self.createSubEntity('New Sub Entity')")
+                        .expression("aql:self.createSubEntity('New Sub')")
                         .build())
                 .build();
 

@@ -14,6 +14,9 @@ package fr.obeo.ontology.services.representations.diagrams.relationsoverview.edg
 
 import fr.obeo.ontology.services.representations.diagrams.AbstractDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relationsoverview.nodes.EntityUnsynchronizedNodeDescriptionProvider;
+
+import java.util.Objects;
+
 import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
@@ -23,8 +26,6 @@ import org.eclipse.sirius.components.view.diagram.EdgeDescription;
 import org.eclipse.sirius.components.view.diagram.EdgeStyle;
 import org.eclipse.sirius.components.view.diagram.EdgeType;
 import org.eclipse.sirius.components.view.diagram.SynchronizationPolicy;
-
-import java.util.Objects;
 
 /**
  * Used to create reference edge between unsynchronized entities.
@@ -58,8 +59,7 @@ public class ReferenceEdgeRelationsOverviewDescriptionProvider extends AbstractD
                 .sourceExpression("aql:self.getReferenceContainingType()")
                 .targetExpression("aql:self.getReferenceReferencedType()")
                 .style(edgeStyle)
-                .endLabelExpression("aql:self.name")
-                .centerLabelExpression("")
+                .centerLabelExpression("aql:self.name")
                 .build();
     }
 

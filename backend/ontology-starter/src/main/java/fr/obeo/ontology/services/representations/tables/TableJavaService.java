@@ -227,7 +227,7 @@ public class TableJavaService {
             namespace.getTypes().add(newSiblingEntity);
 
         } else if (entitySupertype instanceof Entity parentEntity) {
-            newSiblingEntity = this.createSubEntity(parentEntity, "New Sub Entity");
+            newSiblingEntity = this.createSubEntity(parentEntity, "New Entity");
         }
 
         return newSiblingEntity;

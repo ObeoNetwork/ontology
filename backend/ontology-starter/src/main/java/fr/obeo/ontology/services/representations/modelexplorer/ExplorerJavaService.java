@@ -58,14 +58,14 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
  *
  * @author lfasani
  */
-public class OntologyExplorerJavaService {
+public class ExplorerJavaService {
     public static final String FRAGMENT_URI_PREFIX = "o://fragment";
 
     public static final String SEMANTIC_OBJECT_ID_PARAM = "objectId";
 
     public static final String FRAGMENT_TYPE_PARAM = "fragmentType";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OntologyExplorerJavaService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExplorerJavaService.class);
 
     private final IIdentityService identityService;
 
@@ -85,10 +85,10 @@ public class OntologyExplorerJavaService {
 
     private final IURLParser urlParser;
 
-    public OntologyExplorerJavaService(IIdentityService identityService, ILabelService labelService, IObjectSearchService objectSearchService,
-                                       IRepresentationMetadataSearchService representationMetadataSearchService,
-                                       IExplorerServices explorerServices, IExplorerLabelService explorerLabelService,
-                                       IProjectSemanticDataSearchService projectSemanticDataSearchService, EntityJavaService entityJavaService, IURLParser urlParser) {
+    public ExplorerJavaService(IIdentityService identityService, ILabelService labelService, IObjectSearchService objectSearchService,
+                               IRepresentationMetadataSearchService representationMetadataSearchService,
+                               IExplorerServices explorerServices, IExplorerLabelService explorerLabelService,
+                               IProjectSemanticDataSearchService projectSemanticDataSearchService, EntityJavaService entityJavaService, IURLParser urlParser) {
         this.identityService = Objects.requireNonNull(identityService);
         this.labelService = labelService;
         this.objectSearchService = objectSearchService;

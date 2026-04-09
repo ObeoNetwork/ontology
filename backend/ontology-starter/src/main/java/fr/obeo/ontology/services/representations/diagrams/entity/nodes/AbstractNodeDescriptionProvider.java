@@ -52,7 +52,7 @@ public abstract class AbstractNodeDescriptionProvider extends AbstractDescriptio
                 .nodeTools(new DiagramBuilders().newNodeTool()
                         .name("New Sub Entity")
                         .body(new ChangeContextBuilder()
-                                .expression("aql:self.createSubEntity('New Sub Entity')")
+                                .expression("aql:self.createSubEntity('New Entity')")
                                 .build())
                         .build())
                 .build();

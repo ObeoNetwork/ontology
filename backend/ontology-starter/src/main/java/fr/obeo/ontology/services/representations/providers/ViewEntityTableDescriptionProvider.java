@@ -55,7 +55,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
         var attributesColumnDescription = this.tableBuilders.newColumnDescription()
                 .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_ATTRIBUTES_COLUMN + "'")
                 .headerLabelExpression(ENTITY_TABLE_ATTRIBUTES_COLUMN)
-                .initialWidthExpression("450")
+                .initialWidthExpression("250")
                 .isResizableExpression(AQL + "true")
                 .isSortableExpression(AQL + "false")
                 .build();
@@ -143,7 +143,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
 
         RowContextMenuEntry newSiblingEntity = this.tableBuilders.newRowContextMenuEntry()
                 .name("new-sibling-entity-entry")
-                .labelExpression("New Sibling Entry")
+                .labelExpression("New Sibling Entity")
                 .iconURLExpression("customImages/create.svg")
                 .body(this.viewBuilders.newChangeContext()
                         .expression(AQL + "self.createSiblingEntry()")
@@ -156,7 +156,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .preconditionExpression(AQL + "self.canCreateNewSubEntity()")
                 .iconURLExpression("customImages/create-sub.svg")
                 .body(this.viewBuilders.newChangeContext()
-                        .expression(AQL + "self.createSubEntity('New Sub Entity')")
+                        .expression(AQL + "self.createSubEntity('New Entity')")
                         .build())
                 .build();
 
