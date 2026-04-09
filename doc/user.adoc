@@ -5,110 +5,244 @@ Ontology v{ontology-version} - {git-commit-id-abbrev}
 
 :toc:
 
-Ontology is an application to manage the ontology model.
+Ontology is an application used to manage the ontology model.
 
-It allows to define an Ontology structure by creating entities and sub entities.
+The application allows the definition of an ontology structure through entities and sub-entities.
 
-== Create Ontology project and model
+== Create an Ontology project and model
 
-To create an Ontology project, simply click on Ontology tile.
+To create an Ontology project, simply click the **Ontology** tile.
 
 image:projects-new-ontology-project.png[New Ontology project]
 
-By default, the created project contains an sample Ontology model.
+By default, the newly created project contains a **sample ontology model**.
 
-To create another model, click on `New model`.
+To create a new model, click on `New model`.
 
 image:explorer-new-model.png[New model]
 
-== The objects managed in the Ontology application
+== Objects managed in the Ontology application
 
-The main concept managed is the `Entity`.
+The main concept in the application is the `Entity`.
 
-There are so called "core entities" and sub entities from level 1 to level 3. "Core" entities has no super type. An entity of level n is the super type of entites of level n+1
+Two types of entities are defined: **core entities** (no super type) and **sub-entities** (levels 1 to 3).
+Each level n entity is the super type of level n+1 entities.
 
-Here is the main information you can managed related the `Entity`
+Each `Entity` can contain the following information:
 
-* name
-* description
-* superType: define the relation of a entity of level n and sub entity of level n+1
-* attributes of primitive type or enum
-* references to other entities
-* comments
+* *Name*
+* *Description*
+* *Supertype* (defines the parent-child relationship between entities)
+* *Functional Area* (business domain the entity belongs to)
+* *Data Owner* (person or team responsible for the data)
+* *Data Sources* (systems or documents where the data originates)
+* *Comments*
+* *References* (define relationships to other entities)
+* *Attributes* (typed with primitive types: **Boolean, Int, Double, String**)
 
-== Manage representation 
+== Manage representations
 
-Representations of the Ontology model allow to visualize and edit the model.
+Ontology representations allow you to **visualize and edit the model**.
 
 === Model Explorer
 
-The model explorer presents the model as a Trees.
+The **Model Explorer** displays the model as a tree structure.
 
-There are two model explorer trees:
+There are two Model Explorer views:
 
-* [default] `Ontology Explorer` shows the entities as a tree structured by level. +
-It is displayed by default and should be the preferred way to manage the entities. +
+* [default] `Ontology Explorer` +
 +
-image:explorer-custom.png[] +
+image:explorer-custom.png[Ontology Custom Explorer, width=700] +
 +
-From `Ontology Explorer` toolbar, you can use filters button to display or not the attributes and/or the comment of the entities. +
+Displays entities in a hierarchical tree view. +
+This is the **default and recommended view** for managing entities. +
+It provides tools to create comments, attributes, references, and sub-entities directly on the selected entity. +
++
+image:entity-context-menu.png[Entity Context Menu, width=500] +
++
+It is also possible to create new core entities directly from the *Core entities* folder associated with the **Namespace** object.
++
+image:new-core-entity.png[Namespace context menu, width=500] +
++
+The tree also displays dedicated folders for *Functional Areas*, *Data Owners*, and *Data Sources*, which group their respective objects.
+Users can use the **contextual menu** available on each folder to create new elements. +
++
+image:function-areas-context-menu.png[Functional Areas Context Menu, width=500] +
++
+From the *Ontology Explorer* toolbar, users can use the **filter button** to show or hide entity attributes, comments, and references, which are displayed by default. +
++
 image:explorer-filters.png[] +
++
+A **global search filter** is also available.
+It allows users to highlight matching elements and filter the tree based on the entered text. +
++
+* `Explorer` +
+Shows the model as it is serialized. +
 
-* `Explorer` presents the model as it is serialized. +
-It gives access to tools that you may not have access from `Ontology Explorer` such as rename, delete tools or creation tools for attributes and comments. 
-
-You may switch from a tree to another using `Explorers` button in the Eplorer toolbar.
+Users can switch between the two views using the `Explorers` button in the explorer toolbar.
 
 image:explorer-switch-tree.png[Explorers]
 
-
 === Details view
 
-The details view allows to see and modify the data of objects managed in the model.
+The **Details view** allows you to view and edit the properties of the selected objects in the model.
 
-For example, the `Details` for the `Entity` object.
+==== Entity Details View Example
 
-image:details-entity.png[Details view for Entity]
+image:details-entity.png[Details view for Entity, width=700]
+
+The Entity Details view contains the following fields
+
+* *Name*: editable field allowing the entity to be renamed
+* *Description*: field used to describe the entity
+* *Supertype*: **read-only field** showing the parent entity (displays _None_ for a core entity)
+* *Functional Area*: dropdown list allowing the selection of a functional area
+* *Data Owner*: dropdown list allowing the selection of a data owner
+* *Data Sources*: multi-select dropdown allowing the selection of one or more data sources
 
 === Ontology Diagram
 
-Ontology Diagram can be created only on "core entities".
+Ontology diagrams can only be created on **"core entities"**.
 
 image:diagram-creation.png[Diagram creation]
 
-The ontology diagram allows to see the relationship between entities in a diagram.
+The ontology diagram shows **relationships between entities** in a graphical view.
 
 image:diagram-ontology.png[Ontology Diagram]
 
-Right clicking on a Entity in the diagram gives you access to tools.
-One useful tool is "New Sub Entity" that will create an entity of following level.
+Right-clicking an entity in the diagram opens the available tools.
+A useful option is **"New Sub Entity"**, which creates a child entity at the next level.
 
 image:diagram-tools.png[New Sub Entity]
 
-=== Ontology table
+=== Relations Diagram
 
-Ontology table can be created only on Namespace object.
+image:relations-diagram.png[Relations Diagram, width=500]
+
+Relations diagrams can be created on **any entity**.
+
+The relations diagram shows all **direct relationships (references)** from the selected entity to other entities in a graphical view.
+
+The diagram is **fully synchronized with the model** and always reflects its current state.
+Relationships are automatically updated when references are added or removed.
+
+By default, the diagram name follows this convention: **"<Entity name> Relations"**
+
+The main entity on which the diagram is created is displayed with a distinct visual style to differentiate it from related entities.
+
+It is possible to delete an entity from the model (**"delete from model" tool**) by right-clicking the entity node and opening the available tools.
+However, it is **not possible to delete the main entity** from which the diagram was created.
+
+image:relations-diagram-delete-from-model.png[Delete From Model Tool In Relations Diagram, width=500]
+
+=== Relations Diagram Overview
+
+image:relations-overview-diagram.png[Relations Overview Diagram, width=500]
+
+Relations overview diagrams can be created on any entity.
+
+The relations overview diagram allows users to display a **custom set of entities** and the relationships between them in a graphical view.
+
+Unlike the Relations diagram, this representation is **not synchronized with the model** and is empty by default.
+Users can populate the diagram by *drag and dropping* entities from the explorer, therefore only relationships between entities present in the diagram are displayed.
+
+By default, the diagram name follows this convention: **"<Entity name> Relations Overview"**
+
+As in the Relations diagram, entities can be deleted using the **Delete from model tool**, except for the entity on which the diagram was created.
+
+Additionally, as this diagram is not synchronized with the model, entities can also be removed from the diagram view only by using the **Delete from diagram tool**.
+This operation only removes the graphical representation and does not impact the underlying model.
+
+image:relations-overview-diagram-delete-from-diagram.png[Delete From Diagram Tool In Relations Overview Diagram, width=500]
+
+==== Expand/Collapse Node Action
+
+In both *Relations* and *Relations Overview* diagrams, entity attributes are displayed inside the entity node in a **collapsible container** that is collapsed by default.
+
+Attributes can be shown by hovering over the entity node and clicking the *Expand* button displayed in the **top-right corner**.
+They can be hidden again using the *Collapse* button at the same location.
+
+[cols="1,1", frame=none, grid=none, align=center]
+|===
+| image:action-expand.png[Expand Entity, scaledwidth=90%]
+| image:action-collapse.png[Collapse Entity, scaledwidth=90%]
+|===
+
+=== Ontology Table
+
+Ontology tables can only be created from a **Namespace object**.
 
 image:table-creation.png[Table creation]
 
-It displays a tree table containing all entities contained in the Namespace. 
-Click on the arrow of a line to expand to display sub-level entities.
-
-You can also use global search filter or column filter to find entities containing the typed word.
+The table displays all entities in the namespace in a **tree table format**.
 
 image:table-ontology.png[Ontology Table]
 
-== Upload/download model
+Click the arrow next to a row to expand and display sub-entities.
 
-You can download an Ontology model as EMF XML format by clicking `Download` on the Ontology model contextual menu.
+The table contains the following columns: *Attributes*, *Comments*, *References*, *Functional area*, *Data owner*, and *Data source*.
 
-You can download an Ontology model as RDF/XML format by clicking `Download OWL` on the Ontology model contextual menu.
+Each row and sub-row provides a **contextual menu** allowing users to:
+
+** Delete (as with any other entity deletion in Ontology, all descendants of the deleted entity are promoted one level up)
+** New Entity (creates a sub entity only available when creation is allowed)
+** New Sibling Entity (creates an entity at the same level)
+
+image:table-ontology-row-context-menu.png[Ontology Table Row Context Menus]
+
+Different types of filters are also available, allowing users to filter the information they want to display in the table:
+
+** A **global search filter** or *column filters* to find entities or column values containing the entered text
+** *Row filters* corresponding to each core entity, which also hide their sub-entities
+
+image:table-ontology-row-filters.png[Ontology Table Row Filters]
+
+== Upload and download a model
+
+You can download an Ontology model in **EMF XML format** by clicking `Download` in the model contextual menu.
+
+You can download an Ontology model in **RDF/XML format** by clicking `Download OWL`.
 
 image:explorer-download.png[Download Ontology model]
 
+The `Upload model` button in the explorer toolbar allows you the upload of a model either in **EMF XML format** or in **RDF/XML format**.
 
-The `Upload model` button in the explorer toolbar allows to upload an ontology model from a model either in EMF XML format or in RDF/XML format.
+== Semantic Elements Search
+
+There are two ways to search for semantic elements in the ontology model.
+
+=== Search view
+
+A dedicated **Search view** is available to search for semantic elements.
+This view can be accessed from the **left sidebar** of the application.
+
+image:search-view-sidebar.png[Search View, width=400]
+
+Unlike the Model Explorer, the search view provides a **flat list of results**, with one result per line, without displaying the full parent hierarchy. +
+This allows users to quickly identify relevant elements in large models and directly locate them in the *explorer*, where they are automatically selected and displayed in the *Details view*.
+
+image:search-view-search.png[Search View Result, width=400]
 
 
+=== Omnibox
 
+The **Omnibox** (global command palette available in Sirius Web) provides quick access to commands and search features.
+
+[cols="1,1", frame=none, grid=none, align=center]
+|===
+| image:omnibox-location.png[Omnibox Location, scaledwidth=100%]
+| image:omnibox.png[Omnibox Search, scaledwidth=100%]
+|===
+
+To search for a semantic element, users must first open the Omnibox, then select the **Search** command. +
+Once the search mode is activated, they can enter the text to search for and browse the matching results. +
+The Omnibox also provides access to the **search history**. When the **Search** command is opened, recent searches are displayed as suggestions. +
+
+[cols="1,1", frame=none, grid=none, align=center]
+|===
+| image:omnibox-search-history.png[Omnibox Search History, scaledwidth=90%]
+| image:omnibox-result.png[Omnibox Search Result, scaledwidth=90%]
+|===
+
+When a result is selected, the corresponding element is automatically located in the **explorer**, where it is highlighted and displayed in the **Details view**.
 
