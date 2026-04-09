@@ -89,6 +89,7 @@ public class TableJavaService {
                 }
             } else {
                 if (this.matchFilter(entity, globalFilter, columnFilters)) {
+                    this.findEntitySuperEntities(entity, entities);
                     entities.add(entity);
                 }
             }
@@ -127,8 +128,6 @@ public class TableJavaService {
         boolean isValidCandidate = true;
         if (globalFilter != null && !globalFilter.isBlank()) {
             isValidCandidate = entity.getName() != null && this.contains(entity.getName(), globalFilter);
-            isValidCandidate = isValidCandidate || entity.getOwnedAttributes() != null && this.isValidAttributesFilter(entity, globalFilter);
-            isValidCandidate = isValidCandidate || entity.getMetadatas() != null && this.isValidMetadataFilter(entity, globalFilter);
         }
 
         isValidCandidate = isValidCandidate && columnFilters.stream().allMatch(columnFilter -> {
@@ -143,6 +142,17 @@ public class TableJavaService {
         });
 
         return isValidCandidate;
+    }
+
+    private List<Entity> findEntitySuperEntities(Entity entity, List<Entity> entities) {
+        var superType = entity.getSupertype();
+        if (superType instanceof Entity superEntity) {
+            findEntitySuperEntities(superEntity, entities);
+            if (!entities.contains(superEntity)) {
+                entities.add(superEntity);
+            }
+        }
+        return entities;
     }
 
     private boolean isValidAttributesFilter(Entity entity, String columnFilterValue) {
