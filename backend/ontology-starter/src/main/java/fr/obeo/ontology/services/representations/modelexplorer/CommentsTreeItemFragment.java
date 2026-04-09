@@ -82,9 +82,9 @@ public class CommentsTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return UriComponentsBuilder.fromUriString(OntologyExplorerJavaService.FRAGMENT_URI_PREFIX)
-                .queryParam(OntologyExplorerJavaService.FRAGMENT_TYPE_PARAM, TYPE)
-                .queryParam(OntologyExplorerJavaService.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
+        return UriComponentsBuilder.fromUriString(ExplorerJavaService.FRAGMENT_URI_PREFIX)
+                .queryParam(ExplorerJavaService.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(ExplorerJavaService.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.entity))
                 .encode()
                 .build().toUri().toString();
     }

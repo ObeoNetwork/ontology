@@ -280,6 +280,15 @@ public class WidgetDescriptionCreationService {
 
     private BiFunction<VariableManager, String, IStatus> getSelectNewValueHandler(EStructuralFeature feature) {
         return (variableManager, newValue) -> {
+            if (newValue.isEmpty()) {
+                return variableManager.get(VariableManager.SELF, EObject.class)
+                        .map(referenceOwner -> {
+                            referenceOwner.eUnset(feature);
+                            return (IStatus) new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
+                        })
+                        .orElseGet(() -> this.createErrorStatus("Something went wrong while setting the reference value."));
+            }
+
             return variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
                     .flatMap(iEditingContext -> objectSearchService.getObject(iEditingContext, newValue))
                     .map(newObjectValue -> {

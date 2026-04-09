@@ -61,9 +61,9 @@ public class DataOwnersTreeItemFragment implements TreeItemFragment {
 
     @Override
     public String getTreeItemId() {
-        return UriComponentsBuilder.fromUriString(OntologyExplorerJavaService.FRAGMENT_URI_PREFIX)
-                .queryParam(OntologyExplorerJavaService.FRAGMENT_TYPE_PARAM, TYPE)
-                .queryParam(OntologyExplorerJavaService.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.organizationInformation))
+        return UriComponentsBuilder.fromUriString(ExplorerJavaService.FRAGMENT_URI_PREFIX)
+                .queryParam(ExplorerJavaService.FRAGMENT_TYPE_PARAM, TYPE)
+                .queryParam(ExplorerJavaService.SEMANTIC_OBJECT_ID_PARAM, this.identityService.getId(this.organizationInformation))
                 .encode()
                 .build().toUri().toString();
     }
