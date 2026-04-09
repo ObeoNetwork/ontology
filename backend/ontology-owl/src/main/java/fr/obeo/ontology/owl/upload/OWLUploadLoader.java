@@ -10,51 +10,41 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.owl.services;
-
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.vocabulary.RDF;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
-import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
-import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
-import org.eclipse.sirius.components.graphql.api.UploadFile;
-import org.eclipse.sirius.web.domain.services.Failure;
-import org.eclipse.sirius.web.domain.services.IResult;
-import org.eclipse.sirius.web.domain.services.Success;
-import org.eclipse.sirius.web.domain.services.api.IMessageService;
-import org.obeonetwork.dsl.entity.EntityFactory;
-import org.obeonetwork.dsl.entity.Root;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+package fr.obeo.ontology.owl.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
+
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
+import org.eclipse.sirius.web.domain.services.api.IMessageService;
+import org.obeonetwork.dsl.entity.Root;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * A Service responsible to load Entity OWL files.
  * @author fbarbin
  */
 @Service
-public class UploadOWLLoader {
+public class OWLUploadLoader {
 
     private final IMessageService messageService;
 
-    private final OWLOntologyConverter owlOntologyConverter;
+    private final OWLToOntologyModelConverter owlToOntologyModelConverter;
 
-    private final Logger logger = LoggerFactory.getLogger(UploadOWLLoader.class);
+    private final Logger logger = LoggerFactory.getLogger(OWLUploadLoader.class);
 
-    public UploadOWLLoader(IMessageService messageService, OWLOntologyConverter owlOntologyConverter) {
+    public OWLUploadLoader(IMessageService messageService, OWLToOntologyModelConverter owlToOntologyModelConverter) {
         this.messageService = Objects.requireNonNull(messageService);
-        this.owlOntologyConverter = Objects.requireNonNull(owlOntologyConverter);
+        this.owlToOntologyModelConverter = Objects.requireNonNull(owlToOntologyModelConverter);
     }
 
     public Optional<Resource> load(ResourceSet resourceSet, InputStream inputStream, URI resourceURI) {
@@ -71,7 +61,7 @@ public class UploadOWLLoader {
     private Optional<Resource> createResourceFromModel(ResourceSet resourceSet, URI resourceURI, Model loadedModel) {
         var resource = new JSONResourceFactory().createResource(resourceURI);
         resourceSet.getResources().add(resource);
-        Root root = this.owlOntologyConverter.convertToOntology(loadedModel);
+        Root root = this.owlToOntologyModelConverter.convertToOntology(loadedModel);
 
         resource.getContents().add(root);
         return Optional.of(resource);

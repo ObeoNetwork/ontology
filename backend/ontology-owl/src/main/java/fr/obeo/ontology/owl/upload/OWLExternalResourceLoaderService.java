@@ -10,7 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.owl.services;
+package fr.obeo.ontology.owl.upload;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -42,9 +42,9 @@ public class OWLExternalResourceLoaderService implements IExternalResourceLoader
 
     private final Logger logger = LoggerFactory.getLogger(OWLExternalResourceLoaderService.class);
 
-    private final UploadOWLLoader uploadOWLLoader;
+    private final OWLUploadLoader uploadOWLLoader;
 
-    public OWLExternalResourceLoaderService(UploadOWLLoader uploadOWLLoader) {
+    public OWLExternalResourceLoaderService(OWLUploadLoader uploadOWLLoader) {
         this.uploadOWLLoader = Objects.requireNonNull(uploadOWLLoader);
     }
     @Override

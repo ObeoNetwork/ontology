@@ -10,10 +10,10 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.owl.services;
+package fr.obeo.ontology.owl.download;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import fr.obeo.ontology.owl.services.EntityOWLModelService;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -21,15 +21,12 @@ import java.util.Optional;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.obeonetwork.dsl.entity.Entity;
-import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.entity.Root;
-import org.obeonetwork.dsl.environment.EnvironmentFactory;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.stereotype.Service;
 
@@ -39,83 +36,15 @@ import org.springframework.stereotype.Service;
  * @author fbarbin
  */
 @Service
-public class OWLOntologyConverter {
+public class OntologyToOWLModelConverter {
 
     private final EntityOWLModelService entityOWLModelService;
 
     private final IIdentityService identityService;
 
-    public OWLOntologyConverter(EntityOWLModelService entityOWLModelService, IIdentityService identityService) {
+    public OntologyToOWLModelConverter(EntityOWLModelService entityOWLModelService, IIdentityService identityService) {
         this.entityOWLModelService = Objects.requireNonNull(entityOWLModelService);
         this.identityService = Objects.requireNonNull(identityService);
-    }
-
-    /**
-     * Convert the given OWL Jena {@link Model} into the Entity model.
-     *
-     * @param loadedModel
-     *         the Jena {@link Model}.
-     * @return The {@link Root} element of the converted entity model.
-     */
-    public Root convertToOntology(Model loadedModel) {
-        Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
-        String currentDateTime = getCurrentDateTime();
-        namespace.setName("Core entities imported on " + currentDateTime);
-        Root root = EntityFactory.eINSTANCE.createRoot();
-        root.getOwnedNamespaces().add(namespace);
-        Model model = this.entityOWLModelService.createBaseModel();
-        StmtIterator iterator = loadedModel.listStatements(null, RDF.type, this.entityOWLModelService.getEntityClass(model));
-        //The map use to store already converted entity
-        Map<String, Entity> uriToEntityMap = new HashMap<>();
-        while (iterator.hasNext()) {
-            org.apache.jena.rdf.model.Resource entityResource = iterator.next().getSubject();
-            this.convertOWLEntity(loadedModel, entityResource, uriToEntityMap, namespace);
-        }
-        return root;
-    }
-
-    private static String getCurrentDateTime() {
-        LocalDateTime localDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        return localDateTime.format(formatter);
-    }
-
-    /**
-     * Convert or retrieve (if already converted) the OWL Entity resource to {@link Entity}.
-     *
-     * @param loadedModel
-     *         the Jena OWL model.
-     * @param entityResource
-     *         the current {@link Resource} to convert to {@link Entity}
-     * @param uriToEntityMap
-     *         the map containing already converted entities.
-     * @param namespace
-     *         the {@link Namespace} where the entity should be added.
-     * @return the converted {@link Entity}.
-     */
-    private Entity convertOWLEntity(Model loadedModel, Resource entityResource, Map<String, Entity> uriToEntityMap, Namespace namespace) {
-        Entity entity = uriToEntityMap.get(entityResource.getURI());
-        if (entity == null) {
-            String entityName = entityResource.getProperty(this.entityOWLModelService.getNameProperty(loadedModel)).getString();
-            String description = entityResource.getProperty(this.entityOWLModelService.getDescriptionProperty(loadedModel)).getString();
-            Optional<Entity> optionalSuperTypeEntity = this.getSuperTypeEntity(entityResource, loadedModel, uriToEntityMap, namespace);
-            entity = EntityFactory.eINSTANCE.createEntity();
-            entity.setName(entityName);
-            entity.setDescription(description);
-            optionalSuperTypeEntity.ifPresent(entity::setSupertype);
-            namespace.getTypes().add(entity);
-            uriToEntityMap.put(entityResource.getURI(), entity);
-        }
-        return entity;
-    }
-
-    private Optional<Entity> getSuperTypeEntity(Resource entityResource, Model model, Map<String, Entity> uriToEntityMap, Namespace namespace) {
-        Optional<Entity> optionalEntity = Optional.empty();
-        if (entityResource.hasProperty(RDFS.subClassOf)) {
-            Resource resource = entityResource.getProperty(RDFS.subClassOf).getObject().asResource();
-            optionalEntity = Optional.of(this.convertOWLEntity(model, resource, uriToEntityMap, namespace));
-        }
-        return optionalEntity;
     }
 
     /**
