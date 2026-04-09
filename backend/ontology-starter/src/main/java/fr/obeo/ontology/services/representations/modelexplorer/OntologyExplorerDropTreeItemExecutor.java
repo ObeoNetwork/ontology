@@ -112,8 +112,7 @@ public class OntologyExplorerDropTreeItemExecutor implements IExplorerDropTreeIt
             failingDropMessages.add("The target element cannot be a descendant of the moved element");
             result = false;
         } else if (targetLevel + droppedElementSubtreeDepth > 3) {
-            failingDropMessages.add("The target element cannot accept the dropped element because the maximum depth of "
-                    + 3 + " levels would be exceeded");
+            failingDropMessages.add("The operation is not authorized because the maximum depth of " + 3 + " levels would be exceeded");
             result = false;
         }
 
