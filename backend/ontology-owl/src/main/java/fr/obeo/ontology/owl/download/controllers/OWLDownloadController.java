@@ -10,17 +10,23 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package fr.obeo.ontology.owl.controllers;
+package fr.obeo.ontology.owl.download.controllers;
 
-import fr.obeo.ontology.owl.services.OWLOntologyConverter;
+import fr.obeo.ontology.owl.download.OntologyToOWLModelConverter;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.apache.jena.rdf.model.Model;
 import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
 import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
-import org.eclipse.sirius.web.application.document.services.XMLDocumentExporter;
 import org.eclipse.sirius.web.application.document.services.api.IDocumentDownloadResourceSearchService;
-import org.eclipse.sirius.web.application.document.services.api.IDocumentExporter;
 import org.obeonetwork.dsl.entity.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +43,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * The entry point of the HTTP API to download owl.
@@ -65,9 +64,9 @@ public class OWLDownloadController {
 
     private final List<IDocumentDownloadResourceSearchService> documentDownloadResourceSearchServices;
 
-    private final OWLOntologyConverter owlOntologyConverter;
+    private final OntologyToOWLModelConverter owlOntologyConverter;
 
-    public OWLDownloadController(IEditingContextSearchService editingContextSearchService, OWLOntologyConverter owlOntologyConverter,
+    public OWLDownloadController(IEditingContextSearchService editingContextSearchService, OntologyToOWLModelConverter owlOntologyConverter,
             List<IDocumentDownloadResourceSearchService> documentDownloadResourceSearchServices) {
         this.editingContextSearchService = Objects.requireNonNull(editingContextSearchService);
         this.owlOntologyConverter = Objects.requireNonNull(owlOntologyConverter);
