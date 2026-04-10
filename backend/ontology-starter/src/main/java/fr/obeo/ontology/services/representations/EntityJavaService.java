@@ -12,6 +12,10 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations;
 
+import fr.obeo.ontology.ontologymm.BusinessDomain;
+import fr.obeo.ontology.ontologymm.DataOwner;
+import fr.obeo.ontology.ontologymm.DataSource;
+import fr.obeo.ontology.ontologymm.OntologyPackage;
 import fr.obeo.ontology.services.representations.diagrams.relationsoverview.nodes.EntityUnsynchronizedNodeDescriptionProvider;
 
 import java.util.List;
@@ -388,4 +392,18 @@ public class EntityJavaService {
         return this.getEntityLevel(entity) < NB_LEVEL;
     }
 
+    public BusinessDomain getEntityBusinessDomain(Entity entity) {
+        return this.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class)
+                .orElse(null);
+    }
+
+    public DataOwner getEntityDataOwner(Entity entity) {
+        return this.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class)
+                .orElse(null);
+    }
+
+    public List<DataSource> getEntityDataSources(Entity entity) {
+        return this.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class)
+                .toList();
+    }
 }

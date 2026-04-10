@@ -174,13 +174,13 @@ public class WidgetDescriptionCreationService {
             return variableManager.get(VariableManager.SELF, Entity.class)
                     .map(entity -> {
                         entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class)
-                                .ifPresent(bd -> bd.getEntities().remove(entity));
+                                .ifPresent(dataOwner -> dataOwner.getEntities().remove(entity));
 
                         variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
                                 .flatMap(iEditingContext -> objectSearchService.getObject(iEditingContext, newValue))
                                 .filter(DataOwner.class::isInstance)
                                 .map(DataOwner.class::cast)
-                                .ifPresent(bd -> bd.getEntities().add(entity));
+                                .ifPresent(dataOwner -> dataOwner.getEntities().add(entity));
                         return new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
                     })
                     .map(IStatus.class::cast)
