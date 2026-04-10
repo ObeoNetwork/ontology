@@ -12,14 +12,8 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.tables;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.obeo.ontology.ontologymm.BusinessDomain;
-import fr.obeo.ontology.ontologymm.DataOwner;
-import fr.obeo.ontology.ontologymm.DataSource;
-import fr.obeo.ontology.ontologymm.OntologyPackage;
 import fr.obeo.ontology.services.representations.EntityJavaService;
 import fr.obeo.ontology.services.representations.providers.ViewEntityTableDescriptionProvider;
 
@@ -38,6 +32,7 @@ import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.Namespace;
+import org.obeonetwork.dsl.environment.StructuredType;
 import org.springframework.stereotype.Service;
 
 /**
@@ -131,14 +126,24 @@ public class TableJavaService {
         }
 
         isValidCandidate = isValidCandidate && columnFilters.stream().allMatch(columnFilter -> {
-            boolean isCandidate = true;
-            String columnFilterValue = this.getColumnFilterValue(columnFilter);
-            if (columnFilter.id().equals(ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COLUMN)) {
-                isCandidate = entity.getOwnedAttributes() != null && this.isValidAttributesFilter(entity, columnFilterValue);
-            } else if (columnFilter.id().equals(ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COMMENTS)) {
-                isCandidate = entity.getMetadatas() != null && this.isValidMetadataFilter(entity, columnFilterValue);
-            }
-            return isCandidate;
+            String columnFilterId = columnFilter.id();
+            String columnFilterValue = columnFilter.value().replace("\"", "").trim();
+
+            return switch (columnFilterId) {
+                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COLUMN ->
+                        entity.getOwnedAttributes() != null && this.isValidAttributesFilter(entity, columnFilterValue);
+                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COMMENTS ->
+                        entity.getMetadatas() != null && this.isValidMetadataFilter(entity, columnFilterValue);
+                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_REFERENCES_COLUMN ->
+                        entity.getOwnedReferences() != null && this.isValidReferencesFilter(entity, columnFilterValue);
+                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_BUSINESSDOMAIN_COLUMN ->
+                        this.entityJavaService.getEntityBusinessDomain(entity) != null && this.isValidFunctionalAreaFilter(entity, columnFilterValue);
+                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_DATAOWNER_COLUMN ->
+                        this.entityJavaService.getEntityDataOwner(entity) != null && this.isValidDataOwnerFilter(entity, columnFilterValue);
+                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_DATASOURCES_COLUMN ->
+                        this.entityJavaService.getEntityDataSources(entity) != null && this.isValidDataSourcesFilter(entity, columnFilterValue);
+                default -> true;
+            };
         });
 
         return isValidCandidate;
@@ -159,21 +164,32 @@ public class TableJavaService {
         return entity.getOwnedAttributes().stream().anyMatch(attribute -> this.contains(attribute.getName(), columnFilterValue));
     }
 
-    private String getColumnFilterValue(ColumnFilter columnFilter) {
-        try {
-            return this.objectMapper.readValue(columnFilter.value(), new TypeReference<>() {
-            });
-        } catch (JsonProcessingException exception) {
-            //We do nothing
-        }
-        return "";
-    }
-
-    private boolean isValidMetadataFilter(Entity entity, String filter) {
+    private boolean isValidMetadataFilter(Entity entity, String filterValue) {
         return entity.getMetadatas().getMetadatas().stream()
                 .filter(Annotation.class::isInstance)
                 .map(Annotation.class::cast)
-                .anyMatch(annotation -> this.contains(annotation.getTitle(), filter) || this.contains(annotation.getBody(), filter));
+                .anyMatch(annotation -> this.contains(annotation.getTitle(), filterValue) || this.contains(annotation.getBody(), filterValue));
+    }
+
+    private boolean isValidReferencesFilter(Entity entity, String filterValue) {
+        return entity.getOwnedReferences()
+                .stream()
+                .anyMatch(reference -> this.contains(reference.getName(), filterValue));
+    }
+
+    private boolean isValidFunctionalAreaFilter(Entity entity, String filterValue) {
+        return this.contains(this.entityJavaService.getEntityBusinessDomain(entity).getName(), filterValue);
+    }
+
+    private boolean isValidDataOwnerFilter(Entity entity, String filterValue) {
+        var dataOwner = this.entityJavaService.getEntityDataOwner(entity);
+        return this.contains(dataOwner.getCode(), filterValue)
+                || this.contains(dataOwner.getName(), filterValue) ;
+    }
+
+    private boolean isValidDataSourcesFilter(Entity entity, String filterValue) {
+        return this.entityJavaService.getEntityDataSources(entity).stream()
+                .anyMatch(dataSource -> this.contains(dataSource.getCode(), filterValue) || this.contains(dataSource.getName(), filterValue));
     }
 
     private boolean contains(String s, String text) {
@@ -191,31 +207,32 @@ public class TableJavaService {
 
     public String getEntityReferencesCellLabel(Entity self) {
         return self.getOwnedReferences().stream()
-                .map(object -> labelService.getStyledLabel(object).toString())
+                .map(object -> this.labelService.getStyledLabel(object).toString() + " " + Optional.ofNullable(object.getReferencedType()).map(StructuredType::getName).orElse(""))
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
     public String getAttributesCellLabel(Entity entity) {
         return entity.getOwnedAttributes().stream()
-                .map(object -> labelService.getStyledLabel(object).toString())
+                .map(object -> this.labelService.getStyledLabel(object).toString())
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
     public String getBusinessDomainCellLabel(Entity entity) {
-        return entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class)
-                .map(object -> labelService.getStyledLabel(object).toString())
+        return Optional.ofNullable(this.entityJavaService.getEntityBusinessDomain(entity))
+                .map(object -> this.labelService.getStyledLabel(object).toString())
                 .orElse("");
     }
 
     public String getDataOwnerCellLabel(Entity entity) {
-        return entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class)
-                .map(object -> labelService.getStyledLabel(object).toString())
+        return Optional.ofNullable(this.entityJavaService.getEntityDataOwner(entity))
+                .map(object -> this.labelService.getStyledLabel(object).toString())
                 .orElse("");
     }
 
-    public String getDataSourceCellLabel(Entity entity) {
-        return entityJavaService.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class)
-                .map(object -> labelService.getStyledLabel(object).toString())
+    public String getDataSourcesCellLabel(Entity entity) {
+        return this.entityJavaService.getEntityDataSources(entity)
+                .stream()
+                .map(object -> this.labelService.getStyledLabel(object).toString())
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 

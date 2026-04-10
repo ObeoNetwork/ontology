@@ -39,7 +39,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
 
     public static final String ENTITY_TABLE_DATAOWNER_COLUMN = "Data Owner";
 
-    public static final String ENTITY_TABLE_DATASOURCES_COLUMN = "Data Source";
+    public static final String ENTITY_TABLE_DATASOURCES_COLUMN = "Data Sources";
 
     public static final String AQL = "aql:";
 
@@ -137,7 +137,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
         var cellDataSourcesDescription = this.tableBuilders.newCellDescription()
                 .name("dataSources-cell-description")
                 .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_DATASOURCES_COLUMN + "'")
-                .valueExpression("aql:self.getDataSourceCellLabel()")
+                .valueExpression("aql:self.getDataSourcesCellLabel()")
                 .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
                 .build();
 
