@@ -35,6 +35,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class OWLUploadLoader {
+    // Allow to have a more readable content
+    // see https://jena.apache.org/documentation/io/rdfxml_howto.html
+    public static final String RDF_XML = "RDF/XML-ABBREV";
 
     private final IMessageService messageService;
 
@@ -50,7 +53,7 @@ public class OWLUploadLoader {
     public Optional<Resource> load(ResourceSet resourceSet, InputStream inputStream, URI resourceURI) {
         Model loadedModel = ModelFactory.createDefaultModel();
         try (inputStream) {
-            loadedModel.read(inputStream, null, "RDF/XML");
+            loadedModel.read(inputStream, null, RDF_XML);
             return this.createResourceFromModel(resourceSet, resourceURI, loadedModel);
         } catch (IOException e) {
             this.logger.error(e.getMessage(), e);

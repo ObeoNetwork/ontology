@@ -57,7 +57,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/api/editingcontexts/{editingContextId}/owl")
 public class OWLDownloadController {
 
-    public static final String RDF_XML = "RDF/XML";
+    // Allow to have a more readable content
+    // see https://jena.apache.org/documentation/io/rdfxml_howto.html
+    public static final String RDF_XML = "RDF/XML-ABBREV";
     private final Logger logger = LoggerFactory.getLogger(OWLDownloadController.class);
 
     private final IEditingContextSearchService editingContextSearchService;
