@@ -14,6 +14,7 @@ import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
@@ -22,8 +23,11 @@ import org.eclipse.sirius.components.core.api.ChildCreationDescription;
 import org.eclipse.sirius.components.core.api.IDefaultEditService;
 import org.eclipse.sirius.components.core.api.IEditServiceDelegate;
 import org.eclipse.sirius.components.core.api.IEditingContext;
+import org.eclipse.sirius.components.interpreter.SimpleCrossReferenceProvider;
+import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.EntityPackage;
 import org.obeonetwork.dsl.environment.EnvironmentPackage;
+import org.obeonetwork.dsl.environment.StructuredType;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,7 +45,10 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
 
     private final List<String> authorizedRootChildren = List.of(OntologyPackage.Literals.ORGANIZATION_INFORMATION.getName());
 
-    private final List<EPackage> authorizedPackage = List.of(OntologyPackage.eINSTANCE);
+    private final List<EPackage> authorizedPackage = List.of(OntologyPackage.eINSTANCE,
+            EntityPackage.eINSTANCE,
+            EnvironmentPackage.eINSTANCE,
+            EnvironmentPackage.eINSTANCE);
 
     private final IDefaultEditService defaultEditService;
 
@@ -114,6 +121,18 @@ public class OntologyEditServiceDelegate implements IEditServiceDelegate {
 
     @Override
     public void delete(Object object) {
+        if (object instanceof Entity entity) {
+            StructuredType supertype = entity.getSupertype();
+            List<Entity> subEntities = new SimpleCrossReferenceProvider().getInverseReferences(entity).stream()
+                    .filter(setting -> setting.getEStructuralFeature().equals(EnvironmentPackage.eINSTANCE.getStructuredType_Supertype()))
+                    .map(EStructuralFeature.Setting::getEObject)
+                    .filter(Entity.class::isInstance)
+                    .map(Entity.class::cast)
+                    .filter(e -> e.eResource() != null)
+                    .toList();
+
+            subEntities.forEach(subEntity -> subEntity.setSupertype(supertype));
+        }
         this.defaultEditService.delete(object);
     }
 }
