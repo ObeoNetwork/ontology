@@ -181,6 +181,7 @@ public class EntityJavaService {
                 .map(EStructuralFeature.Setting::getEObject)
                 .filter(Entity.class::isInstance)
                 .map(Entity.class::cast)
+                .filter(entity -> entity.eContainer() != null)
                 .toList();
     }
 
@@ -205,8 +206,6 @@ public class EntityJavaService {
     }
 
     public Entity deleteEntity(Entity entity) {
-        StructuredType supertype = entity.getSupertype();
-        this.getSubEntities(entity).forEach(subEntity -> subEntity.setSupertype(supertype));
         this.editService.delete(entity);
         return entity;
     }
