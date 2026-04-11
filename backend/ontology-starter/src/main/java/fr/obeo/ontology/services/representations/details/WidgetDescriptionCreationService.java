@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
@@ -41,7 +42,10 @@ import org.eclipse.sirius.components.forms.MultiSelectStyle;
 import org.eclipse.sirius.components.forms.SelectStyle;
 import org.eclipse.sirius.components.forms.WidgetIdProvider;
 import org.eclipse.sirius.components.forms.components.SelectComponent;
+import org.eclipse.sirius.components.forms.description.AbstractControlDescription;
+import org.eclipse.sirius.components.forms.description.GroupDescription;
 import org.eclipse.sirius.components.forms.description.MultiSelectDescription;
+import org.eclipse.sirius.components.forms.description.PageDescription;
 import org.eclipse.sirius.components.forms.description.SelectDescription;
 import org.eclipse.sirius.components.representations.Failure;
 import org.eclipse.sirius.components.representations.IStatus;
@@ -329,5 +333,22 @@ public class WidgetDescriptionCreationService {
         errorMessages.add(new Message(message, MessageLevel.ERROR));
         errorMessages.addAll(this.feedbackMessageService.getFeedbackMessages());
         return new Failure(errorMessages);
+    }
+
+    public GroupDescription createSimpleGroupDescription(String id, String label, List<AbstractControlDescription> controls) {
+        return GroupDescription.newGroupDescription(id)
+                .idProvider((variableManager) -> id)
+                .labelProvider((variableManager) -> label)
+                .semanticElementsProvider(this.propertiesConfigurerService.getSemanticElementsProvider())
+                .controlDescriptions(controls)
+                .build();
+    }
+
+    public PageDescription createSimplePageDescription(String id, List<GroupDescription> groupDescriptions, Predicate<VariableManager> canCreatePredicate) {
+        return PageDescription.newPageDescription(id)
+                .idProvider((variableManager) -> id)
+                .labelProvider((variableManager) -> "Properties")
+                .semanticElementsProvider(this.propertiesConfigurerService.getSemanticElementsProvider()).canCreatePredicate(canCreatePredicate)
+                .groupDescriptions(groupDescriptions).build();
     }
 }

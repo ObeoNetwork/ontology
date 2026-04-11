@@ -87,11 +87,10 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
     private PageDescription createEntityPageDescription() {
         String formDescriptionId = UUID.nameUUIDFromBytes("entityProperties".getBytes()).toString();
 
-        List<AbstractControlDescription> controls = this.createEntityControls();
-
         Predicate<VariableManager> canCreatePagePredicate = variableManager -> variableManager.get(VariableManager.SELF, Object.class).filter(Entity.class::isInstance).isPresent();
-        GroupDescription groupDescription = this.propertiesWidgetCreationService.createSimpleGroupDescription(controls);
-        return this.propertiesWidgetCreationService.createSimplePageDescription(formDescriptionId, groupDescription, canCreatePagePredicate);
+        GroupDescription generalGroupDescription = this.widgetDescriptionCreationService.createSimpleGroupDescription("general", "General", this.createEntityGeneralControls());
+        GroupDescription organizationGroupDescription = this.widgetDescriptionCreationService.createSimpleGroupDescription("organization", "Organization", this.createEntityOrganizationControls());
+        return this.widgetDescriptionCreationService.createSimplePageDescription(formDescriptionId, List.of(generalGroupDescription, organizationGroupDescription), canCreatePagePredicate);
     }
 
     private PageDescription createNamespacePageDescription() {
@@ -180,7 +179,7 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         return List.of(nameDescription, descriptionDescription);
     }
 
-    private List<AbstractControlDescription> createEntityControls() {
+    private List<AbstractControlDescription> createEntityGeneralControls() {
         TextfieldDescription nameDescription = this.propertiesWidgetCreationService.createTextField("entity.name", NAME, entity -> ((Entity) entity).getName(), (entity, newName) -> {
             ((Entity) entity).setName(newName);
         }, EnvironmentPackage.Literals.TYPE__NAME);
@@ -197,11 +196,16 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
                             .map(Entity.class::cast)
                             .toList();
                 });
+
+        return List.of(nameDescription, descriptionDescription, superTypeDescription);
+    }
+
+    private List<AbstractControlDescription> createEntityOrganizationControls() {
         SelectDescription businessDomainDescription = this.widgetDescriptionCreationService.createBusinessAreaSelectWidgetDescription();
         SelectDescription dataOwnerSelectWidgetDescription = this.widgetDescriptionCreationService.createDataOwnerSelectWidgetDescription();
         MultiSelectDescription dataSourceSelectWidgetDescription = this.widgetDescriptionCreationService.createDataSourceMultiSelectWidgetDescription();
 
-        return List.of(nameDescription, descriptionDescription, superTypeDescription, businessDomainDescription, dataOwnerSelectWidgetDescription, dataSourceSelectWidgetDescription);
+        return List.of(businessDomainDescription, dataOwnerSelectWidgetDescription, dataSourceSelectWidgetDescription);
     }
 
     private List<AbstractControlDescription> createBusinessDomainControls() {
