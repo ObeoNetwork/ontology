@@ -45,6 +45,7 @@
         <module>ontology-model</module>
         <module>ontology-model-edit</module>
         <module>ontology-owl</module>
+        <module>ontology-xls</module>
     </modules>
 
     <build>
