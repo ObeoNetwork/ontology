@@ -1,0 +1,8 @@
+= ontology-owl
+
+== Goal
+
+This project is the entry point for importing an ontology project from a XLS file.
+
+== Dependencies
+
