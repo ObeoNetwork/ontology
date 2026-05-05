@@ -1,9 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2026 Obeo.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     Obeo - initial API and implementation
+ *******************************************************************************/
 package fr.obeo.ontology.services.representations.details;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -58,12 +71,12 @@ public class RadioDescriptionProvider {
                 .orElse(null);
     }
 
-    public RadioDescription getRadioDescription(EStructuralFeature feature, String id, String title) {
+    public RadioDescription getRadioDescription(EStructuralFeature feature, String id, String title, Optional<Function<VariableManager, List<?>>> optionsIdProviderOpt) {
         return RadioDescription.newRadioDescription(id)
                 .targetObjectIdProvider(this.semanticTargetIdProvider)
                 .idProvider(variableManager -> id)
                 .labelProvider(variableManager -> title)
-                .optionsProvider(this.getOptionsProvider(feature))
+                .optionsProvider(optionsIdProviderOpt.orElseGet(() -> this.getOptionsProvider(feature)))
                 .optionSelectedProvider(this.getOptionSelectedProvider(feature))
                 .optionIdProvider(this.getOptionIdProvider())
                 .optionLabelProvider(this.getOptionLabelProvider(feature))
