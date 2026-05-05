@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2026 Obeo.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     Obeo - initial API and implementation
+ *******************************************************************************/
 package fr.obeo.ontology.services.representations.details;
 
 import fr.obeo.ontology.ontologymm.BusinessDomain;
@@ -8,6 +20,7 @@ import fr.obeo.ontology.ontologymm.OntologyPackage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -35,6 +48,7 @@ import org.obeonetwork.dsl.entity.Root;
 import org.obeonetwork.dsl.environment.Attribute;
 import org.obeonetwork.dsl.environment.DataType;
 import org.obeonetwork.dsl.environment.EnvironmentPackage;
+import org.obeonetwork.dsl.environment.MultiplicityKind;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.NamespacesContainer;
 import org.obeonetwork.dsl.environment.ObeoDSMObject;
@@ -285,7 +299,8 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
     }
 
     private RadioDescription getMultiplicityRadioDescription() {
-        return this.radioDescriptionProvider.getRadioDescription(EnvironmentPackage.Literals.PROPERTY__MULTIPLICITY, "property.multiplicity", "Multiplicity");
+        return this.radioDescriptionProvider.getRadioDescription(EnvironmentPackage.Literals.PROPERTY__MULTIPLICITY, "property.multiplicity", "Multiplicity", Optional.of(variableManager -> List.of(
+                MultiplicityKind.ZERO_ONE_LITERAL, MultiplicityKind.ONE_LITERAL, MultiplicityKind.ZERO_STAR_LITERAL)));
     }
 
     private List<AbstractControlDescription> createReferenceControls() {
