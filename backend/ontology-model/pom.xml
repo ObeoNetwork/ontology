@@ -45,32 +45,38 @@
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.entity</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.entity.edit</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.environment</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.environment.edit</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.technicalid</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.technicalid.edit</artifactId>
-            <version>${entity.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf.cdo</groupId>
+            <artifactId>org.eclipse.emf.cdo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf.cdo</groupId>
+            <artifactId>org.eclipse.emf.cdo.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.net4j.util</groupId>
+            <artifactId>org.eclipse.net4j.util</artifactId>
         </dependency>
     </dependencies>
 </project>

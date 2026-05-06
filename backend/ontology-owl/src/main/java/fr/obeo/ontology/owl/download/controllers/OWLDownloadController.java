@@ -13,10 +13,14 @@
 package fr.obeo.ontology.owl.download.controllers;
 
 import fr.obeo.ontology.owl.download.OntologyToOWLModelConverter;
+import fr.obeo.ontology.service.validation.OntologyModelValidation;
+import fr.obeo.ontology.service.validation.OntologyModelValidation.Severity;
+import fr.obeo.ontology.service.validation.OntologyModelValidation.ValidationStatus;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,11 +72,14 @@ public class OWLDownloadController {
 
     private final OntologyToOWLModelConverter owlOntologyConverter;
 
+    private final OntologyModelValidation ontologyModelValidation;
+
     public OWLDownloadController(IEditingContextSearchService editingContextSearchService, OntologyToOWLModelConverter owlOntologyConverter,
-            List<IDocumentDownloadResourceSearchService> documentDownloadResourceSearchServices) {
+            List<IDocumentDownloadResourceSearchService> documentDownloadResourceSearchServices, OntologyModelValidation ontologyModelValidation) {
         this.editingContextSearchService = Objects.requireNonNull(editingContextSearchService);
         this.owlOntologyConverter = Objects.requireNonNull(owlOntologyConverter);
         this.documentDownloadResourceSearchServices = Objects.requireNonNull(documentDownloadResourceSearchServices);
+        this.ontologyModelValidation = Objects.requireNonNull(ontologyModelValidation);
     }
 
     @ResponseBody
@@ -89,6 +96,11 @@ public class OWLDownloadController {
             var resource = optionalResource.get();
             Optional<Root> optionalRoot = resource.getContents().stream().filter(Root.class::isInstance).map(Root.class::cast).findFirst();
             if (optionalRoot.isPresent()) {
+                List<ValidationStatus> statuses = this.ontologyModelValidation.validate(optionalRoot.get());
+                boolean hasError = statuses.stream().anyMatch(status -> Severity.ERROR.equals(status.severity()));
+                if (hasError) {
+                    return this.toValidationTextResponse(statuses);
+                }
 
                 Model model = owlOntologyConverter.convertToOWLModel(optionalRoot.get());
                 Optional<byte[]> optionalBytes = Optional.empty();
@@ -122,6 +134,26 @@ public class OWLDownloadController {
             }
         }
         return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
+    }
+
+    private ResponseEntity<Resource> toValidationTextResponse(List<ValidationStatus> statuses) {
+        byte[] content = statuses.stream()
+                .map(status -> status.severity().name() + " - " + status.message())
+                .reduce((left, right) -> left + System.lineSeparator() + right)
+                .orElse("")
+                .getBytes(StandardCharsets.UTF_8);
+
+        ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                .filename("ontology-validation-report.txt")
+                .build();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentDisposition(contentDisposition);
+        responseHeaders.setContentType(MediaType.TEXT_PLAIN);
+        responseHeaders.setContentLength(content.length);
+
+        InputStreamResource inputStreamResource = new InputStreamResource(new ByteArrayInputStream(content));
+        return new ResponseEntity<>(inputStreamResource, responseHeaders, HttpStatus.OK);
     }
 
     private Optional<org.eclipse.emf.ecore.resource.Resource> getResource(String editingContextId, String documentId) {

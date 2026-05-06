@@ -146,49 +146,38 @@
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.entity</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.entity.edit</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.environment</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.environment.edit</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.technicalid</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.obeonetwork.dsl</groupId>
             <artifactId>org.obeonetwork.dsl.technicalid.edit</artifactId>
-            <version>${entity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emf.cdo</groupId>
             <artifactId>org.eclipse.emf.cdo</artifactId>
-            <version>4.21.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emf.cdo</groupId>
             <artifactId>org.eclipse.emf.cdo.common</artifactId>
-            <!--            <scope>system</scope>-->
-            <!--            <systemPath>${project.basedir}/libs/org.eclipse.emf.cdo_4.21.0.v20230831-2127.jar</systemPath>-->
-            <version>4.20.1</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.net4j.util</groupId>
             <artifactId>org.eclipse.net4j.util</artifactId>
-            <version>3.21.1</version>
         </dependency>
     </dependencies>
 </project>
