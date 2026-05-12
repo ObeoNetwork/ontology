@@ -118,7 +118,8 @@ public class OWLDownloadController {
                             .map(ResourceMetadataAdapter.class::cast)
                             .findFirst()
                             .map(ResourceMetadataAdapter::getName)
-                            .orElse("resource");
+                            .map(this::withOwlExtension)
+                            .orElse("resource.owl");
                     ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                             .filename(name)
                             .build();
@@ -134,6 +135,20 @@ public class OWLDownloadController {
             }
         }
         return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
+    }
+
+    private String withOwlExtension(String name) {
+        if (name == null || name.isBlank()) {
+            return "resource.owl";
+        }
+        if (name.length() >= 4 && name.regionMatches(true, name.length() - 4, ".owl", 0, 4)) {
+            return name;
+        }
+        int extensionIndex = name.lastIndexOf('.');
+        if (extensionIndex > 0) {
+            return name.substring(0, extensionIndex) + ".owl";
+        }
+        return name + ".owl";
     }
 
     private ResponseEntity<Resource> toValidationTextResponse(List<ValidationStatus> statuses) {
