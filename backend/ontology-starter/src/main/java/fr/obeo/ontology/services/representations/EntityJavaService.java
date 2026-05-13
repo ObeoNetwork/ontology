@@ -65,6 +65,8 @@ public class EntityJavaService {
 
     private final int NB_LEVEL = 3;
 
+    public static final String UNNAMED = "(unnamed)";
+
     private final IFeedbackMessageService feedbackMessageService;
 
     private final IIdentityService identityService;
@@ -375,8 +377,9 @@ public class EntityJavaService {
     }
 
     public String getAttributeItemLabel(Attribute attribute) {
-        var attributeType = attribute.getType() != null ? attribute.getType().getName() : "undefined";
-        return attribute.getName() + " : " + attributeType;
+        String name = Optional.ofNullable(attribute.getName()).filter(s -> !s.isBlank()).orElse(UNNAMED);
+        var attributeType = attribute.getType() != null ? "" : " : undefined";
+        return name + attributeType;
     }
 
     public <T> Stream<T> objectsReferencingEntity(Entity coreObject, EStructuralFeature feature, Class<T> clazz) {
