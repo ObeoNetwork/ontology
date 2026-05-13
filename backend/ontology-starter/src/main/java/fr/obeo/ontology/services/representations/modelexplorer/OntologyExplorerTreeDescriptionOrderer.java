@@ -17,6 +17,7 @@ import fr.obeo.ontology.services.representations.providers.ViewExplorerTreeDescr
 import java.util.List;
 
 import org.eclipse.sirius.web.application.views.explorer.dto.ExplorerDescriptionMetadata;
+import org.eclipse.sirius.web.application.views.explorer.services.ExplorerDescriptionProvider;
 import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerTreeDescriptionOrderer;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class OntologyExplorerTreeDescriptionOrderer implements IExplorerTreeDesc
                 .map(ExplorerDescriptionMetadata::label)
                 .anyMatch(label -> ViewExplorerTreeDescriptionProvider.ONTOLOGY_EXPLORER_DESCRIPTION_NAME.equals(label))) {
             // Remove the default Sirius Web explorer if the Ontology Explorer is available.
-//            explorerDescriptionMetadataList.removeIf(metadata -> ExplorerDescriptionProvider.DESCRIPTION_ID.equals(metadata.id()));
+            explorerDescriptionMetadataList.removeIf(metadata -> ExplorerDescriptionProvider.DESCRIPTION_ID.equals(metadata.id()));
         }
     }
 
