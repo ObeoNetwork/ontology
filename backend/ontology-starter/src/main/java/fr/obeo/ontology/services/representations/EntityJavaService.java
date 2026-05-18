@@ -267,6 +267,13 @@ public class EntityJavaService {
         return reference;
     }
 
+    public Reference createReferenceWithType(Entity entity, String name, Entity referencedEntity) {
+        Reference reference = this.createReference(entity, name);
+        reference.setReferencedType(referencedEntity);
+
+        return reference;
+    }
+
     public boolean isMainEntity(Object self, DiagramContext diagramContext) {
         if (!(self instanceof Entity entity)) {
             return false;
