@@ -18,9 +18,12 @@ import java.util.Objects;
 
 import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
+import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
+import org.eclipse.sirius.components.view.diagram.EdgeTool;
 import org.eclipse.sirius.components.view.diagram.NodeDescription;
+import org.eclipse.sirius.components.view.diagram.NodePalette;
 import org.eclipse.sirius.components.view.diagram.NodeTool;
 import org.eclipse.sirius.components.view.diagram.SynchronizationPolicy;
 
@@ -44,9 +47,6 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
     @Override
     public NodeDescription create() {
         var attributeContainerNodeDescription = this.attributesContainerNodeDescription(this.colorProvider);
-        var entityNodePalette = this.createEntityNodePaletteBuilder()
-                .quickAccessTools(this.getDeleteFromDiagramTool())
-                .build();
 
         return this.diagramBuilderHelper.newNodeDescription()
                 .name(ENTITY_UNSYNCHRONIZED_NODE_NAME)
@@ -57,7 +57,6 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
                 .insideLabel(this.entityInsideLabelDescription())
                 .defaultWidthExpression(String.valueOf(DEFAULT_ENTITY_NODE_HEIGHT))
                 .defaultHeightExpression(String.valueOf(DEFAULT_ENTITY_NODE_WIDTH))
-                .palette(entityNodePalette)
                 .isCollapsedByDefaultExpression("aql:true")
                 .collapsible(true)
                 .childrenDescriptions(attributeContainerNodeDescription)
@@ -66,9 +65,20 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
 
     @Override
     public void link(DiagramDescription diagramDescription, IViewDiagramElementFinder cache) {
-        cache.getNodeDescription(ENTITY_UNSYNCHRONIZED_NODE_NAME).ifPresent(nodeDescription -> {
-            diagramDescription.getNodeDescriptions().add(nodeDescription);
-        });
+        cache.getNodeDescription(ENTITY_UNSYNCHRONIZED_NODE_NAME)
+                .ifPresent(nodeDescription -> {
+                    diagramDescription.getNodeDescriptions().add(nodeDescription);
+
+                    nodeDescription.setPalette(this.createNodePalette(cache));
+                });
+
+    }
+
+    private NodePalette createNodePalette(IViewDiagramElementFinder cache) {
+        return this.createEntityNodePaletteBuilder()
+                .quickAccessTools(this.getDeleteFromDiagramTool())
+                .edgeTools(this.createEdgeToolRelation(cache))
+                .build();
     }
 
     private NodeTool getDeleteFromDiagramTool() {
@@ -78,6 +88,19 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
                 .name("Delete from Diagram")
                 .iconURLsExpression("/diagram-images/graphicalDelete.svg")
                 .body(deleteView.build())
+                .build();
+    }
+
+    private EdgeTool createEdgeToolRelation(IViewDiagramElementFinder cache) {
+        var entityNodeDescription = cache.getNodeDescription(ENTITY_UNSYNCHRONIZED_NODE_NAME).orElse(null);
+        return this.diagramBuilderHelper.newEdgeTool()
+                .name("Relation")
+                .targetElementDescriptions(entityNodeDescription)
+                .body(
+                        new ViewBuilders().newChangeContext()
+                                .expression("aql:semanticEdgeSource.createReferenceWithType('New Reference', semanticEdgeTarget)")
+                                .build()
+                )
                 .build();
     }
 }
