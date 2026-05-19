@@ -33,7 +33,7 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
 
     public static final String UNNAMED = "(unnamed)";
 
-    private static final String CUSTOM_ICONS_FULL_PATH = "customImages/%s.svg";
+    private static final String CUSTOM_ICONS_FOLDER = "customImages/";
 
     private final IDefaultLabelService defaultLabelService;
 
@@ -110,19 +110,19 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
 
     private List<String> getPrimitiveTypeImagePath(PrimitiveType primitiveType) {
         String imageName = switch (primitiveType.getKind()) {
-            case TEXT -> "string";
+            case TEXT -> "StringAttribute.svg";
             case NUMBER -> {
                 if (OntologySampleBuilder.INT_TYPE.equals(primitiveType.getName())) {
-                    yield "integer";
+                    yield "NumberAttribute.svg";
                 }
                 if (OntologySampleBuilder.DOUBLE_TYPE.equals(primitiveType.getName())) {
-                    yield "double";
+                    yield "DoubleAttribute.svg";
                 }
                 yield "";
             }
             case OTHER -> {
                 if (OntologySampleBuilder.BOOLEAN_TYPE.equals(primitiveType.getName())) {
-                    yield "bool";
+                    yield "BooleanAttribute.svg";
                 }
                 yield "";
             }
@@ -131,6 +131,6 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
         if (imageName.isBlank()) {
             return List.of();
         }
-        return List.of(String.format(CUSTOM_ICONS_FULL_PATH, imageName));
+        return List.of(CUSTOM_ICONS_FOLDER + imageName);
     }
 }
