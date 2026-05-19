@@ -110,7 +110,12 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
 
     private List<String> getPrimitiveTypeImagePath(PrimitiveType primitiveType) {
         String imageName = switch (primitiveType.getKind()) {
-            case TEXT -> "StringAttribute.svg";
+            case TEXT -> {
+                if (OntologySampleBuilder.DATE_TYPE.equals(primitiveType.getName())) {
+                    yield "DateAttribute.svg";
+                }
+                yield "StringAttribute.svg";
+            }
             case NUMBER -> {
                 if (OntologySampleBuilder.INT_TYPE.equals(primitiveType.getName())) {
                     yield "NumberAttribute.svg";

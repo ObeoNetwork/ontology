@@ -41,6 +41,8 @@ public class OntologySampleBuilder {
 
     public static final String STRING_TYPE = "String";
 
+    public static final String DATE_TYPE = "Date";
+
     public List<EObject> getEmptySampleContent() {
 
         Root root = EntityFactory.eINSTANCE.createRoot();
@@ -65,6 +67,10 @@ public class OntologySampleBuilder {
     }
 
     private List<PrimitiveType> createPrimitiveTypes() {
+        PrimitiveType stringType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        stringType.setName(STRING_TYPE);
+        stringType.setKind(PrimitiveTypeKind.TEXT);
+
         PrimitiveType booleanType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
         booleanType.setName(BOOLEAN_TYPE);
         booleanType.setKind(PrimitiveTypeKind.OTHER);
@@ -77,10 +83,10 @@ public class OntologySampleBuilder {
         doubleType.setName(DOUBLE_TYPE);
         doubleType.setKind(PrimitiveTypeKind.NUMBER);
 
-        PrimitiveType stringType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
-        stringType.setName(STRING_TYPE);
-        stringType.setKind(PrimitiveTypeKind.TEXT);
+        PrimitiveType dateType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        dateType.setName(DATE_TYPE);
+        dateType.setKind(PrimitiveTypeKind.TEXT);
 
-        return List.of(booleanType, integerType, doubleType, stringType);
+        return List.of(stringType, booleanType, integerType, doubleType, dateType);
     }
 }
