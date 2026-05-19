@@ -29,6 +29,7 @@ import org.obeonetwork.dsl.environment.MetaDataContainer;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.Reference;
 import org.obeonetwork.dsl.environment.StructuredType;
+import org.obeonetwork.dsl.environment.Type;
 import org.obeonetwork.dsl.environment.TypesDefinition;
 import org.springframework.stereotype.Service;
 
@@ -96,9 +97,38 @@ public class OntologyModelValidation {
             statuses.add(new ValidationStatus(Severity.ERROR, "An entity has no name" + getSuperTypesMessage(entity) + "."));
         }
 
+        validateAttributeNames(entity.getOwnedAttributes(), statuses, entityName);
+        validateReferenceNames(entity.getOwnedReferences(), statuses, entityName);
+
         entity.getOwnedAttributes().forEach(attribute -> validateAttribute(entityName, attribute, statuses));
         entity.getOwnedReferences().forEach(reference -> validateReference(entityName, reference, statuses));
         validateAnnotations(entityName, entity.getMetadatas(), statuses);
+    }
+
+    private void validateReferenceNames(List<Reference> references, List<ValidationStatus> statuses, String entityName) {
+        Map<String, Integer> occurrencesByName = new HashMap<>();
+        references.stream()
+                .map(reference -> "'" + reference.getName() + "' with type '" + Optional.ofNullable(reference.getReferencedType()).map(Type::getName).orElse("") + "'")
+                .filter(name -> !isBlank(name))
+                .map(String::trim)
+                .forEach(name -> occurrencesByName.merge(name, 1, Integer::sum));
+
+        occurrencesByName.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .forEach(entry -> statuses.add(new ValidationStatus(Severity.ERROR, "Several references are named " + entry.getKey() + " in entity '" + entityName + "'.")));
+    }
+
+    private void validateAttributeNames(List<Attribute> attributes, List<ValidationStatus> statuses, String entityName) {
+        Map<String, Integer> occurrencesByName = new HashMap<>();
+        attributes.stream()
+                .map(Attribute::getName)
+                .filter(name -> !isBlank(name))
+                .map(String::trim)
+                .forEach(name -> occurrencesByName.merge(name, 1, Integer::sum));
+
+        occurrencesByName.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .forEach(entry -> statuses.add(new ValidationStatus(Severity.ERROR, "Several attributes are named '" + entry.getKey() + "' in entity '" + entityName + "'.")));
     }
 
     private void validateAttribute(String entityName, Attribute attribute, List<ValidationStatus> statuses) {
@@ -107,7 +137,7 @@ public class OntologyModelValidation {
             statuses.add(new ValidationStatus(Severity.ERROR, "Entity '" + entityName + "' owns an attribute without a name."));
         }
         if (attribute.getType() == null) {
-            statuses.add(new ValidationStatus(Severity.ERROR, "Attribute '" + attributeName + "' of entity '" + entityName + "' has no type."));
+            statuses.add(new ValidationStatus(Severity.WARNING, "Attribute '" + attributeName + "' of entity '" + entityName + "' has no type."));
         }
         if (attribute.getMultiplicity() == null) {
             statuses.add(new ValidationStatus(Severity.INFORMATION, "Attribute '" + attributeName + "' of entity '" + entityName + "' has no cardinality."));
