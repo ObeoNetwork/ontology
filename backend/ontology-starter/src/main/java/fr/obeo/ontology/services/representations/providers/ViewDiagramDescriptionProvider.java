@@ -30,6 +30,7 @@ import org.eclipse.sirius.components.view.builder.providers.IDiagramElementDescr
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
 import org.eclipse.sirius.components.view.diagram.ArrangeLayoutDirection;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
+import org.eclipse.sirius.components.view.diagram.DiagramLayoutOption;
 import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +60,8 @@ public class ViewDiagramDescriptionProvider implements IRepresentationDescriptio
                 .preconditionExpression("aql:self.supertype==null")
                 .toolbar(new DiagramToolbarBuilder().build())
                 .arrangeLayoutDirection(ArrangeLayoutDirection.DOWN)
-                .autoLayout(true)
+                .layoutOption(DiagramLayoutOption.AUTO_LAYOUT)
+                .style(new DiagramBuilders().newDiagramStyleDescription().build())
                 .build();
 
         var cache = new DefaultViewDiagramElementFinder();

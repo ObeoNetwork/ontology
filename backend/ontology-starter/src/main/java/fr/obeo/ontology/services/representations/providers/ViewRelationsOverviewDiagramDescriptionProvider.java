@@ -28,6 +28,7 @@ import org.eclipse.sirius.components.view.builder.providers.IDiagramElementDescr
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
 import org.eclipse.sirius.components.view.diagram.ArrangeLayoutDirection;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
+import org.eclipse.sirius.components.view.diagram.DiagramLayoutOption;
 import org.springframework.stereotype.Service;
 
 /**
@@ -53,13 +54,14 @@ public class ViewRelationsOverviewDiagramDescriptionProvider implements IReprese
     }
 
     private DiagramDescription createRelationsOverviewDiagramDescription() {
-        var diagramDescription = new DiagramBuilders().newDiagramDescription()
+        var diagramDescription = diagramBuilderHelper.newDiagramDescription()
                 .name(RELATIONS_OVERVIEW_DIAGRAM_NAME)
                 .domainType("entity::Entity")
                 .titleExpression("aql:self.name + ' Relations Overview'")
                 .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .arrangeLayoutDirection(ArrangeLayoutDirection.RIGHT)
-                .autoLayout(false)
+                .layoutOption(DiagramLayoutOption.NONE)
+                .style(diagramBuilderHelper.newDiagramStyleDescription().build())
                 .toolbar(this.diagramToolbarBuilder.build())
                 .build();
 
