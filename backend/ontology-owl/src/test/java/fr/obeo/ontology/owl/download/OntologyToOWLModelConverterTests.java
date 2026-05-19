@@ -55,7 +55,7 @@ class OntologyToOWLModelConverterTests {
     private final OntologyToOWLModelConverter converter = new OntologyToOWLModelConverter(new EntityOWLModelService(), this.identityService);
 
     @Test
-    void convertToOWLModelCreatesEntitiesRecursivelyWithBaseAndSupertype() {
+    void convertToOWLModelCreatesEntitiesRecursivelyWithSupertypeProperty() {
         Root root = EntityFactory.eINSTANCE.createRoot();
         Entity parent = entity("Parent entity", "parent", "Parent description");
         Entity child = entity("Child entity", "child", "Child description");
@@ -72,13 +72,15 @@ class OntologyToOWLModelConverterTests {
 
         Resource parentClass = model.getResource(BASE_URI + "Parent+entity");
         Resource childClass = model.getResource(BASE_URI + "Child+entity");
-        Resource baseClass = model.getResource(BASE_URI + "BaseEntity");
+        Resource supertypeProperty = model.getResource(BASE_URI + "SuperClass_Child+entity__Parent+entity");
 
         assertTrue(model.contains(parentClass, RDF.type, OWL.Class));
         assertTrue(model.contains(childClass, RDF.type, OWL.Class));
-        assertTrue(model.contains(parentClass, RDFS.subClassOf, baseClass));
-        assertTrue(model.contains(childClass, RDFS.subClassOf, baseClass));
-        assertTrue(model.contains(childClass, RDFS.subClassOf, parentClass));
+        assertFalse(model.contains(childClass, RDFS.subClassOf, parentClass));
+        assertTrue(model.contains(supertypeProperty, RDF.type, OWL.ObjectProperty));
+        assertTrue(model.contains(supertypeProperty, RDFS.domain, childClass));
+        assertTrue(model.contains(supertypeProperty, RDFS.range, parentClass));
+        assertTrue(hasObjectCardinalityRestriction(model, supertypeProperty, OWL.cardinality, parentClass, 1));
         assertTrue(hasLiteral(model, parentClass, RDFS.label, "Parent entity"));
         assertTrue(hasLiteral(model, parentClass, RDFS.comment, "Parent description"));
     }
@@ -130,14 +132,14 @@ class OntologyToOWLModelConverterTests {
 
         Resource sourceClass = model.getResource(BASE_URI + "Source");
         Resource targetClass = model.getResource(BASE_URI + "Target");
-        Resource objectProperty = model.getResource(BASE_URI + "Reference_Source_relatedTo_Target_reference");
+        Resource objectProperty = model.getResource(BASE_URI + "Reference_Source_relatedTo_Target");
         Resource datatypeProperty = model.getResource(BASE_URI + "Attribute_Source_active");
 
         assertTrue(model.contains(objectProperty, RDF.type, OWL.ObjectProperty));
         assertTrue(model.contains(objectProperty, RDFS.domain, sourceClass));
         assertTrue(model.contains(objectProperty, RDFS.range, targetClass));
         assertTrue(hasLiteral(model, objectProperty, RDFS.label, "relatedTo"));
-        assertTrue(hasRestriction(model, objectProperty, OWL.maxCardinality, 1));
+        assertTrue(hasObjectCardinalityRestriction(model, objectProperty, OWL.maxCardinality, targetClass, 1));
         assertFalse(model.contains(objectProperty, RDF.type, OWL.FunctionalProperty));
 
         assertTrue(model.contains(datatypeProperty, RDF.type, OWL.DatatypeProperty));
@@ -146,6 +148,32 @@ class OntologyToOWLModelConverterTests {
         assertTrue(hasLiteral(model, datatypeProperty, RDFS.comment, "Active flag"));
         assertTrue(hasDataCardinalityRestriction(model, datatypeProperty, OWL.cardinality, model.getResource(XSDDatatype.XSDboolean.getURI()), 1));
         assertFalse(model.contains(datatypeProperty, RDF.type, OWL.FunctionalProperty));
+    }
+
+    @Test
+    void convertToOWLModelExportsDateAttributes() {
+        Root root = EntityFactory.eINSTANCE.createRoot();
+        Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
+        Entity source = entity("Source", "source", null);
+
+        Attribute attribute = EnvironmentFactory.eINSTANCE.createAttribute();
+        attribute.setName("createdOn");
+        attribute.setType(primitiveType("Date"));
+        attribute.setMultiplicity(MultiplicityKind.ZERO_ONE_LITERAL);
+        source.getOwnedAttributes().add(attribute);
+
+        namespace.getTypes().add(source);
+        root.getOwnedNamespaces().add(namespace);
+
+        Model model = this.converter.convertToOWLModel(root);
+
+        Resource sourceClass = model.getResource(BASE_URI + "Source");
+        Resource datatypeProperty = model.getResource(BASE_URI + "Attribute_Source_createdOn");
+
+        assertTrue(model.contains(datatypeProperty, RDF.type, OWL.DatatypeProperty));
+        assertTrue(model.contains(datatypeProperty, RDFS.domain, sourceClass));
+        assertTrue(model.contains(datatypeProperty, RDFS.range, model.getResource(XSDDatatype.XSDdate.getURI())));
+        assertTrue(hasDataCardinalityRestriction(model, datatypeProperty, OWL.maxCardinality, model.getResource(XSDDatatype.XSDdate.getURI()), 1));
     }
 
     @Test
@@ -178,8 +206,8 @@ class OntologyToOWLModelConverterTests {
 
         Resource parentClass = model.getResource(BASE_URI + "Parent");
         Resource childClass = model.getResource(BASE_URI + "Child");
-        Resource childrenProperty = model.getResource(BASE_URI + "Reference_Parent_children_Child_childrenReference");
-        Resource parentProperty = model.getResource(BASE_URI + "Reference_Child_parent_Parent_parentReference");
+        Resource childrenProperty = model.getResource(BASE_URI + "Reference_Parent_children_Child");
+        Resource parentProperty = model.getResource(BASE_URI + "Reference_Child_parent_Parent");
         Resource childrenAssociationClass = model.getResource(BASE_URI + "Association_Parent_children_Child");
         Resource childrenAssociationSourceProperty = model.getResource(BASE_URI + "Association_source_Parent_children_Child");
         Resource childrenAssociationTargetProperty = model.getResource(BASE_URI + "Association_target_Parent_children_Child");
@@ -236,8 +264,8 @@ class OntologyToOWLModelConverterTests {
 
         Resource sourceClass = model.getResource(BASE_URI + "Source");
         Resource targetClass = model.getResource(BASE_URI + "Target");
-        Resource directSourceToTargetsProperty = model.getResource(BASE_URI + "Reference_Source_targets_Target_sourceToTargets");
-        Resource directTargetToSourcesProperty = model.getResource(BASE_URI + "Reference_Target_sources_Source_targetToSources");
+        Resource directSourceToTargetsProperty = model.getResource(BASE_URI + "Reference_Source_targets_Target");
+        Resource directTargetToSourcesProperty = model.getResource(BASE_URI + "Reference_Target_sources_Source");
         Resource sourceAssociationClass = model.getResource(BASE_URI + "Association_Source_targets_Target");
         Resource sourceAssociationSourceProperty = model.getResource(BASE_URI + "Association_source_Source_targets_Target");
         Resource sourceAssociationTargetProperty = model.getResource(BASE_URI + "Association_target_Source_targets_Target");
@@ -318,20 +346,6 @@ class OntologyToOWLModelConverterTests {
                 .stream()
                 .filter(RDFNode::isLiteral)
                 .anyMatch(node -> value.equals(node.asLiteral().getString()));
-    }
-
-    private static boolean hasRestriction(Model model, Resource property, Property cardinalityProperty, int cardinality) {
-        return model.listStatements(null, OWL.onProperty, property)
-                .toList()
-                .stream()
-                .map(Statement::getSubject)
-                .anyMatch(restriction -> {
-                    Statement cardinalityStatement = restriction.getProperty(cardinalityProperty);
-                    return cardinalityStatement != null
-                            && cardinalityStatement.getObject().isLiteral()
-                            && XSDDatatype.XSDnonNegativeInteger.equals(cardinalityStatement.getLiteral().getDatatype())
-                            && cardinalityStatement.getInt() == cardinality;
-                });
     }
 
     private static boolean hasObjectCardinalityRestriction(Model model, Resource property, Property cardinalityProperty, Resource range, int cardinality) {

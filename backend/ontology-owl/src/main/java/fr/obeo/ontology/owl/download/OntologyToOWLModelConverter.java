@@ -277,6 +277,7 @@ public class OntologyToOWLModelConverter {
                 case "Boolean" -> XSDDatatype.XSDboolean.getURI();
                 case "Int" -> XSDDatatype.XSDint.getURI();
                 case "Double" -> XSDDatatype.XSDdouble.getURI();
+                case "Date" -> XSDDatatype.XSDdate.getURI();
                 default -> XSDDatatype.XSDstring.getURI();
             };
         }
