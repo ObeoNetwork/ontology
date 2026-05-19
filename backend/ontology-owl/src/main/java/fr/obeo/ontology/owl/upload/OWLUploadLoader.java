@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Obeo.
+ * Copyright (c) 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,9 @@
  *     Obeo - initial API and implementation
  *******************************************************************************/
 package fr.obeo.ontology.owl.upload;
+
+import fr.obeo.ontology.ontologymm.OntologyFactory;
+import fr.obeo.ontology.ontologymm.OrganizationInformation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,11 +68,13 @@ public class OWLUploadLoader {
         var resource = new JSONResourceFactory().createResource(resourceURI);
         resourceSet.getResources().add(resource);
         Root root = this.owlToOntologyModelConverter.convertToOntology(loadedModel);
-
         resource.getContents().add(root);
+
+        OrganizationInformation organizationInformation = OntologyFactory.eINSTANCE.createOrganizationInformation();
+        organizationInformation.setName("Organization Information");
+        resource.getContents().add(organizationInformation);
+
         return Optional.of(resource);
     }
-
-
 
 }

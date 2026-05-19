@@ -44,6 +44,7 @@ import org.obeonetwork.dsl.environment.MetaDataContainer;
 import org.obeonetwork.dsl.environment.MultiplicityKind;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.PrimitiveType;
+import org.obeonetwork.dsl.environment.PrimitiveTypeKind;
 import org.obeonetwork.dsl.environment.Reference;
 import org.springframework.stereotype.Service;
 
@@ -55,11 +56,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class OWLToOntologyModelConverter {
 
+    private static final String BOOLEAN_TYPE = "Boolean";
+
+    private static final String INT_TYPE = "Int";
+
+    private static final String DOUBLE_TYPE = "Double";
+
+    private static final String STRING_TYPE = "String";
+
+    private static final String DATE_TYPE = "Date";
+
+    private final Map<String, PrimitiveType> nameToDataType = new HashMap<>();
+
     private static final String BASE_ENTITY_URI = "http://ontology/entity#";
 
     private static final String BASE_ENTITY_NAME = "BaseEntity";
 
     private static final String ASSOCIATION_PREFIX = "Association_";
+
+    private static final String SUPER_CLASS_PREFIX = "SuperClass_";
 
     private final EntityOWLModelService entityOWLModelService;
 
@@ -81,8 +96,10 @@ public class OWLToOntologyModelConverter {
         Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
         String currentDateTime = getCurrentDateTime();
         namespace.setName("Core entities imported on " + currentDateTime);
+        namespace.getTypes().addAll(this.createPrimitiveTypes());
         Root root = EntityFactory.eINSTANCE.createRoot();
         root.getOwnedNamespaces().add(namespace);
+
 
         Map<Resource, Entity> entityByClass = this.createEntities(loadedModel, namespace);
         this.applySupertypes(loadedModel, entityByClass);
@@ -90,6 +107,35 @@ public class OWLToOntologyModelConverter {
         this.createAttributes(loadedModel, entityByClass);
         this.createAssociationReferences(loadedModel, entityByClass);
         return root;
+    }
+
+    private List<PrimitiveType> createPrimitiveTypes() {
+        PrimitiveType stringType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        stringType.setName(STRING_TYPE);
+        stringType.setKind(PrimitiveTypeKind.TEXT);
+        nameToDataType.put(STRING_TYPE, stringType);
+
+        PrimitiveType booleanType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        booleanType.setName(BOOLEAN_TYPE);
+        booleanType.setKind(PrimitiveTypeKind.OTHER);
+        nameToDataType.put(BOOLEAN_TYPE, booleanType);
+
+        PrimitiveType integerType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        integerType.setName(INT_TYPE);
+        integerType.setKind(PrimitiveTypeKind.NUMBER);
+        nameToDataType.put(INT_TYPE, integerType);
+
+        PrimitiveType doubleType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        doubleType.setName(DOUBLE_TYPE);
+        doubleType.setKind(PrimitiveTypeKind.NUMBER);
+        nameToDataType.put(DOUBLE_TYPE, doubleType);
+
+        PrimitiveType dateType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+        dateType.setName(DATE_TYPE);
+        dateType.setKind(PrimitiveTypeKind.TEXT);
+        nameToDataType.put(DATE_TYPE, dateType);
+
+        return List.of(stringType, booleanType, integerType, doubleType, dateType);
     }
 
     private String getCurrentDateTime() {
@@ -124,7 +170,9 @@ public class OWLToOntologyModelConverter {
     private boolean isExportedEntityClass(Resource resource) {
         String localName = resource.getLocalName();
         return resource.getURI().startsWith(BASE_ENTITY_URI)
+                && !resource.getURI().equals(BASE_ENTITY_URI + BASE_ENTITY_NAME)
                 && !BASE_ENTITY_NAME.equals(localName)
+                && !resource.getURI().startsWith(BASE_ENTITY_URI + ASSOCIATION_PREFIX)
                 && !localName.startsWith(ASSOCIATION_PREFIX);
     }
 
@@ -170,7 +218,31 @@ public class OWLToOntologyModelConverter {
     }
 
     private void applySupertypes(Model model, Map<Resource, Entity> entityByClass) {
-        entityByClass.forEach((entityClass, entity) -> model.listObjectsOfProperty(entityClass, RDFS.subClassOf)
+        this.applySupertypeProperties(model, entityByClass);
+        this.applyRDFSSubClassOfSupertypes(model, entityByClass);
+    }
+
+    private void applySupertypeProperties(Model model, Map<Resource, Entity> entityByClass) {
+        model.listSubjectsWithProperty(org.apache.jena.vocabulary.RDF.type, OWL.ObjectProperty)
+                .toList()
+                .stream()
+                .filter(Resource::isURIResource)
+                .filter(resource -> resource.getURI().startsWith(BASE_ENTITY_URI + SUPER_CLASS_PREFIX))
+                .forEach(resource -> {
+                    Optional<Entity> domain = getResourceProperty(model, resource, RDFS.domain).map(entityByClass::get);
+                    Optional<Entity> range = getResourceProperty(model, resource, RDFS.range).map(entityByClass::get);
+                    if (domain.isPresent() && range.isPresent()) {
+                        domain.get().setSupertype(range.get());
+                    }
+                });
+    }
+
+    private void applyRDFSSubClassOfSupertypes(Model model, Map<Resource, Entity> entityByClass) {
+        entityByClass.forEach((entityClass, entity) -> {
+            if (entity.getSupertype() != null) {
+                return;
+            }
+            model.listObjectsOfProperty(entityClass, RDFS.subClassOf)
                 .toList()
                 .stream()
                 .filter(RDFNode::isResource)
@@ -178,7 +250,8 @@ public class OWLToOntologyModelConverter {
                 .map(entityByClass::get)
                 .filter(Objects::nonNull)
                 .findFirst()
-                .ifPresent(entity::setSupertype));
+                    .ifPresent(entity::setSupertype);
+        });
     }
 
     private void createReferences(Model model, Map<Resource, Entity> entityByClass) {
@@ -218,7 +291,7 @@ public class OWLToOntologyModelConverter {
             Attribute attribute = EnvironmentFactory.eINSTANCE.createAttribute();
             attribute.setName(getName(model, propertyResource));
             attribute.setDescription(getOptionalLiteral(model, propertyResource, RDFS.comment).orElse(null));
-            attribute.setType(getResourceProperty(model, propertyResource, RDFS.range).map(this::toDataType).orElseGet(this::stringDataType));
+            attribute.setType(getResourceProperty(model, propertyResource, RDFS.range).map(this::toDataType).orElseGet(null));
             attribute.setMultiplicity(getMultiplicity(model, domain.get(), propertyResource).orElse(MultiplicityKind.ZERO_STAR_LITERAL));
             domain.get().getOwnedAttributes().add(attribute);
         }
@@ -231,26 +304,26 @@ public class OWLToOntologyModelConverter {
     }
 
     private void createAssociationReference(Model model, Resource associationClass, Map<Resource, Entity> entityByClass) {
-        List<Resource> ranges = model.listSubjectsWithProperty(RDFS.domain, associationClass)
+        Optional<Entity> source = getAssociationRange(model, associationClass, "Association_source_").map(entityByClass::get);
+        Optional<Entity> target = getAssociationRange(model, associationClass, "Association_target_").map(entityByClass::get);
+        if (source.isPresent() && target.isPresent()) {
+            Reference reference = EnvironmentFactory.eINSTANCE.createReference();
+            reference.setName(getName(model, associationClass));
+            reference.setDescription(getOptionalLiteral(model, associationClass, RDFS.comment).orElse(null));
+            reference.setReferencedType(target.get());
+            reference.setMultiplicity(MultiplicityKind.ZERO_STAR_LITERAL);
+            source.get().getOwnedReferences().add(reference);
+        }
+    }
+
+    private Optional<Resource> getAssociationRange(Model model, Resource associationClass, String propertyPrefix) {
+        return model.listSubjectsWithProperty(RDFS.domain, associationClass)
                 .toList()
                 .stream()
                 .filter(Resource::isURIResource)
-                .sorted((left, right) -> left.getURI().compareTo(right.getURI()))
-                .map(property -> getResourceProperty(model, property, RDFS.range))
-                .flatMap(Optional::stream)
-                .toList();
-        if (ranges.size() == 2) {
-            Entity source = entityByClass.get(ranges.get(0));
-            Entity target = entityByClass.get(ranges.get(1));
-            if (source != null && target != null) {
-                Reference reference = EnvironmentFactory.eINSTANCE.createReference();
-                reference.setName(getName(model, associationClass));
-                reference.setDescription(getOptionalLiteral(model, associationClass, RDFS.comment).orElse(null));
-                reference.setReferencedType(target);
-                reference.setMultiplicity(MultiplicityKind.ZERO_STAR_LITERAL);
-                source.getOwnedReferences().add(reference);
-            }
-        }
+                .filter(property -> property.getURI().startsWith(BASE_ENTITY_URI + propertyPrefix))
+                .findFirst()
+                .flatMap(property -> getResourceProperty(model, property, RDFS.range));
     }
 
     private Optional<MultiplicityKind> getMultiplicity(Model model, Entity domain, Resource property) {
@@ -270,7 +343,7 @@ public class OWLToOntologyModelConverter {
     }
 
     private Optional<MultiplicityKind> getRestrictionMultiplicity(Resource restriction) {
-        if (restriction.hasProperty(OWL.cardinality)) {
+        if (restriction.hasProperty(OWL.cardinality) || restriction.hasProperty(OWL.qualifiedCardinality)) {
             return Optional.of(MultiplicityKind.ONE_LITERAL);
         } else if (restriction.hasProperty(OWL.minCardinality)) {
             return Optional.of(MultiplicityKind.ONE_STAR_LITERAL);
@@ -301,22 +374,15 @@ public class OWLToOntologyModelConverter {
     private DataType toDataType(Resource range) {
         String uri = range.getURI();
         if (XSDDatatype.XSDboolean.getURI().equals(uri)) {
-            return primitiveType("Boolean");
+            return nameToDataType.get("Boolean");
         } else if (XSDDatatype.XSDint.getURI().equals(uri)) {
-            return primitiveType("Int");
+            return nameToDataType.get("Int");
         } else if (XSDDatatype.XSDdouble.getURI().equals(uri)) {
-            return primitiveType("Double");
+            return nameToDataType.get("Double");
+        } else if (XSDDatatype.XSDdate.getURI().equals(uri)) {
+            return nameToDataType.get("Date");
+        } else {
+            return nameToDataType.get("String");
         }
-        return stringDataType();
-    }
-
-    private DataType stringDataType() {
-        return primitiveType("String");
-    }
-
-    private static PrimitiveType primitiveType(String name) {
-        PrimitiveType primitiveType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
-        primitiveType.setName(name);
-        return primitiveType;
     }
 }
