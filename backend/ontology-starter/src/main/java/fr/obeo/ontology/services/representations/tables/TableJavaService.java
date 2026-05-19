@@ -12,8 +12,6 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.tables;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import fr.obeo.ontology.services.representations.EntityJavaService;
 import fr.obeo.ontology.services.representations.providers.ViewEntityTableDescriptionProvider;
 
@@ -45,15 +43,12 @@ public class TableJavaService {
 
     private final IIdentityService identityService;
 
-    private final ObjectMapper objectMapper;
-
     private final EntityJavaService entityJavaService;
 
     private final ILabelService labelService;
 
-    public TableJavaService(IIdentityService identityService, ObjectMapper objectMapper, EntityJavaService entityJavaService, ILabelService labelService) {
+    public TableJavaService(IIdentityService identityService, EntityJavaService entityJavaService, ILabelService labelService) {
         this.identityService = Objects.requireNonNull(identityService);
-        this.objectMapper = Objects.requireNonNull(objectMapper);
         this.entityJavaService = Objects.requireNonNull(entityJavaService);
         this.labelService = Objects.requireNonNull(labelService);
     }

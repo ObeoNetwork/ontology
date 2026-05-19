@@ -14,6 +14,10 @@ package fr.obeo.ontology.services.representations.providers;
 
 import fr.obeo.ontology.services.representations.diagrams.relations.edges.ReferenceEdgeDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.nodes.EntitySynchronizedNodeDescriptionProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.builder.DefaultViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
@@ -23,10 +27,8 @@ import org.eclipse.sirius.components.view.builder.providers.IDiagramElementDescr
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
 import org.eclipse.sirius.components.view.diagram.ArrangeLayoutDirection;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
+import org.eclipse.sirius.components.view.diagram.DiagramLayoutOption;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * "Relations" diagram view description builder.
@@ -55,7 +57,8 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
                 .titleExpression("aql:self.name + ' Relations'")
                 .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .arrangeLayoutDirection(ArrangeLayoutDirection.RIGHT)
-                .autoLayout(false)
+                .layoutOption(DiagramLayoutOption.NONE)
+                .style(new DiagramBuilders().newDiagramStyleDescription().build())
                 .toolbar(this.diagramToolbarBuilder.build())
                 .build();
 

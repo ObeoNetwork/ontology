@@ -18,12 +18,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.11</version>
+        <version>4.0.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ontology</groupId>
     <artifactId>ontology-parent</artifactId>
-    <version>2026.3.0</version>
+    <version>2026.5.0</version>
     <name>ontology-parent</name>
     <description>Parent Pom for ontology modules</description>
     <packaging>pom</packaging>
@@ -31,7 +31,8 @@
 
     <properties>
         <java.version>17</java.version>
-        <sirius.web.version>2026.3.0</sirius.web.version>
+        <maven.compiler.release>17</maven.compiler.release>
+        <sirius.web.version>2026.3.10</sirius.web.version>
         <sirius.version>7.2.0-SNAPSHOT</sirius.version>
         <sirius.emfjson.version>2.5.3-SNAPSHOT</sirius.emfjson.version>
         <entity.version>5.1.1</entity.version>
@@ -423,7 +424,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.14</version>
                 <executions>
                     <execution>
                         <goals>
