@@ -177,7 +177,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .headerLabelExpression(AQL + "self.name")
                 .headerIndexLabelExpression(AQL + "self.getLevelLabel()")
                 .depthLevelExpression(AQL + "self.getEntityLevel()")
-                .initialHeightExpression("35")
+                .initialHeightExpression("55")
                 .contextMenuEntries(newSubEntityEntry, deleteEntityEntry, newSiblingEntity)
                 .build();
 
