@@ -75,7 +75,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .titleExpression("Ontology Explorer")
                 .treeItemIdExpression("aql:self.getTreeItemId()")
                 .treeItemObjectExpression("aql:id.getTreeItemObject(editingContext)")
-                .treeItemLabelDescriptions(this.createEntityLabel(), this.createDefaultStyle())
+                .treeItemLabelDescriptions(this.createEntityLabel(), this.createReferenceLabel(), this.createDefaultStyle())
                 .contextMenuEntries(this.createContextMenuEntries().toArray(new TreeItemContextMenuEntry[] {}))
                 .build();
 
@@ -113,6 +113,16 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .name("entityFragment style")
                 .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
                 .children(this.getEntityLabelPrefix(), this.getDefaultLabelFragmentDescription())
+                .build();
+    }
+
+    private TreeItemLabelDescription createReferenceLabel() {
+        return new TreeBuilders().newTreeItemLabelDescription()
+                .name("reference style")
+                .preconditionExpression("aql:self.oclIsKindOf(environment::Reference)")
+                .children(new TreeBuilders().newTreeItemLabelFragmentDescription()
+                        .labelExpression("aql:self.getReferenceLabel()")
+                        .build())
                 .build();
     }
 

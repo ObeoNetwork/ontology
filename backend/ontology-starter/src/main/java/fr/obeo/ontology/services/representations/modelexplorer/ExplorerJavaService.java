@@ -49,6 +49,7 @@ import org.obeonetwork.dsl.environment.Annotation;
 import org.obeonetwork.dsl.environment.Attribute;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.Reference;
+import org.obeonetwork.dsl.environment.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -436,6 +437,10 @@ public class ExplorerJavaService {
     public String getEntityLabelPrefix(Entity entity) {
         int entityLevel = entityJavaService.getEntityLevel(entity);
         return entityLevel > 0 ? "[" + entityLevel + "] " : "";
+    }
+
+    public String getReferenceLabel(Reference reference) {
+        return Optional.ofNullable(reference.getName()).orElse("") + "  " + Optional.ofNullable(reference.getReferencedType()).map(Type::getName).orElse("");
     }
 
     public boolean isDeleteAuthorized(EObject eObject) {
