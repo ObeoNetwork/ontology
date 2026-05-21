@@ -1,4 +1,4 @@
-package fr.obeo.ontology.services.representations.modelexplorer;
+package fr.obeo.ontology.services.representations;
 
 import fr.obeo.ontology.ontologymm.OntologyPackage;
 import fr.obeo.ontology.ontologymm.provider.OntologyItemProviderAdapterFactory;
