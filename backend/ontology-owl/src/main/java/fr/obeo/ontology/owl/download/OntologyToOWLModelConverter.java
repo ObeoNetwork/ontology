@@ -38,7 +38,6 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.OWL2;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
-import org.apache.jena.vocabulary.XSD;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.entity.Root;
@@ -82,12 +81,10 @@ public class OntologyToOWLModelConverter {
 
         model.setNsPrefix("entity", BASE_ENTITY_URI);
 
-        OntClass baseClass = createBaseEntity(model);
-
         List<Entity> entities = collectEntities(rootOntology);
 
         entities.forEach(entity -> {
-            this.createEntity(entity, model, baseClass, objectIdToOWLResourceMap);
+            this.createEntity(entity, model, objectIdToOWLResourceMap);
         });
         entities.forEach(entity -> {
             this.createEntityRelations(entity, model, objectIdToOWLResourceMap);
@@ -102,8 +99,14 @@ public class OntologyToOWLModelConverter {
         Optional.ofNullable(entity.getSupertype())
                 .filter(Entity.class::isInstance)
                 .map(Entity.class::cast)
-                .map(objectIdToOWLResourceMap::get)
-                .ifPresent(entityClass::addSuperClass);
+                .ifPresent(superEntity -> {
+                    OntClass superOntClass = objectIdToOWLResourceMap.get(superEntity);
+                    String fullName = encodeString(entity.getName() + "__" + superEntity.getName());
+                    ObjectProperty objectProperty = model.createObjectProperty(BASE_ENTITY_URI + "SuperClass_" + fullName);
+                    objectProperty.addDomain(entityClass);
+                    objectProperty.addRange(superOntClass);
+                    applyObjectCardinality(model, entityClass, objectProperty, MultiplicityKind.ONE_LITERAL);
+                });
 
         // Create the relation between Entities
         entity.getOwnedReferences()
@@ -112,7 +115,7 @@ public class OntologyToOWLModelConverter {
                     if (isManyToManyReference(reference)) {
                         createAssociationClass(entity, reference, referenceId, model, entityClass, objectIdToOWLResourceMap);
                     } else {
-                        String relationFullName = encodeString(entity.getName() + "_" + reference.getName() + "_" + reference.getReferencedType().getName() + "_" + referenceId);
+                        String relationFullName = encodeString(entity.getName() + "_" + reference.getName() + "_" + reference.getReferencedType().getName());
                         ObjectProperty objectProperty = model.createObjectProperty(BASE_ENTITY_URI + "Reference_" + relationFullName);
                         Optional.ofNullable(reference.getName()).ifPresent(name -> objectProperty.addLabel(name, "en"));
                         Optional.ofNullable(reference.getDescription()).ifPresent(description -> objectProperty.addComment(description, "en"));
@@ -136,7 +139,7 @@ public class OntologyToOWLModelConverter {
                 });
     }
 
-    private OntClass createEntity(Entity entity, OntModel model, OntClass baseClass, Map<Entity, OntClass> objectIdToOWLResourceMap) {
+    private OntClass createEntity(Entity entity, OntModel model, Map<Entity, OntClass> objectIdToOWLResourceMap) {
         String encodedEntityName = encodeString(entity.getName());
         OntClass entityClass = model.createClass(BASE_ENTITY_URI + encodedEntityName);
         List<Annotation> annotations = Optional.ofNullable(entity.getMetadatas())
@@ -154,24 +157,12 @@ public class OntologyToOWLModelConverter {
         Optional.ofNullable(entity.getName()).ifPresent(entityName -> entityClass.addLabel(entityName, "en"));
         Optional.ofNullable(entity.getDescription()).ifPresent(entityDescription -> entityClass.addComment(entityDescription, "en"));
 
-        entityClass.addSuperClass(baseClass);
-
         objectIdToOWLResourceMap.put(entity, entityClass);
         return entityClass;
     }
 
     private String encodeString(String string) {
         return URLEncoder.encode(string, StandardCharsets.UTF_8);
-    }
-
-    private OntClass createBaseEntity(OntModel model) {
-        OntClass baseClass = model.createClass(BASE_ENTITY_URI + "BaseEntity");
-
-        DatatypeProperty description = model.createDatatypeProperty(BASE_ENTITY_URI + "description");
-        description.addDomain(baseClass);
-        description.addRange(XSD.xstring);
-
-        return baseClass;
     }
 
     private static void applyObjectCardinality(OntModel model, OntClass cls, Property prop, MultiplicityKind cardinality) {
