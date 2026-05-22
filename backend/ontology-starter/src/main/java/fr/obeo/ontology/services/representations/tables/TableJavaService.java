@@ -188,7 +188,10 @@ public class TableJavaService {
     }
 
     private boolean contains(String s, String text) {
-        return s.toLowerCase().contains(text.toLowerCase());
+        if (s != null && text != null) {
+            return s.toLowerCase().contains(text.toLowerCase());
+        }
+        return false;
     }
 
     public String getLevelLabel(Entity entity) {
