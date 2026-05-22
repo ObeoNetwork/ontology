@@ -156,8 +156,7 @@ public class DataOwnerItemProvider extends ItemProviderAdapter
         boolean emptyCode = code == null || code.isEmpty();
         boolean emptyLabel = label == null || label.isEmpty();
         styledLabel.append(emptyCode ? getString("nocode") : code)
-                .append(" - ")
-                .append(emptyLabel ? getString("unnamed") : label);
+                .append(emptyLabel ? (emptyCode ? " - " + getString("unnamed") : "") : " - " + label);
         return styledLabel;
     }
 
