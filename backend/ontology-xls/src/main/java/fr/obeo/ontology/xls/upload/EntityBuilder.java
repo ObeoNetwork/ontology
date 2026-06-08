@@ -143,7 +143,6 @@ public class EntityBuilder {
 
         EList<Attribute> attributes = entity.getOwnedAttributes();
         attributeNames.stream()
-                .map(s -> s.replace(" ", ""))
                 .filter(s -> !s.isBlank())
                 .forEach(attributeString -> {
                     List<String> attributeStrings = Arrays.stream(attributeString.split("\\|")).map(String::trim).toList();
