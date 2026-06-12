@@ -18,7 +18,7 @@
     <parent>
         <groupId>ontology</groupId>
         <artifactId>ontology-parent</artifactId>
-        <version>2026.5.0</version>
+        <version>2026.6.0</version>
         <relativePath>../ontology-parent</relativePath>
     </parent>
     <artifactId>ontology-model-edit</artifactId>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>ontology</groupId>
             <artifactId>ontology-model</artifactId>
-            <version>2026.5.0</version>
+            <version>2026.6.0</version>
         </dependency>
     </dependencies>
 </project>
