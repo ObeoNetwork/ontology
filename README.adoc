@@ -22,7 +22,7 @@ You can access link:./doc/user.adoc[the full user documentation] in this reposit
 
 If you want a quick overview of how Ontology looks and feels like without building the sample application yourself, you will simply need:
 
-* Java 17
+* Java 21
 * Docker, or an existing PostgreSQL 12 (or later) installation with a DB user that has admin rights on the database (those are needed by the application to create its schema on first startup).
 
 To actually run the application:
@@ -44,7 +44,7 @@ If you do not have Docker or want to use an existing PostgreSQL installation, ad
 
 2. Start the application:
 +
-Get the `ontology-application-{$version}.jar` from the last successful build on https://github.com/ObeoNetwork/ontology[Ontology github]
+Get the last published `ontology-application-{$version}.jar` from https://github.com/orgs/ObeoNetwork/packages?repo_name=ontology[Ontology github package]
 +
 [source,sh]
 ----
@@ -71,11 +71,11 @@ To build the application yourself you will need the following tools:
 
 * Git, and a GitHub account
 * To build the backend components:
-** https://adoptium.net/temurin/releases/[Java 17]
+** https://adoptium.net/temurin/releases/[Java 21]
 ** https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/[Apache Maven 3.6.3]
 ** https://www.docker.com/[Docker] must be installed and running for some of the backend components tests to run.
 * To build the frontend components:
-** LTS versions of https://nodejs.org/[Node and NPM]: in particular, Node >= 18.7.0 is required along with npm >= 8.15.0.
+** LTS versions of https://nodejs.org/[Node and NPM]: in particular, Node >= 22.16.0 is required along with npm >= 10.9.2.
 
 
 WARNING: Note that there are issues with npm under Windows Subsystem for Linux (WSL).
