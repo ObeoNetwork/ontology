@@ -199,13 +199,13 @@ image:table-ontology-row-filters.png[Ontology Table Row Filters]
 
 == Upload and download a model
 
-You can download an Ontology model in **EMF XML format** by clicking `Download` in the model contextual menu.
+You can download an Ontology model in **EMF XML** format by clicking `Download` in the model contextual menu.
 
-You can download an Ontology model in **RDF/XML format** by clicking `Download OWL`.
+You can download an Ontology model in **OWL/RDF** format by clicking `Download OWL`.
 
 image:explorer-download.png[Download Ontology model]
 
-The `Upload model` button in the explorer toolbar allows you the upload of a model either in **EMF XML format** or in **RDF/XML format**.
+The `Upload model` button in the explorer toolbar allows you the upload of a model either in **EMF XML format** or in **OWL/RDF** format.
 
 == Semantic Elements Search
 
