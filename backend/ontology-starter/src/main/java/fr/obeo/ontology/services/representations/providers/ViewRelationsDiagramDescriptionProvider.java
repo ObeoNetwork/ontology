@@ -12,6 +12,7 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.providers;
 
+import fr.obeo.ontology.services.representations.diagrams.relations.RelationsDiagramPaletteProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.edges.ReferenceEdgeDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.nodes.EntitySynchronizedNodeDescriptionProvider;
 
@@ -71,6 +72,9 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
         });
 
         diagramElementDescriptionProviders.forEach(diagramElementDescriptionProvider -> diagramElementDescriptionProvider.link(diagramDescription, cache));
+
+        var palette = new RelationsDiagramPaletteProvider(new DiagramBuilders()).createDiagramPalette(cache);
+        diagramDescription.setPalette(palette);
 
         return diagramDescription;
     }
