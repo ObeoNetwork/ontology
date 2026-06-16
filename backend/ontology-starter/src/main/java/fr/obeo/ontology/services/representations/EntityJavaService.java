@@ -259,16 +259,16 @@ public class EntityJavaService {
         return attribute;
     }
 
-    public Reference createReference(Entity entity, String name) {
+    public Reference createReference(Entity owningEntity, String name) {
         Reference reference = EnvironmentFactory.eINSTANCE.createReference();
         reference.setName(name);
-        reference.setContainingType(entity);
+        reference.setContainingType(owningEntity);
 
         return reference;
     }
 
-    public Reference createReferenceWithType(Entity entity, String name, Entity referencedEntity) {
-        Reference reference = this.createReference(entity, name);
+    public Reference createReferenceWithType(Entity owningEntity, String name, Entity referencedEntity) {
+        Reference reference = this.createReference(owningEntity, name);
         reference.setReferencedType(referencedEntity);
 
         return reference;
@@ -365,6 +365,17 @@ public class EntityJavaService {
         }
 
         return droppedElement;
+    }
+
+    public Object dropIntoRelationDiagramFromExplorer(Object droppedElement, IEditingContext editingContext, DiagramContext diagramContext) {
+        if (droppedElement instanceof Entity entity) {
+            return objectSearchService.getObject(editingContext, diagramContext.diagram().getTargetObjectId())
+                    .filter(Entity.class::isInstance)
+                    .map(Entity.class::cast)
+                    .map(diagramEntity -> createReferenceWithType(diagramEntity, "New Reference", entity))
+                    .orElse(null);
+        }
+        return null;
     }
 
     public List<Reference> getReferences(Entity entity) {
