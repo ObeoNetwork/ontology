@@ -1,0 +1,38 @@
+services:
+  ontology-postgres:
+    image: postgres:17
+    container_name: ontology-postgres
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpwd
+      POSTGRES_DB: ontology-db
+    ports:
+      - "5437:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dbuser -d ontology-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ontology-postgres-data:/var/lib/postgresql/data
+
+  ontology-application:
+    image: ontology-application:2026.6.0
+    build:
+      context: ./backend/ontology-application
+      args:
+        ONTOLOGY_VERSION: 2026.6.0
+    container_name: ontology-application
+    depends_on:
+      ontology-postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ontology-postgres:5432/ontology-db
+      SPRING_DATASOURCE_USERNAME: dbuser
+      SPRING_DATASOURCE_PASSWORD: dbpwd
+    entrypoint: [ "java", "-jar", "/ontology.jar" ]
+
+volumes:
+  ontology-postgres-data:
