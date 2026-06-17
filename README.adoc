@@ -53,6 +53,30 @@ java -jar ontology-application-{$version}.jar \
           --spring.datasource.username=dbuser \
           --spring.datasource.password=dbpwd
 ----
++
+Alternatively, if you already have `backend/ontology-application/target/ontology-application-{$version}.jar`, you can build and run a Docker image for the application:
++
+[source,sh]
+----
+docker build \
+          --build-arg ONTOLOGY_VERSION={$version} \
+          -t ontology-application:{$version} \
+          backend/ontology-application
+
+docker run --rm -p 8080:8080 --name ontology-application \
+          ontology-application:{$version} \
+          --spring.datasource.url=jdbc:postgresql://host.docker.internal:5437/ontology-db \
+          --spring.datasource.username=dbuser \
+          --spring.datasource.password=dbpwd
+----
++
+If you prefer to start both PostgreSQL and Ontology together, use the Docker Compose file at the repository root:
++
+[source,sh]
+----
+docker compose up --build
+----
++
 
 3. Point your browser at http://localhost:8080 and enjoy!
 +
