@@ -27,11 +27,8 @@ import { ExtensionRegistryMergeStrategy } from './extension/ExtensionRegistryMer
 
 import { treeItemContextMenuEntryExtensionPoint } from '@eclipse-sirius/sirius-components-trees';
 import { DocumentTreeItemContextMenuContribution } from './explorer/DocumentTreeItemContextMenuContribution';
-import './fonts.css';
 import './portals.css';
 import './ReactFlow.css';
-import './reset.css';
-import './variables.css';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';

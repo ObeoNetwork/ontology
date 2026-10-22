@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.7</version>
+        <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ontology</groupId>
@@ -32,7 +32,7 @@
     <properties>
         <java.version>17</java.version>
         <maven.compiler.release>17</maven.compiler.release>
-        <sirius.web.version>2026.7.0</sirius.web.version>
+        <sirius.web.version>2026.9.0</sirius.web.version>
         <sirius.version>7.2.0-SNAPSHOT</sirius.version>
         <sirius.emfjson.version>2.5.4-SNAPSHOT</sirius.emfjson.version>
         <entity.version>5.1.1</entity.version>
