@@ -1,8 +1,10 @@
 = Changelog
 
-== v2025.xx.xx
+== v2027.02.00
 
 === Dependency update
+
+* Require Java 21 for the backend build and continuous integration.
 
 === New features
 

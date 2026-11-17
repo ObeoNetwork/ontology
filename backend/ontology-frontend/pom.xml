@@ -26,10 +26,6 @@
     <name>ontology-frontend</name>
     <description>ontology Frontend</description>
 
-    <properties>
-        <java.version>17</java.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
