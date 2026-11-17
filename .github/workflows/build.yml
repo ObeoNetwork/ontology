@@ -65,8 +65,9 @@ jobs:
           echo "app_version_latest=$(grep version frontend/package.json | awk -F \" '{print $4}')" >> $GITHUB_ENV
 
       - name: Build the frontend packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo -e "\n//npm.pkg.github.com/:_authToken=${{ secrets.OBEO_TOKEN }}" >> .npmrc
           echo "CI=true" >> $GITHUB_ENV
           npm ci
           npm run build
@@ -80,7 +81,7 @@ jobs:
       - name: Build the backend
         env:
           USERNAME: ${{ github.actor }}
-          PASSWORD: ${{ secrets.PASSWORD }}
+          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -U -B -e clean verify  -f backend/pom.xml --settings settings.xml
 
       - name: Publish the backend
