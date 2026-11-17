@@ -51,7 +51,7 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
         return this.diagramBuilderHelper.newNodeDescription()
                 .name(ENTITY_UNSYNCHRONIZED_NODE_NAME)
                 .domainType(ENTITY_ENTITY)
-                .semanticCandidatesExpression("aql:self.getEntities()")
+                .semanticCandidatesExpression("aql:editingContext.getAllEntitiesInDiagram(diagramContext)")
                 .synchronizationPolicy(SynchronizationPolicy.UNSYNCHRONIZED)
                 .style(this.entityRectangularNodeStyleDescription(this.colorProvider))
                 .insideLabel(this.entityInsideLabelDescription())

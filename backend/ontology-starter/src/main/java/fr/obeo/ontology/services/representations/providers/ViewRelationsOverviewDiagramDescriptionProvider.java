@@ -41,19 +41,16 @@ public class ViewRelationsOverviewDiagramDescriptionProvider implements IReprese
 
     public static final String RELATIONS_OVERVIEW_DIAGRAM_NAME = "Relations Overview Diagram";
 
-    private IColorProvider colorProvider;
-
     private final DiagramToolbarBuilder diagramToolbarBuilder = new DiagramToolbarBuilder();
 
     private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
 
     @Override
-    public RepresentationDescription create(IColorProvider diagramColorProvider) {
-        this.colorProvider = diagramColorProvider;
-        return this.createRelationsOverviewDiagramDescription();
+    public RepresentationDescription create(IColorProvider colorProvider) {
+        return this.createRelationsOverviewDiagramDescription(colorProvider);
     }
 
-    private DiagramDescription createRelationsOverviewDiagramDescription() {
+    private DiagramDescription createRelationsOverviewDiagramDescription(IColorProvider colorProvider) {
         var diagramDescription = diagramBuilderHelper.newDiagramDescription()
                 .name(RELATIONS_OVERVIEW_DIAGRAM_NAME)
                 .domainType("entity::Entity")
@@ -66,7 +63,7 @@ public class ViewRelationsOverviewDiagramDescriptionProvider implements IReprese
                 .build();
 
         var cache = new DefaultViewDiagramElementFinder();
-        var diagramElementDescriptionProviders = this.createDiagramElementDescriptionProviders(this.colorProvider);
+        var diagramElementDescriptionProviders = this.createDiagramElementDescriptionProviders(colorProvider);
 
         diagramElementDescriptionProviders.forEach(provider -> {
             var diagramElementDescription = provider.create();
@@ -81,11 +78,11 @@ public class ViewRelationsOverviewDiagramDescriptionProvider implements IReprese
         return diagramDescription;
     }
 
-    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider diagramColorProvider) {
+    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider colorProvider) {
         var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
-        diagramElementDescriptionProviders.add(new EntityUnsynchronizedNodeDescriptionProvider(diagramColorProvider));
-        diagramElementDescriptionProviders.add(new ReferenceEdgeRelationsOverviewDescriptionProvider(diagramColorProvider));
+        diagramElementDescriptionProviders.add(new EntityUnsynchronizedNodeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new ReferenceEdgeRelationsOverviewDescriptionProvider(colorProvider));
 
         return diagramElementDescriptionProviders;
     }
