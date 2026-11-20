@@ -90,3 +90,8 @@ coverage/
 
 # ANTLR
 .antlr
+
+#IA
+.skills
+.agents
+.codex
