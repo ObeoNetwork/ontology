@@ -14,6 +14,9 @@ package fr.obeo.ontology.services.representations.diagrams.relations.edges;
 
 import fr.obeo.ontology.services.representations.diagrams.AbstractDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.nodes.EntitySynchronizedNodeDescriptionProvider;
+
+import java.util.Objects;
+
 import org.eclipse.sirius.components.view.builder.IViewDiagramElementFinder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
@@ -22,8 +25,6 @@ import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.diagram.EdgeDescription;
 import org.eclipse.sirius.components.view.diagram.EdgeStyle;
 import org.eclipse.sirius.components.view.diagram.EdgeType;
-
-import java.util.Objects;
 
 /**
  * Used to create reference edge between entities.
@@ -52,7 +53,7 @@ public class ReferenceEdgeDescriptionProvider extends AbstractDescriptionProvide
                 .name(REFERENCE_EDGE_NAME)
                 .isDomainBasedEdge(true)
                 .domainType(ENVIRONMENT_REFERENCE)
-                .semanticCandidatesExpression("aql:self.getOwnedReferences()")
+                .semanticCandidatesExpression("aql:self.references")
                 .sourceExpression("aql:self.getReferenceContainingType()")
                 .targetExpression("aql:self.getReferenceReferencedType()")
                 .style(edgeStyle)

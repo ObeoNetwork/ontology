@@ -13,7 +13,9 @@
 package fr.obeo.ontology.services.representations.providers;
 
 import fr.obeo.ontology.services.representations.diagrams.relations.RelationsDiagramPaletteProvider;
+import fr.obeo.ontology.services.representations.diagrams.relations.edges.InheritedReferenceEdgeDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.edges.ReferenceEdgeDescriptionProvider;
+import fr.obeo.ontology.services.representations.diagrams.relations.edges.SuperEntityEdgeDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.nodes.EntitySynchronizedNodeDescriptionProvider;
 
 import java.util.ArrayList;
@@ -84,6 +86,8 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
 
         diagramElementDescriptionProviders.add(new EntitySynchronizedNodeDescriptionProvider(colorProvider));
         diagramElementDescriptionProviders.add(new ReferenceEdgeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new InheritedReferenceEdgeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new SuperEntityEdgeDescriptionProvider(colorProvider));
 
         return diagramElementDescriptionProviders;
     }
