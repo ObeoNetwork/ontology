@@ -21,6 +21,7 @@ import fr.obeo.ontology.owl.services.EntityOWLModelService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,21 @@ import org.obeonetwork.dsl.environment.PrimitiveType;
 import org.obeonetwork.dsl.environment.PrimitiveTypeKind;
 import org.obeonetwork.dsl.environment.Reference;
 
+/**
+ * Tests the import of OWL models into ontology models.
+ *
+ * @author lfasani
+ */
+@SuppressWarnings("checkstyle:ReturnCount")
 class OWLToOntologyModelConverterTests {
+
+    private static final String BOOLEAN_TYPE_NAME = "Boolean";
+
+    private static final String CORE_ENTITY_NAME = "Core Entity";
+
+    private static final String ENTITY_ONE_NAME = "Entity 1";
+
+    private static final String ENTITY_TWELVE_NAME = "Entity 12";
 
     private final TestIdentityService identityService = new TestIdentityService();
 
@@ -66,7 +81,7 @@ class OWLToOntologyModelConverterTests {
         Attribute active = EnvironmentFactory.eINSTANCE.createAttribute();
         active.setName("active");
         active.setDescription("Active flag");
-        active.setType(primitiveType("Boolean"));
+        active.setType(primitiveType(BOOLEAN_TYPE_NAME));
         active.setMultiplicity(MultiplicityKind.ONE_LITERAL);
         this.identityService.register(active, "active");
         alpha.getOwnedAttributes().add(active);
@@ -123,7 +138,7 @@ class OWLToOntologyModelConverterTests {
         try (InputStream inputStream = getClass().getResourceAsStream("/OntologyForTest.owl")) {
             assertNotNull(inputStream);
             loadedModel.read(inputStream, null, "RDF/XML");
-        } catch (Exception exception) {
+        } catch (IOException exception) {
             throw new AssertionError("Unable to read OntologyForTest.owl", exception);
         }
 
@@ -133,32 +148,32 @@ class OWLToOntologyModelConverterTests {
         assertEquals(12, namespace.getTypes().size());
         assertPrimitiveTypes(namespace);
 
-        Entity coreEntity = findEntity(namespace, "Core Entity");
-        Entity entity1 = findEntity(namespace, "Entity 1");
+        Entity coreEntity = findEntity(namespace, CORE_ENTITY_NAME);
+        Entity entity1 = findEntity(namespace, ENTITY_ONE_NAME);
         Entity entity2 = findEntity(namespace, "Entity 2");
         Entity entity11 = findEntity(namespace, "Entity 11");
-        Entity entity12 = findEntity(namespace, "Entity 12");
+        Entity entity12 = findEntity(namespace, ENTITY_TWELVE_NAME);
         Entity entity13 = findEntity(namespace, "Entity 13");
         Entity entity21 = findEntity(namespace, "Entity 21");
 
         assertEquals("description of entity 1", entity1.getDescription());
-        assertEquals("Core Entity", entity1.getSupertype().getName());
-        assertEquals("Core Entity", entity2.getSupertype().getName());
-        assertEquals("Entity 1", entity11.getSupertype().getName());
-        assertEquals("Entity 1", entity12.getSupertype().getName());
-        assertEquals("Entity 1", entity13.getSupertype().getName());
+        assertEquals(CORE_ENTITY_NAME, entity1.getSupertype().getName());
+        assertEquals(CORE_ENTITY_NAME, entity2.getSupertype().getName());
+        assertEquals(ENTITY_ONE_NAME, entity11.getSupertype().getName());
+        assertEquals(ENTITY_ONE_NAME, entity12.getSupertype().getName());
+        assertEquals(ENTITY_ONE_NAME, entity13.getSupertype().getName());
         assertEquals("Entity 2", entity21.getSupertype().getName());
         assertNotNull(coreEntity);
 
         assertEquals(3, entity11.getOwnedAttributes().size());
         assertAttribute(entity11, "attr1_0_1", "Int", MultiplicityKind.ZERO_ONE_LITERAL);
-        assertAttribute(entity11, "attr2_ONLY_1", "Boolean", MultiplicityKind.ONE_LITERAL);
+        assertAttribute(entity11, "attr2_ONLY_1", BOOLEAN_TYPE_NAME, MultiplicityKind.ONE_LITERAL);
         assertAttribute(entity11, "attr3_0_N", "Double", MultiplicityKind.ZERO_STAR_LITERAL);
 
         assertEquals(3, entity11.getOwnedReferences().size());
         assertReference(entity11, "ref1_0_1", "Entity 13", MultiplicityKind.ZERO_ONE_LITERAL);
-        assertReference(entity11, "ref2_ONLY_1", "Entity 12", MultiplicityKind.ONE_LITERAL);
-        assertReference(entity11, "ref3_0_N", "Entity 12", MultiplicityKind.ZERO_STAR_LITERAL);
+        assertReference(entity11, "ref2_ONLY_1", ENTITY_TWELVE_NAME, MultiplicityKind.ONE_LITERAL);
+        assertReference(entity11, "ref3_0_N", ENTITY_TWELVE_NAME, MultiplicityKind.ZERO_STAR_LITERAL);
 
         assertEquals(3, entity11.getMetadatas().getMetadatas().size());
         assertAnnotation(entity11, "title1", "body line1\nbody line2");
@@ -198,10 +213,10 @@ class OWLToOntologyModelConverterTests {
     }
 
     private static boolean entitiesAreEqual(Entity expectedEntity, Entity currentEntity) {
-        return Objects.equals(expectedEntity.getName(), currentEntity.getName())
+        boolean sameIdentity = Objects.equals(expectedEntity.getName(), currentEntity.getName())
                 && Objects.equals(expectedEntity.getDescription(), currentEntity.getDescription())
-                && Objects.equals(getEntityName(expectedEntity.getSupertype()), getEntityName(currentEntity.getSupertype()))
-                && annotationsAreEqual(expectedEntity, currentEntity)
+                && Objects.equals(getEntityName(expectedEntity.getSupertype()), getEntityName(currentEntity.getSupertype()));
+        return sameIdentity && annotationsAreEqual(expectedEntity, currentEntity)
                 && attributesAreEqual(expectedEntity, currentEntity)
                 && referencesAreEqual(expectedEntity, currentEntity);
     }
@@ -288,7 +303,7 @@ class OWLToOntologyModelConverterTests {
 
     private static void assertPrimitiveTypes(Namespace namespace) {
         assertPrimitiveType(namespace, "String", PrimitiveTypeKind.TEXT);
-        assertPrimitiveType(namespace, "Boolean", PrimitiveTypeKind.OTHER);
+        assertPrimitiveType(namespace, BOOLEAN_TYPE_NAME, PrimitiveTypeKind.OTHER);
         assertPrimitiveType(namespace, "Int", PrimitiveTypeKind.NUMBER);
         assertPrimitiveType(namespace, "Double", PrimitiveTypeKind.NUMBER);
         assertPrimitiveType(namespace, "Date", PrimitiveTypeKind.TEXT);
@@ -332,6 +347,11 @@ class OWLToOntologyModelConverterTests {
         assertEquals(body, annotation.get().getBody());
     }
 
+    /**
+     * Associates semantic objects with stable identifiers for these tests.
+     *
+     * @author lfasani
+     */
     private static final class TestIdentityService implements IIdentityService {
 
         private final Map<Object, String> ids = new HashMap<>();

@@ -111,7 +111,9 @@ public class XLSToOntologyModelConverter {
                     .filter(str -> !str.isBlank());
             if (name.isPresent()) {
                 businessDomainNameSet.add(name.get());
-            } else break;
+            } else {
+                break;
+            }
         }
 
         // Add data sources
@@ -163,12 +165,16 @@ public class XLSToOntologyModelConverter {
             if (Optional.ofNullable(coreEntitiesRow.getCell(maxColumn))
                     .map(Cell::getStringCellValue).isPresent()) {
                 maxColumn++;
-            } else break;
+            } else {
+                break;
+            }
         }
 
         for (int iRow = 3; true; iRow++) {
             Row currentRow = relationsBetweenObjectsSheet.getRow(iRow);
-            if (currentRow == null) break;
+            if (currentRow == null) {
+                break;
+            }
             Optional<String> verticalCoreEntityNameOpt = Optional.ofNullable(currentRow.getCell(2))
                     .map(Cell::getStringCellValue).filter(str -> !str.isBlank());
             if (verticalCoreEntityNameOpt.isPresent()) {
@@ -183,9 +189,13 @@ public class XLSToOntologyModelConverter {
                                 .flatMap(s -> Stream.of(s.split("\n")))
                                 .forEach(relationName -> entityFactory.addRelation(horizontalCoreEntityNameOpt.get(), verticalCoreEntityNameOpt.get(), relationName,
                                         referenceDescriptions.get(relationName)));
-                    } else break;
+                    } else {
+                        break;
+                    }
                 }
-            } else break;
+            } else {
+                break;
+            }
         }
     }
 
@@ -205,7 +215,9 @@ public class XLSToOntologyModelConverter {
                         .filter(str -> !str.isBlank())
                         .ifPresent(description -> referenceNameToDescription.put(referenceNameOpt.get(), description));
 
-            } else break;
+            } else {
+                break;
+            }
         }
 
         return referenceNameToDescription;

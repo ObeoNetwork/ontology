@@ -27,6 +27,11 @@ import org.eclipse.sirius.web.domain.boundedcontexts.representationdata.services
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Service;
 
+/**
+ * Provides variables used to render the ontology explorer.
+ *
+ * @author lfasani
+ */
 @Service
 public class OntologyExplorerRenderVariablesCustomizer implements IRepresentationRenderVariableCustomizer {
     private final IRepresentationMetadataSearchService representationMetadataSearchService;

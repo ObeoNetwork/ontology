@@ -46,7 +46,20 @@ import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.environment.PrimitiveType;
 import org.obeonetwork.dsl.environment.Reference;
 
+/**
+ * Tests the export of ontology models to OWL.
+ *
+ * @author lfasani
+ */
 class OntologyToOWLModelConverterTests {
+
+    private static final String PARENT_ID = "parent";
+
+    private static final String SOURCE_NAME = "Source";
+
+    private static final String SOURCE_ID = "source";
+
+    private static final String TARGET_NAME = "Target";
 
     private static final String BASE_URI = "http://ontology/entity#";
 
@@ -57,7 +70,7 @@ class OntologyToOWLModelConverterTests {
     @Test
     void convertToOWLModelCreatesEntitiesRecursivelyWithSupertypeProperty() {
         Root root = EntityFactory.eINSTANCE.createRoot();
-        Entity parent = entity("Parent entity", "parent", "Parent description");
+        Entity parent = entity("Parent entity", PARENT_ID, "Parent description");
         Entity child = entity("Child entity", "child", "Child description");
         child.setSupertype(parent);
 
@@ -105,8 +118,8 @@ class OntologyToOWLModelConverterTests {
     void convertToOWLModelCreatesReferencesAttributesAndCardinalityRestrictions() {
         Root root = EntityFactory.eINSTANCE.createRoot();
         Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
-        Entity source = entity("Source", "source", null);
-        Entity target = entity("Target", "target", null);
+        Entity source = entity(SOURCE_NAME, SOURCE_ID, null);
+        Entity target = entity(TARGET_NAME, "target", null);
 
         Reference reference = EnvironmentFactory.eINSTANCE.createReference();
         reference.setName("relatedTo");
@@ -130,8 +143,8 @@ class OntologyToOWLModelConverterTests {
 
         Model model = this.converter.convertToOWLModel(root);
 
-        Resource sourceClass = model.getResource(BASE_URI + "Source");
-        Resource targetClass = model.getResource(BASE_URI + "Target");
+        Resource sourceClass = model.getResource(BASE_URI + SOURCE_NAME);
+        Resource targetClass = model.getResource(BASE_URI + TARGET_NAME);
         Resource objectProperty = model.getResource(BASE_URI + "Reference_Source_relatedTo_Target");
         Resource datatypeProperty = model.getResource(BASE_URI + "Attribute_Source_active");
 
@@ -154,7 +167,7 @@ class OntologyToOWLModelConverterTests {
     void convertToOWLModelExportsDateAttributes() {
         Root root = EntityFactory.eINSTANCE.createRoot();
         Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
-        Entity source = entity("Source", "source", null);
+        Entity source = entity(SOURCE_NAME, SOURCE_ID, null);
 
         Attribute attribute = EnvironmentFactory.eINSTANCE.createAttribute();
         attribute.setName("createdOn");
@@ -167,7 +180,7 @@ class OntologyToOWLModelConverterTests {
 
         Model model = this.converter.convertToOWLModel(root);
 
-        Resource sourceClass = model.getResource(BASE_URI + "Source");
+        Resource sourceClass = model.getResource(BASE_URI + SOURCE_NAME);
         Resource datatypeProperty = model.getResource(BASE_URI + "Attribute_Source_createdOn");
 
         assertTrue(model.contains(datatypeProperty, RDF.type, OWL.DatatypeProperty));
@@ -180,7 +193,7 @@ class OntologyToOWLModelConverterTests {
     void convertToOWLModelExportsZeroStarReferencesAsOptionalAssociationClasses() {
         Root root = EntityFactory.eINSTANCE.createRoot();
         Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
-        Entity parent = entity("Parent", "parent", null);
+        Entity parent = entity("Parent", PARENT_ID, null);
         Entity child = entity("Child", "child", null);
 
         Reference childrenReference = EnvironmentFactory.eINSTANCE.createReference();
@@ -191,7 +204,7 @@ class OntologyToOWLModelConverterTests {
         parent.getOwnedReferences().add(childrenReference);
 
         Reference parentReference = EnvironmentFactory.eINSTANCE.createReference();
-        parentReference.setName("parent");
+        parentReference.setName(PARENT_ID);
         parentReference.setReferencedType(parent);
         parentReference.setMultiplicity(MultiplicityKind.ONE_LITERAL);
         parentReference.setOppositeOf(childrenReference);
@@ -236,8 +249,8 @@ class OntologyToOWLModelConverterTests {
     void convertToOWLModelExportsManyToManyReferencesAsAssociationClasses() {
         Root root = EntityFactory.eINSTANCE.createRoot();
         Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
-        Entity source = entity("Source", "source", null);
-        Entity target = entity("Target", "target", null);
+        Entity source = entity(SOURCE_NAME, SOURCE_ID, null);
+        Entity target = entity(TARGET_NAME, "target", null);
 
         Reference sourceToTargets = EnvironmentFactory.eINSTANCE.createReference();
         sourceToTargets.setName("targets");
@@ -262,8 +275,8 @@ class OntologyToOWLModelConverterTests {
 
         Model model = this.converter.convertToOWLModel(root);
 
-        Resource sourceClass = model.getResource(BASE_URI + "Source");
-        Resource targetClass = model.getResource(BASE_URI + "Target");
+        Resource sourceClass = model.getResource(BASE_URI + SOURCE_NAME);
+        Resource targetClass = model.getResource(BASE_URI + TARGET_NAME);
         Resource directSourceToTargetsProperty = model.getResource(BASE_URI + "Reference_Source_targets_Target");
         Resource directTargetToSourcesProperty = model.getResource(BASE_URI + "Reference_Target_sources_Source");
         Resource sourceAssociationClass = model.getResource(BASE_URI + "Association_Source_targets_Target");
@@ -363,14 +376,19 @@ class OntologyToOWLModelConverterTests {
                 .map(Statement::getSubject)
                 .anyMatch(restriction -> {
                     Statement cardinalityStatement = restriction.getProperty(cardinalityProperty);
-                    return cardinalityStatement != null
+                    boolean hasExpectedCardinality = cardinalityStatement != null
                             && cardinalityStatement.getObject().isLiteral()
                             && XSDDatatype.XSDnonNegativeInteger.equals(cardinalityStatement.getLiteral().getDatatype())
-                            && cardinalityStatement.getInt() == cardinality
-                            && model.contains(restriction, rangeProperty, range);
+                            && cardinalityStatement.getInt() == cardinality;
+                    return hasExpectedCardinality && model.contains(restriction, rangeProperty, range);
                 });
     }
 
+    /**
+     * Associates semantic objects with stable identifiers for these tests.
+     *
+     * @author lfasani
+     */
     private static final class TestIdentityService implements IIdentityService {
 
         private final Map<Object, String> ids = new HashMap<>();

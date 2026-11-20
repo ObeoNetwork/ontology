@@ -60,11 +60,14 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
  * @author lfasani
  */
 public class ExplorerJavaService {
+
     public static final String FRAGMENT_URI_PREFIX = "o://fragment";
 
     public static final String SEMANTIC_OBJECT_ID_PARAM = "objectId";
 
     public static final String FRAGMENT_TYPE_PARAM = "fragmentType";
+
+    private static final String UNPARSABLE_ID_MESSAGE = "Unparsable id {} : {}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExplorerJavaService.class);
 
@@ -167,18 +170,23 @@ public class ExplorerJavaService {
                     .map(Entity.class::cast)
                     .anyMatch(entity -> entity.getSupertype() == null);
         } else if (self instanceof Entity entity) {
-            boolean hasComments = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && hasComments(entity);
-            boolean hasAttributes = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID) && hasOwnedAttributes(entity);
-            boolean hasReferences = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID) && hasOwnedReferences(entity);
-
-            hasChildren = hasComments || hasAttributes || hasReferences;
-
-            hasChildren = hasChildren || !entityJavaService.getSubEntities(entity).isEmpty();
-
-            hasChildren = hasChildren || this.hasRepresentation(entity, editingContext);
+            hasChildren = this.hasEntityChildren(entity, editingContext, activeFilterIds);
         } else if (self instanceof EObject eObject) {
             hasChildren = !eObject.eContents().isEmpty();
         }
+        return hasChildren;
+    }
+
+    private boolean hasEntityChildren(Entity entity, IEditingContext editingContext, List<String> activeFilterIds) {
+        boolean hasComments = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && hasComments(entity);
+        boolean hasAttributes = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID) && hasOwnedAttributes(entity);
+        boolean hasReferences = !activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID) && hasOwnedReferences(entity);
+
+        boolean hasChildren = hasComments || hasAttributes || hasReferences;
+
+        hasChildren = hasChildren || !entityJavaService.getSubEntities(entity).isEmpty();
+
+        hasChildren = hasChildren || this.hasRepresentation(entity, editingContext);
         return hasChildren;
     }
 
@@ -196,67 +204,85 @@ public class ExplorerJavaService {
             if (self instanceof TreeItemFragment treeItemFragment) {
                 result.addAll(treeItemFragment.getChildren(editingContext, expandedIds, activeFilterIds));
             } else if (self instanceof Resource resource) {
-                result.addAll(resource.getContents().stream()
-                        .filter(Root.class::isInstance)
-                        .map(Root.class::cast)
-                        .flatMap(root -> root.getOwnedNamespaces().stream())
-                        .toList());
-
-                resource.getContents().stream()
-                        .filter(OrganizationInformation.class::isInstance)
-                        .map(OrganizationInformation.class::cast)
-                        .findFirst()
-                        .ifPresent(organizationInformation -> {
-                            result.add(new BusinessDomainsTreeItemFragment(organizationInformation, this.identityService));
-                            result.add(new DataOwnersTreeItemFragment(organizationInformation, this.identityService));
-                            result.add(new DataSourcesTreeItemFragment(organizationInformation, this.identityService));
-                        });
+                result.addAll(this.getResourceChildren(resource));
             } else if (self instanceof Namespace namespace) {
-                var semanticDataId = new UUIDParser().parse(editingContext.getId());
-
-                if (semanticDataId.isPresent()) {
-                    var representationMetadata = new ArrayList<>(
-                            this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()),
-                                    this.identityService.getId(namespace)));
-                    representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
-                    result.addAll(representationMetadata);
-                }
-
-                result.addAll(namespace.getTypes().stream()
-                        .filter(Entity.class::isInstance)
-                        .map(Entity.class::cast)
-                        .filter(entity -> entity.getSupertype() == null)
-                        .toList());
+                result.addAll(this.getNamespaceChildren(namespace, editingContext));
             } else if (self instanceof Entity entity) {
-                var semanticDataId = new UUIDParser().parse(editingContext.getId());
-
-                if (semanticDataId.isPresent()) {
-                    var representationMetadata = new ArrayList<>(
-                            this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()),
-                                    this.identityService.getId(entity)));
-                    representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
-                    result.addAll(representationMetadata);
-                }
-
-                if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && this.hasComments(entity)) {
-                    result.add(new CommentsTreeItemFragment(entity, this.identityService, this.labelService));
-                }
-
-                if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)
-                        && this.hasOwnedAttributes(entity)) {
-                    result.add(new AttributesTreeItemFragment(entity, this.identityService, this.labelService));
-                }
-
-                if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID)
-                        && this.hasOwnedReferences(entity)) {
-                    result.add(new ReferencesTreeItemFragment(entity, this.identityService, this.labelService));
-                }
-
-                result.addAll(entityJavaService.getSubEntities(entity));
+                result.addAll(this.getEntityChildren(entity, editingContext, activeFilterIds));
             } else {
                 result.addAll(this.explorerServices.getDefaultChildren(self, editingContext, expandedIds, existingRepresentations));
             }
         }
+        return result;
+    }
+
+    private List<Object> getResourceChildren(Resource resource) {
+        List<Object> result = new ArrayList<>();
+        result.addAll(resource.getContents().stream()
+                .filter(Root.class::isInstance)
+                .map(Root.class::cast)
+                .flatMap(root -> root.getOwnedNamespaces().stream())
+                .toList());
+
+        resource.getContents().stream()
+                .filter(OrganizationInformation.class::isInstance)
+                .map(OrganizationInformation.class::cast)
+                .findFirst()
+                .ifPresent(organizationInformation -> {
+                    result.add(new BusinessDomainsTreeItemFragment(organizationInformation, this.identityService));
+                    result.add(new DataOwnersTreeItemFragment(organizationInformation, this.identityService));
+                    result.add(new DataSourcesTreeItemFragment(organizationInformation, this.identityService));
+                });
+        return result;
+    }
+
+    private List<Object> getNamespaceChildren(Namespace namespace, IEditingContext editingContext) {
+        List<Object> result = new ArrayList<>();
+        var semanticDataId = new UUIDParser().parse(editingContext.getId());
+
+        if (semanticDataId.isPresent()) {
+            var representationMetadata = new ArrayList<>(
+                    this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()),
+                            this.identityService.getId(namespace)));
+            representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
+            result.addAll(representationMetadata);
+        }
+
+        result.addAll(namespace.getTypes().stream()
+                .filter(Entity.class::isInstance)
+                .map(Entity.class::cast)
+                .filter(entity -> entity.getSupertype() == null)
+                .toList());
+        return result;
+    }
+
+    private List<Object> getEntityChildren(Entity entity, IEditingContext editingContext, List<String> activeFilterIds) {
+        List<Object> result = new ArrayList<>();
+        var semanticDataId = new UUIDParser().parse(editingContext.getId());
+
+        if (semanticDataId.isPresent()) {
+            var representationMetadata = new ArrayList<>(
+                    this.representationMetadataSearchService.findAllRepresentationMetadataBySemanticDataAndTargetObjectId(AggregateReference.to(semanticDataId.get()),
+                            this.identityService.getId(entity)));
+            representationMetadata.sort(Comparator.comparing(RepresentationMetadata::getLabel));
+            result.addAll(representationMetadata);
+        }
+
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_COMMENTS_TREE_ITEM_FILTER_ID) && this.hasComments(entity)) {
+            result.add(new CommentsTreeItemFragment(entity, this.identityService, this.labelService));
+        }
+
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_ATTRIBUTES_TREE_FILTER_ID)
+                && this.hasOwnedAttributes(entity)) {
+            result.add(new AttributesTreeItemFragment(entity, this.identityService, this.labelService));
+        }
+
+        if (!activeFilterIds.contains(OntologyTreeFilterProvider.HIDE_REFERENCES_TREE_FILTER_ID)
+                && this.hasOwnedReferences(entity)) {
+            result.add(new ReferencesTreeItemFragment(entity, this.identityService, this.labelService));
+        }
+
+        result.addAll(entityJavaService.getSubEntities(entity));
         return result;
     }
 
@@ -310,7 +336,7 @@ public class ExplorerJavaService {
                 return this.objectSearchService.getObject(editingContext, semanticObjectId).map(EObject.class::cast);
             }
         } catch (IllegalStateException e) {
-            LOGGER.warn("Unparsable id {} : {}", itemId, e.getCause());
+            LOGGER.warn(UNPARSABLE_ID_MESSAGE, itemId, e.getCause());
         }
 
         return Optional.empty();
@@ -323,7 +349,7 @@ public class ExplorerJavaService {
                 return parameters.get(FRAGMENT_TYPE_PARAM).get(0);
             }
         } catch (IllegalStateException e) {
-            LOGGER.warn("Unparsable id {} : {}", itemId, e.getCause());
+            LOGGER.warn(UNPARSABLE_ID_MESSAGE, itemId, e.getCause());
         }
 
         return "";
@@ -340,7 +366,7 @@ public class ExplorerJavaService {
     }
 
     /**
-     * Creates a new {@link TreeItemFragment} from a given id
+     * Creates a new {@link TreeItemFragment} from a given id.
      *
      * @param editingContext
      *         the current {@link IEditingContext}
@@ -364,7 +390,7 @@ public class ExplorerJavaService {
                         .orElse(null);
             }
         } catch (IllegalStateException e) {
-            LOGGER.warn("Unparsable id {} : {}", itemId, e.getCause());
+            LOGGER.warn(UNPARSABLE_ID_MESSAGE, itemId, e.getCause());
         }
 
         return result;
@@ -491,7 +517,7 @@ public class ExplorerJavaService {
                         });
             }
         } catch (IllegalStateException e) {
-            LOGGER.warn("Unparsable id {} : {}", treeItem.getId(), e.getCause());
+            LOGGER.warn(UNPARSABLE_ID_MESSAGE, treeItem.getId(), e.getCause());
         }
 
         return createObject.get();

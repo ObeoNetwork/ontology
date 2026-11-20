@@ -48,8 +48,8 @@ public class ViewRelationsOverviewDiagramDescriptionProvider implements IReprese
     private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
 
     @Override
-    public RepresentationDescription create(IColorProvider colorProvider) {
-        this.colorProvider = colorProvider;
+    public RepresentationDescription create(IColorProvider diagramColorProvider) {
+        this.colorProvider = diagramColorProvider;
         return this.createRelationsOverviewDiagramDescription();
     }
 
@@ -81,11 +81,11 @@ public class ViewRelationsOverviewDiagramDescriptionProvider implements IReprese
         return diagramDescription;
     }
 
-    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider colorProvider) {
+    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider diagramColorProvider) {
         var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
-        diagramElementDescriptionProviders.add(new EntityUnsynchronizedNodeDescriptionProvider(colorProvider));
-        diagramElementDescriptionProviders.add(new ReferenceEdgeRelationsOverviewDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new EntityUnsynchronizedNodeDescriptionProvider(diagramColorProvider));
+        diagramElementDescriptionProviders.add(new ReferenceEdgeRelationsOverviewDescriptionProvider(diagramColorProvider));
 
         return diagramElementDescriptionProviders;
     }

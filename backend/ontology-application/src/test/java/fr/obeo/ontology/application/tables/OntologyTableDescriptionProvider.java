@@ -53,24 +53,24 @@ public class OntologyTableDescriptionProvider implements IEditingContextProcesso
     }
 
     private View createView() {
-        View view = new ViewBuilder().build();
-        view.getDescriptions().add(new ViewEntityTableDescriptionProvider().create(new DefaultColorProvider(view)));
-        this.tableDescription = view.getDescriptions().stream()
+        View createdView = new ViewBuilder().build();
+        createdView.getDescriptions().add(new ViewEntityTableDescriptionProvider().create(new DefaultColorProvider(createdView)));
+        this.tableDescription = createdView.getDescriptions().stream()
                 .filter(representationDescription -> representationDescription.getName().equals(ViewEntityTableDescriptionProvider.ENTITIES_TABLE_NAME))
                 .map(TableDescription.class::cast)
                 .findFirst()
                 .get();
 
-        view.eAllContents().forEachRemaining(eObject -> {
+        createdView.eAllContents().forEachRemaining(eObject -> {
             eObject.eAdapters().add(new IDAdapter(UUID.nameUUIDFromBytes(EcoreUtil.getURI(eObject).toString().getBytes())));
         });
 
         String resourcePath = UUID.nameUUIDFromBytes("OntologyTableDescription".getBytes()).toString();
         JsonResource resource = new JSONResourceFactory().createResourceFromPath(resourcePath);
         resource.eAdapters().add(new ResourceMetadataAdapter("OntologyTableDescription"));
-        resource.getContents().add(view);
+        resource.getContents().add(createdView);
 
-        return view;
+        return createdView;
     }
 
     @Override

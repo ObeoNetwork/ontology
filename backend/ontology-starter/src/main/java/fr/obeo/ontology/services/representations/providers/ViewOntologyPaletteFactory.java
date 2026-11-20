@@ -12,6 +12,9 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.providers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.sirius.components.view.ColorPalette;
 import org.eclipse.sirius.components.view.FixedColor;
 import org.eclipse.sirius.components.view.TextStyleDescription;
@@ -19,10 +22,15 @@ import org.eclipse.sirius.components.view.TextStylePalette;
 import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.DefaultColorPalettesProvider;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Creates the palette used by ontology views.
+ *
+ * @author lfasani
+ */
 public class ViewOntologyPaletteFactory {
+    public static final String BLUE_GREY = "blue grey";
+
+    public static final String COLOR_TRANSPARENT = "color_transparent";
 
     static final String BLUE_ITALIC_TEXT_STYLE_NAME = "blue italic";
 
@@ -31,10 +39,6 @@ public class ViewOntologyPaletteFactory {
     static final String NORMAL_TEXT_STYLE_NAME = "normal";
 
     private static final String AQL_TRUE = "aql:true";
-
-    public static final String BLUE_GREY = "blue grey";
-
-    public static final String COLOR_TRANSPARENT = "color_transparent";
 
     public List<ColorPalette> createColorPalettes() {
         var palettes = new ArrayList<>(new DefaultColorPalettesProvider().getDefaultColorPalettes());

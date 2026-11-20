@@ -68,6 +68,7 @@ public class OntologyDiagramControllerTests extends AbstractIntegrationTests {
     @Test
     @GivenAnOntologyApplicationServer
     @DisplayName("Given a ontology diagram on a core Entity, when it is opened, then entities are visible")
+    @SuppressWarnings("checkstyle:LocalVariableName")
     public void givenDomainDiagramOnStudioWhenItIsOpenedThenEntitiesAreVisible() {
         var input = new CreateRepresentationInput(UUID.randomUUID(), OntologyProjectIdentifiers.ONTOLOGY_PROJECT_EDITING_CONTEXT_ID,
                 this.ontologyDiagramDescriptionProvider.getRepresentationDescriptionId(),
@@ -84,8 +85,6 @@ public class OntologyDiagramControllerTests extends AbstractIntegrationTests {
                     var entityRootNode = new DiagramNavigator(diagram).nodeWithLabel("Entity Root").getNode();
                     assertThat(entityRootNode.getBorderNodes()).hasSize(1);
 
-                    var entity1_1Node = new DiagramNavigator(diagram).nodeWithLabel("Entity level 1.1").getNode();
-                    var container1 = new DiagramNavigator(diagram).nodeWithLabel("Level 1").getNode();
                     var entity1_1_1Node = new DiagramNavigator(diagram).nodeWithLabel("Entity level 1.1.1").getNode();
                     var entity1_1_2Node = new DiagramNavigator(diagram).nodeWithLabel("Entity level 1.1.2").getNode();
                     var entity1_2_1Node = new DiagramNavigator(diagram).nodeWithLabel("Entity level 1.2.1").getNode();

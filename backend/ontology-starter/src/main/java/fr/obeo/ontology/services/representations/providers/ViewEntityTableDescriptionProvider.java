@@ -12,12 +12,17 @@
  *******************************************************************************/
 package fr.obeo.ontology.services.representations.providers;
 
+import java.util.List;
+
 import org.eclipse.sirius.components.view.RepresentationDescription;
 import org.eclipse.sirius.components.view.builder.generated.table.TableBuilders;
 import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.builder.providers.IColorProvider;
 import org.eclipse.sirius.components.view.builder.providers.IRepresentationDescriptionProvider;
+import org.eclipse.sirius.components.view.table.CellDescription;
+import org.eclipse.sirius.components.view.table.ColumnDescription;
 import org.eclipse.sirius.components.view.table.RowContextMenuEntry;
+import org.eclipse.sirius.components.view.table.RowDescription;
 import org.springframework.stereotype.Service;
 
 /**
@@ -51,7 +56,24 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
 
     @Override
     public RepresentationDescription create(IColorProvider colorProvider) {
+        List<ColumnDescription> columnDescriptions = this.createColumnDescriptions();
+        List<CellDescription> cellDescriptions = this.createCellDescriptions();
+        RowDescription rowDescription = this.createRowDescription();
 
+        return this.tableBuilders.newTableDescription()
+                .name(ENTITIES_TABLE_NAME)
+                .titleExpression("aql:self.name + ' Table'")
+                .domainType("environment::Namespace")
+                .columnDescriptions(columnDescriptions.toArray(ColumnDescription[]::new))
+                .cellDescriptions(cellDescriptions.toArray(CellDescription[]::new))
+                .rowDescription(rowDescription)
+                .enableSubRows(true)
+                .useStripedRowsExpression("true")
+                .pageSizeOptionsExpression("aql:Sequence{10,20,50}")
+                .build();
+    }
+
+    private List<ColumnDescription> createColumnDescriptions() {
         var attributesColumnDescription = this.tableBuilders.newColumnDescription()
                 .semanticCandidatesExpression(AQL + "'" + ENTITY_TABLE_ATTRIBUTES_COLUMN + "'")
                 .headerLabelExpression(ENTITY_TABLE_ATTRIBUTES_COLUMN)
@@ -99,7 +121,11 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .isResizableExpression(AQL + "true")
                 .isSortableExpression(AQL + "false")
                 .build();
+        return List.of(attributesColumnDescription, commentsColumnDescription, referencesColumnDescription, businessDomainColumnDescription,
+                dataOwnerColumnDescription, dataSourceColumnDescription);
+    }
 
+    private List<CellDescription> createCellDescriptions() {
         var cellAttributesDescription = this.tableBuilders.newCellDescription()
                 .preconditionExpression(AQL + "columnTargetObject == '" + ENTITY_TABLE_ATTRIBUTES_COLUMN + "'")
                 .valueExpression("aql:self.getAttributesCellLabel()")
@@ -140,7 +166,11 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .valueExpression("aql:self.getDataSourcesCellLabel()")
                 .cellWidgetDescription(this.tableBuilders.newCellTextareaWidgetDescription().build())
                 .build();
+        return List.of(cellAttributesDescription, cellCommentsDescription, cellReferencesDescription, cellBusinessDomainDescription,
+                cellDataOwnerDescription, cellDataSourcesDescription);
+    }
 
+    private List<RowContextMenuEntry> createContextMenuEntries() {
         RowContextMenuEntry newSiblingEntity = this.tableBuilders.newRowContextMenuEntry()
                 .name("new-sibling-entity-entry")
                 .labelExpression("New Sibling Entity")
@@ -168,9 +198,13 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                         .expression(AQL + "self.deleteEntity()")
                         .build())
                 .build();
+        return List.of(newSubEntityEntry, deleteEntityEntry, newSiblingEntity);
+    }
 
+    private RowDescription createRowDescription() {
+        List<RowContextMenuEntry> contextMenuEntries = this.createContextMenuEntries();
         //TODO traiter la variable ExplandAll
-        var rowDescription = this.tableBuilders.newRowDescription()
+        return this.tableBuilders.newRowDescription()
                 .semanticCandidatesExpression(AQL + "self.getAllOrderedEntities(expandedIds, globalFilterData, columnFilters, activeRowFilterIds)->toPaginatedData(cursor,direction,size)")
                 .initialHeightExpression("-1")
                 .isResizableExpression(AQL + "true")
@@ -178,20 +212,7 @@ public class ViewEntityTableDescriptionProvider implements IRepresentationDescri
                 .headerIndexLabelExpression(AQL + "self.getLevelLabel()")
                 .depthLevelExpression(AQL + "self.getEntityLevel()")
                 .initialHeightExpression("55")
-                .contextMenuEntries(newSubEntityEntry, deleteEntityEntry, newSiblingEntity)
-                .build();
-
-        return this.tableBuilders.newTableDescription()
-                .name(ENTITIES_TABLE_NAME)
-                .titleExpression("aql:self.name + ' Table'")
-                .domainType("environment::Namespace")
-                .columnDescriptions(attributesColumnDescription, commentsColumnDescription, referencesColumnDescription, businessDomainColumnDescription, dataOwnerColumnDescription,
-                        dataSourceColumnDescription)
-                .cellDescriptions(cellAttributesDescription, cellCommentsDescription, cellReferencesDescription, cellBusinessDomainDescription, cellDataOwnerDescription, cellDataSourcesDescription)
-                .rowDescription(rowDescription)
-                .enableSubRows(true)
-                .useStripedRowsExpression("true")
-                .pageSizeOptionsExpression("aql:Sequence{10,20,50}")
+                .contextMenuEntries(contextMenuEntries.toArray(RowContextMenuEntry[]::new))
                 .build();
     }
 }

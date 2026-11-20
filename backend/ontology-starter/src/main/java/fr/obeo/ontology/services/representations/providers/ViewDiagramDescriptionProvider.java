@@ -47,8 +47,8 @@ public class ViewDiagramDescriptionProvider implements IRepresentationDescriptio
     private IColorProvider colorProvider;
 
     @Override
-    public RepresentationDescription create(IColorProvider colorProvider) {
-        this.colorProvider = colorProvider;
+    public RepresentationDescription create(IColorProvider diagramColorProvider) {
+        this.colorProvider = diagramColorProvider;
         return this.createOntologyDiagramDescription();
     }
 
@@ -78,27 +78,27 @@ public class ViewDiagramDescriptionProvider implements IRepresentationDescriptio
         return diagramDescription;
     }
 
-    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider colorProvider) {
+    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider diagramColorProvider) {
 
         var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
-        diagramElementDescriptionProviders.add(new CoreEntityNodeDescriptionProvider(colorProvider));
-        diagramElementDescriptionProviders.add(new CoreToLevelEdgeDescriptionProvider(colorProvider));
-        diagramElementDescriptionProviders.addAll(this.createAllLevelContainerDescriptionProviders(colorProvider));
+        diagramElementDescriptionProviders.add(new CoreEntityNodeDescriptionProvider(diagramColorProvider));
+        diagramElementDescriptionProviders.add(new CoreToLevelEdgeDescriptionProvider(diagramColorProvider));
+        diagramElementDescriptionProviders.addAll(this.createAllLevelContainerDescriptionProviders(diagramColorProvider));
 
         return diagramElementDescriptionProviders;
     }
 
-    private List<IDiagramElementDescriptionProvider<?>> createAllLevelContainerDescriptionProviders(IColorProvider colorProvider) {
+    private List<IDiagramElementDescriptionProvider<?>> createAllLevelContainerDescriptionProviders(IColorProvider diagramColorProvider) {
         final var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
         List<NodeDescription> containerDescriptions = new ArrayList<>();
         for (int level = 1; level <= AbstractDescriptionProvider.NB_LEVEL; level++) {
-            diagramElementDescriptionProviders.add(new LevelContainerEntityNodeDescriptionProvider(level, colorProvider));
+            diagramElementDescriptionProviders.add(new LevelContainerEntityNodeDescriptionProvider(level, diagramColorProvider));
         }
 
         for (int level = 1; level < AbstractDescriptionProvider.NB_LEVEL; level++) {
-            diagramElementDescriptionProviders.add(new LevelToNextLevelEdgeDescriptionProvider(level, colorProvider));
+            diagramElementDescriptionProviders.add(new LevelToNextLevelEdgeDescriptionProvider(level, diagramColorProvider));
         }
 
         return diagramElementDescriptionProviders;

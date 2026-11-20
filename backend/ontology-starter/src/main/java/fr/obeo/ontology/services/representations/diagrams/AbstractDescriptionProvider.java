@@ -28,7 +28,8 @@ public abstract class AbstractDescriptionProvider {
 
     public static final String BACKGROUND_COLOR = "white";
 
+    public static final int NB_LEVEL = 3;
+
     protected static final String AQL_SELF = "aql:self";
 
-    public static final int NB_LEVEL = 3;
 }

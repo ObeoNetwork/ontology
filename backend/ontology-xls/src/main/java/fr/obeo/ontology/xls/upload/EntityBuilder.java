@@ -44,6 +44,11 @@ import org.obeonetwork.dsl.environment.PrimitiveType;
 import org.obeonetwork.dsl.environment.PrimitiveTypeKind;
 import org.obeonetwork.dsl.environment.Reference;
 
+/**
+ * Builds ontology entities from spreadsheet data.
+ *
+ * @author lfasani
+ */
 public class EntityBuilder {
     public static final String BOOLEAN_TYPE = "Boolean";
 
@@ -75,6 +80,9 @@ public class EntityBuilder {
             "0_1",
             MultiplicityKind.ZERO_ONE_LITERAL);
 
+    /**
+     * Holds the spreadsheet values used to create an entity.
+     */
     private record EntityRecord(String name, int level, List<String> attributeNames, String comment, String businessArea, List<Integer> dataSourceIndexes, List<Integer> dataOwnerIndexes) {
     }
 
@@ -87,22 +95,22 @@ public class EntityBuilder {
     }
 
     private Root initializeRoot() {
-        Root root = org.obeonetwork.dsl.entity.EntityFactory.eINSTANCE.createRoot();
-        root.setName("Root");
+        Root createdRoot = org.obeonetwork.dsl.entity.EntityFactory.eINSTANCE.createRoot();
+        createdRoot.setName("Root");
 
-        Namespace namespace = EnvironmentFactory.eINSTANCE.createNamespace();
+        Namespace createdNamespace = EnvironmentFactory.eINSTANCE.createNamespace();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd-HH:mm")
                 .withZone(ZoneId.systemDefault());
 
         Instant instant = Instant.now();
         String formattedInstant = formatter.format(instant);
-        namespace.setName("Entities imported from xls" + formattedInstant);
-        root.getOwnedNamespaces().add(namespace);
+        createdNamespace.setName("Entities imported from xls" + formattedInstant);
+        createdRoot.getOwnedNamespaces().add(createdNamespace);
 
         // Primitive types creation
-        namespace.getTypes().addAll(this.createPrimitiveTypes());
+        createdNamespace.getTypes().addAll(this.createPrimitiveTypes());
 
-        return root;
+        return createdRoot;
     }
 
     private List<PrimitiveType> createPrimitiveTypes() {
@@ -148,12 +156,15 @@ public class EntityBuilder {
                     List<String> attributeStrings = Arrays.stream(attributeString.split("\\|")).map(String::trim).toList();
                     Attribute attribute = EnvironmentFactory.eINSTANCE.createAttribute();
                     attribute.setName(attributeStrings.get(0));
-                    if (attributeStrings.size() > 1)
+                    if (attributeStrings.size() > 1) {
                         attribute.setDescription(attributeStrings.get(1));
-                    if (attributeStrings.size() > 2)
+                    }
+                    if (attributeStrings.size() > 2) {
                         attribute.setType(dataTypeNameToDataType.get(attributeStrings.get(2)));
-                    if (attributeStrings.size() > 3)
+                    }
+                    if (attributeStrings.size() > 3) {
                         attribute.setMultiplicity(nameToMultiplicityKind.get(attributeStrings.get(3)));
+                    }
                     attributes.add(attribute);
                 });
 
@@ -170,7 +181,9 @@ public class EntityBuilder {
     }
 
     /**
-     * @return al list of resource roots.
+     * Builds the list of resource roots.
+     *
+     * @return the list of resource roots.
      */
     public List<EObject> build() {
         createOrganizationInformation();

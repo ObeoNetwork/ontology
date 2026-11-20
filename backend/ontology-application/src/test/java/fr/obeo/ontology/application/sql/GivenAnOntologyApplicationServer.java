@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Obeo.
+ * Copyright (c) 2025, 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.jdbc.SqlGroup;
 
 /**
- * Integration test annotation used to setup the database=
+ * Integration test annotation used to set up the database.
  *
  * @author fbarbin
  */
@@ -31,13 +31,13 @@ import org.springframework.test.context.jdbc.SqlGroup;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @SqlGroup({
-        @Sql(scripts = {
-                "/scripts/ontology-test-database.sql"
-        }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED)),
+    @Sql(scripts = {
+        "/scripts/ontology-test-database.sql"
+    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED)),
 
-        @Sql(scripts = {
-                "/scripts/cleanup.sql"
-        }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    @Sql(scripts = {
+        "/scripts/cleanup.sql"
+    }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED))
 
 })
 public @interface GivenAnOntologyApplicationServer {

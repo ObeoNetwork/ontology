@@ -115,33 +115,40 @@ public class TableJavaService {
     }
 
     private boolean matchFilter(Entity entity, String globalFilter, List<ColumnFilter> columnFilters) {
-        boolean isValidCandidate = true;
-        if (globalFilter != null && !globalFilter.isBlank()) {
-            isValidCandidate = entity.getName() != null && this.contains(entity.getName(), globalFilter);
-        }
+        return this.matchesGlobalFilter(entity, globalFilter)
+                && columnFilters.stream().allMatch(columnFilter -> this.matchesColumnFilter(entity, columnFilter));
+    }
 
-        isValidCandidate = isValidCandidate && columnFilters.stream().allMatch(columnFilter -> {
-            String columnFilterId = columnFilter.id();
-            String columnFilterValue = columnFilter.value().replace("\"", "").trim();
+    private boolean matchesGlobalFilter(Entity entity, String globalFilter) {
+        return globalFilter == null || globalFilter.isBlank()
+                || entity.getName() != null && this.contains(entity.getName(), globalFilter);
+    }
 
-            return switch (columnFilterId) {
-                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COLUMN ->
-                        entity.getOwnedAttributes() != null && this.isValidAttributesFilter(entity, columnFilterValue);
-                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COMMENTS ->
-                        entity.getMetadatas() != null && this.isValidMetadataFilter(entity, columnFilterValue);
-                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_REFERENCES_COLUMN ->
-                        entity.getOwnedReferences() != null && this.isValidReferencesFilter(entity, columnFilterValue);
-                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_BUSINESSDOMAIN_COLUMN ->
-                        this.entityJavaService.getEntityBusinessDomain(entity) != null && this.isValidFunctionalAreaFilter(entity, columnFilterValue);
-                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_DATAOWNER_COLUMN ->
-                        this.entityJavaService.getEntityDataOwner(entity) != null && this.isValidDataOwnerFilter(entity, columnFilterValue);
-                case ViewEntityTableDescriptionProvider.ENTITY_TABLE_DATASOURCES_COLUMN ->
-                        this.entityJavaService.getEntityDataSources(entity) != null && this.isValidDataSourcesFilter(entity, columnFilterValue);
-                default -> true;
-            };
-        });
+    private boolean matchesColumnFilter(Entity entity, ColumnFilter columnFilter) {
+        String columnFilterId = columnFilter.id();
+        String columnFilterValue = columnFilter.value().replace("\"", "").trim();
 
-        return isValidCandidate;
+        return switch (columnFilterId) {
+            case ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COLUMN -> entity.getOwnedAttributes() != null && this.isValidAttributesFilter(entity, columnFilterValue);
+            case ViewEntityTableDescriptionProvider.ENTITY_TABLE_ATTRIBUTES_COMMENTS -> entity.getMetadatas() != null && this.isValidMetadataFilter(entity, columnFilterValue);
+            case ViewEntityTableDescriptionProvider.ENTITY_TABLE_REFERENCES_COLUMN -> entity.getOwnedReferences() != null && this.isValidReferencesFilter(entity, columnFilterValue);
+            case ViewEntityTableDescriptionProvider.ENTITY_TABLE_BUSINESSDOMAIN_COLUMN -> this.matchesBusinessDomainColumnFilter(entity, columnFilterValue);
+            case ViewEntityTableDescriptionProvider.ENTITY_TABLE_DATAOWNER_COLUMN -> this.matchesDataOwnerColumnFilter(entity, columnFilterValue);
+            case ViewEntityTableDescriptionProvider.ENTITY_TABLE_DATASOURCES_COLUMN -> this.matchesDataSourcesColumnFilter(entity, columnFilterValue);
+            default -> true;
+        };
+    }
+
+    private boolean matchesBusinessDomainColumnFilter(Entity entity, String filterValue) {
+        return this.entityJavaService.getEntityBusinessDomain(entity) != null && this.isValidFunctionalAreaFilter(entity, filterValue);
+    }
+
+    private boolean matchesDataOwnerColumnFilter(Entity entity, String filterValue) {
+        return this.entityJavaService.getEntityDataOwner(entity) != null && this.isValidDataOwnerFilter(entity, filterValue);
+    }
+
+    private boolean matchesDataSourcesColumnFilter(Entity entity, String filterValue) {
+        return this.entityJavaService.getEntityDataSources(entity) != null && this.isValidDataSourcesFilter(entity, filterValue);
     }
 
     private List<Entity> findEntitySuperEntities(Entity entity, List<Entity> entities) {
@@ -179,7 +186,7 @@ public class TableJavaService {
     private boolean isValidDataOwnerFilter(Entity entity, String filterValue) {
         var dataOwner = this.entityJavaService.getEntityDataOwner(entity);
         return this.contains(dataOwner.getCode(), filterValue)
-                || this.contains(dataOwner.getName(), filterValue) ;
+                || this.contains(dataOwner.getName(), filterValue);
     }
 
     private boolean isValidDataSourcesFilter(Entity entity, String filterValue) {

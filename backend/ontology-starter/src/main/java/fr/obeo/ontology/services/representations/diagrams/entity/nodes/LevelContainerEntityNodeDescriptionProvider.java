@@ -70,8 +70,8 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
                 .build();
     }
 
-    private NodeDescription createEntityNodeDescription(int level) {
-        NodeDescription borderNodeDescription = this.createBorderNodeDescription(level);
+    private NodeDescription createEntityNodeDescription(int entityLevel) {
+        NodeDescription borderNodeDescription = this.createBorderNodeDescription(entityLevel);
         RectangularNodeStyleDescription rectangularNodeStyleDescription = new DiagramBuilders().newRectangularNodeStyleDescription()
                 .background(this.colorProvider.getColor(BACKGROUND_COLOR))
                 .borderColor(this.colorProvider.getColor(BORDER_COLOR))
@@ -86,15 +86,15 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
                 .build();
 
         return new DiagramBuilders().newNodeDescription()
-                .name(ENTITY_NODE_LEVEL_NAME + level)
+                .name(ENTITY_NODE_LEVEL_NAME + entityLevel)
                 .domainType(ENTITY_ENTITY)
-                .semanticCandidatesExpression(String.format("aql:self.getEntitiesOfLevel(%s)", level))
+                .semanticCandidatesExpression(String.format("aql:self.getEntitiesOfLevel(%s)", entityLevel))
                 .style(rectangularNodeStyleDescription)
                 .borderNodesDescriptions(borderNodeDescription)
                 .insideLabel(insideLabelDescription)
                 .defaultWidthExpression(String.valueOf(DEFAULT_NODE_WIDTH))
                 .defaultHeightExpression(String.valueOf(DEFAULT_NODE_HEIGHT))
-                .palette(this.createEntityNodePalette(level))
+                .palette(this.createEntityNodePalette(entityLevel))
                 .build();
     }
 

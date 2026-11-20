@@ -59,11 +59,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping("/api/editingcontexts/{editingContextId}/owl")
+@SuppressWarnings("checkstyle:ReturnCount")
 public class OWLDownloadController {
 
     // Allow to have a more readable content
     // see https://jena.apache.org/documentation/io/rdfxml_howto.html
     public static final String RDF_XML = "RDF/XML-ABBREV";
+
+    private static final String OWL_EXTENSION = ".owl";
+
     private final Logger logger = LoggerFactory.getLogger(OWLDownloadController.class);
 
     private final IEditingContextSearchService editingContextSearchService;
@@ -141,14 +145,14 @@ public class OWLDownloadController {
         if (name == null || name.isBlank()) {
             return "resource.owl";
         }
-        if (name.length() >= 4 && name.regionMatches(true, name.length() - 4, ".owl", 0, 4)) {
+        if (name.length() >= 4 && name.regionMatches(true, name.length() - 4, OWL_EXTENSION, 0, 4)) {
             return name;
         }
         int extensionIndex = name.lastIndexOf('.');
         if (extensionIndex > 0) {
-            return name.substring(0, extensionIndex) + ".owl";
+            return name.substring(0, extensionIndex) + OWL_EXTENSION;
         }
-        return name + ".owl";
+        return name + OWL_EXTENSION;
     }
 
     private ResponseEntity<Resource> toValidationTextResponse(List<ValidationStatus> statuses) {
