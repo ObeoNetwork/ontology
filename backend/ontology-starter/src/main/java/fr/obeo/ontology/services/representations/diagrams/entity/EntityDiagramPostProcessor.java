@@ -45,11 +45,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class EntityDiagramPostProcessor implements IDiagramPostProcessor {
 
-    private static final int CONTAINER_GAP = 30;
-
     public static final int NODE_XPOSITION_IN_CONTAINER = 25;
 
     public static final int MINIMAL_NODE_YPOSITION_IN_CONTAINER = 50;
+
+    private static final int CONTAINER_GAP = 30;
 
     private final IRepresentationDescriptionSearchService representationDescriptionSearchService;
 
@@ -77,12 +77,12 @@ public class EntityDiagramPostProcessor implements IDiagramPostProcessor {
     private Diagram updateLayout(Diagram diagram) {
         this.idToNodeLayoutDataMap = diagram.getLayoutData().nodeLayoutData();
 
-        diagram = this.updateDiagramWithPinnedNodes(diagram);
-        this.updateContainerContentLayout(diagram);
-        this.updateContainerLayout(diagram);
-        this.updateEdges(diagram);
+        Diagram updatedDiagram = this.updateDiagramWithPinnedNodes(diagram);
+        this.updateContainerContentLayout(updatedDiagram);
+        this.updateContainerLayout(updatedDiagram);
+        this.updateEdges(updatedDiagram);
 
-        return diagram;
+        return updatedDiagram;
     }
 
     private void updateEdges(Diagram diagram) {

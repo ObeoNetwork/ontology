@@ -41,7 +41,7 @@ public class RelationsDiagramPaletteProvider {
     }
 
     public DropTool createDropFromExplorerTool() {
-       var dropElementFromExplorer = this.viewBuilderHelper.newChangeContext()
+        var dropElementFromExplorer = this.viewBuilderHelper.newChangeContext()
                         .expression("aql:self.dropIntoRelationDiagramFromExplorer(editingContext, diagramContext)")
                         .build();
 

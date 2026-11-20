@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 /**
- * Handles drop operations in the Ontology explorer tree
+ * Handles drop operations in the Ontology explorer tree.
  *
  * @author ntinsalhi
  */

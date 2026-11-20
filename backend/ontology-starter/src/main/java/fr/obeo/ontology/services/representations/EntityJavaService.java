@@ -61,11 +61,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class EntityJavaService {
 
-    private final IEditService editService;
-
-    private final int NB_LEVEL = 3;
-
     public static final String UNNAMED = "(unnamed)";
+
+    private static final int NB_LEVEL = 3;
+
+    private final IEditService editService;
 
     private final IFeedbackMessageService feedbackMessageService;
 
@@ -378,7 +378,10 @@ public class EntityJavaService {
         return null;
     }
 
-    public List<Reference> getReferences(Entity entity) {
+    /**
+     * Returns all references contained in the whole Namespace.
+     */
+    public List<Reference> getAllReferencesInNamespace(Entity entity) {
         return Optional.of(entity)
                 .map(EObject::eContainer)
                 .filter(Namespace.class::isInstance)

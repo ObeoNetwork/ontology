@@ -62,7 +62,7 @@ public class AttributesTreeItemFragment implements TreeItemFragment {
     @Override
     public boolean hasChildren(IEditingContext editingContext, List<String> expandedIds, List<String> activeFilterIds) {
         boolean result = Optional.of(this.entity)
-                .map(entity -> entity.getOwnedAttributes())
+                .map(Entity::getOwnedAttributes)
                 .stream()
                 .flatMap(attributes -> attributes.stream())
                 .findFirst()
@@ -75,7 +75,7 @@ public class AttributesTreeItemFragment implements TreeItemFragment {
         List<Object> result = new ArrayList<>();
 
         result.addAll(Optional.of(this.entity)
-                .map(entity -> entity.getOwnedAttributes())
+                .map(Entity::getOwnedAttributes)
                 .stream()
                 .flatMap(attributes -> attributes.stream())
                 .toList());

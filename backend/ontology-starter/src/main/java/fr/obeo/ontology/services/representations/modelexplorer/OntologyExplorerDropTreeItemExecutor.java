@@ -33,7 +33,7 @@ import org.obeonetwork.dsl.environment.Namespace;
 import org.springframework.stereotype.Service;
 
 /**
- * Executes drop operations in the Ontology explorer tree
+ * Executes drop operations in the Ontology explorer tree.
  *
  * @author ntinsalhi
  */

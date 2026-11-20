@@ -40,6 +40,12 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
     public static final String ONTOLOGY_EXPLORER_DESCRIPTION_NAME = "Ontology Explorer";
 
+    private static final String IS_ENTITY_EXPRESSION = "aql:self.oclIsKindOf(entity::Entity)";
+
+    private static final String NEW_SUB_ENTITY_LABEL = "New Sub Entity";
+
+    private static final String CREATE_ICON_URL = "/customImages/create.svg";
+
     private final TextStylePalette textStylePalette;
 
     private final ITreeIdProvider treeIdProvider;
@@ -111,7 +117,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
     private TreeItemLabelDescription createEntityLabel() {
         return new TreeBuilders().newTreeItemLabelDescription()
                 .name("entityFragment style")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression(IS_ENTITY_EXPRESSION)
                 .children(this.getEntityLabelPrefix(), this.getDefaultLabelFragmentDescription())
                 .build();
     }
@@ -151,20 +157,20 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .build();*/
 
         SingleClickTreeItemContextMenuEntry createSubEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
-                .name("New Sub Entity")
+                .name(NEW_SUB_ENTITY_LABEL)
                 .preconditionExpression("aql:self.canCreateNewSubEntityExplorer()")
-                .labelExpression("New Sub Entity")
-                .iconURLExpression("/customImages/create.svg")
+                .labelExpression(NEW_SUB_ENTITY_LABEL)
+                .iconURLExpression(CREATE_ICON_URL)
                 .body(new ChangeContextBuilder()
                         .expression("aql:self.createSubEntity('New Entity')")
                         .build())
                 .build();
 
         SingleClickTreeItemContextMenuEntry createCoreEntity = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
-                .name("New Sub Entity")
+                .name(NEW_SUB_ENTITY_LABEL)
                 .preconditionExpression("aql:self.oclIsKindOf(environment::Namespace)")
                 .labelExpression("New Core Entity")
-                .iconURLExpression("/customImages/create.svg")
+                .iconURLExpression(CREATE_ICON_URL)
                 .body(new ChangeContextBuilder()
                         .expression("aql:self.createCoreEntity('New Core Entity')")
                         .build())
@@ -174,7 +180,7 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
                 .name("Create Object")
                 .preconditionExpression("aql:selectedTreeItem.isCreateObjectAllowed()")
                 .labelExpression("aql:selectedTreeItem.getCreateObjectLabel()")
-                .iconURLExpression("/customImages/create.svg")
+                .iconURLExpression(CREATE_ICON_URL)
                 .body(new ChangeContextBuilder()
                         .expression("aql:editingContext.createObject(selectedTreeItem)")
                         .build())
@@ -183,9 +189,9 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createComment = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Comment")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression(IS_ENTITY_EXPRESSION)
                 .labelExpression("New Comment")
-                .iconURLExpression("/customImages/create.svg")
+                .iconURLExpression(CREATE_ICON_URL)
                 .body(new ChangeContextBuilder()
                         .expression("aql:self.createComment('New Comment')")
                         .build())
@@ -193,9 +199,9 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createAttribute = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Attribute")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression(IS_ENTITY_EXPRESSION)
                 .labelExpression("New Attribute")
-                .iconURLExpression("/customImages/create.svg")
+                .iconURLExpression(CREATE_ICON_URL)
                 .body(new ChangeContextBuilder()
                         .expression("aql:self.createAttribute('New Attribute')")
                         .build())
@@ -203,9 +209,9 @@ public class ViewExplorerTreeDescriptionProvider implements IRepresentationDescr
 
         SingleClickTreeItemContextMenuEntry createReference = new TreeBuilders().newSingleClickTreeItemContextMenuEntry()
                 .name("New Reference")
-                .preconditionExpression("aql:self.oclIsKindOf(entity::Entity)")
+                .preconditionExpression(IS_ENTITY_EXPRESSION)
                 .labelExpression("New Reference")
-                .iconURLExpression("/customImages/create.svg")
+                .iconURLExpression(CREATE_ICON_URL)
                 .body(new ChangeContextBuilder()
                         .expression("aql:self.createReference('New Reference')")
                         .build())

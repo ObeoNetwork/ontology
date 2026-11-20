@@ -46,8 +46,15 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
 
     @Override
     public boolean canHandle(Object object) {
-        return object instanceof MetaDataContainer || object instanceof Annotation || object instanceof Attribute || object instanceof Reference
-                || object instanceof EObject eObject && eObject.eClass().getEPackage().getNsURI().equals(OntologyPackage.eNS_URI) || object instanceof PrimitiveType;
+        return this.isEnvironmentObject(object) || this.isOntologyObject(object) || object instanceof PrimitiveType;
+    }
+
+    private boolean isEnvironmentObject(Object object) {
+        return object instanceof MetaDataContainer || object instanceof Annotation || object instanceof Attribute || object instanceof Reference;
+    }
+
+    private boolean isOntologyObject(Object object) {
+        return object instanceof EObject eObject && eObject.eClass().getEPackage().getNsURI().equals(OntologyPackage.eNS_URI);
     }
 
     @Override
@@ -65,8 +72,8 @@ public class OntologyLabelServiceDelegate implements ILabelServiceDelegate {
             String title = Optional.ofNullable(reference.getName()).map(Object::toString).filter(str -> !str.isBlank()).orElse(UNNAMED);
             styledString = StyledString.of(title);
         } else if (object instanceof PrimitiveType primitiveType) {
-                String title = Optional.ofNullable(primitiveType.getName()).map(Object::toString).filter(str -> !str.isBlank()).orElse(UNNAMED);
-                styledString = StyledString.of(title);
+            String title = Optional.ofNullable(primitiveType.getName()).map(Object::toString).filter(str -> !str.isBlank()).orElse(UNNAMED);
+            styledString = StyledString.of(title);
         } else {
             // defaultLabelService does not fallback on xxxItemProviders so we need to call it explicitly
             var adapter = new OntologyItemProviderAdapterFactory().adapt(object, IItemStyledLabelProvider.class);

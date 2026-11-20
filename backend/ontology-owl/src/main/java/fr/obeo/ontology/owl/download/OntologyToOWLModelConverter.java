@@ -59,7 +59,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class OntologyToOWLModelConverter {
 
-    final String BASE_ENTITY_URI = "http://ontology/entity#";
+    private static final String NAME_SEPARATOR = "_";
+
+    private static final String LABEL_LANGUAGE = "en";
+
+    private static final String BASE_ENTITY_URI = "http://ontology/entity#";
 
     private final IIdentityService identityService;
 
@@ -115,10 +119,10 @@ public class OntologyToOWLModelConverter {
                     if (isManyToManyReference(reference)) {
                         createAssociationClass(entity, reference, referenceId, model, entityClass, objectIdToOWLResourceMap);
                     } else {
-                        String relationFullName = encodeString(entity.getName() + "_" + reference.getName() + "_" + reference.getReferencedType().getName());
+                        String relationFullName = encodeString(entity.getName() + NAME_SEPARATOR + reference.getName() + NAME_SEPARATOR + reference.getReferencedType().getName());
                         ObjectProperty objectProperty = model.createObjectProperty(BASE_ENTITY_URI + "Reference_" + relationFullName);
-                        Optional.ofNullable(reference.getName()).ifPresent(name -> objectProperty.addLabel(name, "en"));
-                        Optional.ofNullable(reference.getDescription()).ifPresent(description -> objectProperty.addComment(description, "en"));
+                        Optional.ofNullable(reference.getName()).ifPresent(name -> objectProperty.addLabel(name, LABEL_LANGUAGE));
+                        Optional.ofNullable(reference.getDescription()).ifPresent(description -> objectProperty.addComment(description, LABEL_LANGUAGE));
                         objectProperty.addDomain(entityClass);
                         getReferencedEntityClass(reference.getReferencedType(), objectIdToOWLResourceMap).ifPresent(objectProperty::addRange);
                         applyObjectCardinality(model, entityClass, objectProperty, reference.getMultiplicity());
@@ -128,10 +132,10 @@ public class OntologyToOWLModelConverter {
         // Create the attributes
         entity.getOwnedAttributes()
                 .forEach(attribute -> {
-                    String attributeFullName = encodeString(entity.getName() + "_" + attribute.getName());
+                    String attributeFullName = encodeString(entity.getName() + NAME_SEPARATOR + attribute.getName());
                     DatatypeProperty datatypeProperty = model.createDatatypeProperty(BASE_ENTITY_URI + "Attribute_" + attributeFullName);
-                    Optional.ofNullable(attribute.getName()).filter(s -> !s.isBlank()).ifPresent(name -> datatypeProperty.addLabel(name, "en"));
-                    Optional.ofNullable(attribute.getDescription()).ifPresent(description -> datatypeProperty.addComment(description, "en"));
+                    Optional.ofNullable(attribute.getName()).filter(s -> !s.isBlank()).ifPresent(name -> datatypeProperty.addLabel(name, LABEL_LANGUAGE));
+                    Optional.ofNullable(attribute.getDescription()).ifPresent(description -> datatypeProperty.addComment(description, LABEL_LANGUAGE));
 
                     datatypeProperty.addDomain(entityClass);
                     datatypeProperty.addRange(model.getResource(getDatatypeURI(attribute.getType())));
@@ -154,8 +158,8 @@ public class OntologyToOWLModelConverter {
             addAnnotationComment(entityClass, annotation);
         }
 
-        Optional.ofNullable(entity.getName()).ifPresent(entityName -> entityClass.addLabel(entityName, "en"));
-        Optional.ofNullable(entity.getDescription()).ifPresent(entityDescription -> entityClass.addComment(entityDescription, "en"));
+        Optional.ofNullable(entity.getName()).ifPresent(entityName -> entityClass.addLabel(entityName, LABEL_LANGUAGE));
+        Optional.ofNullable(entity.getDescription()).ifPresent(entityDescription -> entityClass.addComment(entityDescription, LABEL_LANGUAGE));
 
         objectIdToOWLResourceMap.put(entity, entityClass);
         return entityClass;
@@ -182,6 +186,7 @@ public class OntologyToOWLModelConverter {
             case ZERO_STAR_LITERAL -> {
                 // no restriction needed
             }
+            default -> throw new IllegalArgumentException("Unsupported multiplicity: " + cardinality);
         }
     }
 
@@ -193,10 +198,10 @@ public class OntologyToOWLModelConverter {
             Map<Entity, OntClass> entityClassByEntity) {
         getReferencedEntityClass(reference.getReferencedType(), entityClassByEntity)
                 .ifPresentOrElse(targetClass -> {
-                    String relationFullName = encodeString(sourceEntity.getName() + "_" + reference.getName() + "_" + reference.getReferencedType().getName());
+                    String relationFullName = encodeString(sourceEntity.getName() + NAME_SEPARATOR + reference.getName() + NAME_SEPARATOR + reference.getReferencedType().getName());
                     OntClass associationClass = model.createClass(BASE_ENTITY_URI + "Association_" + relationFullName);
-                    Optional.ofNullable(reference.getName()).ifPresent(name -> associationClass.addLabel(name, "en"));
-                    Optional.ofNullable(reference.getDescription()).ifPresent(description -> associationClass.addComment(description, "en"));
+                    Optional.ofNullable(reference.getName()).ifPresent(name -> associationClass.addLabel(name, LABEL_LANGUAGE));
+                    Optional.ofNullable(reference.getDescription()).ifPresent(description -> associationClass.addComment(description, LABEL_LANGUAGE));
 
                     ObjectProperty sourceProperty = model.createObjectProperty(BASE_ENTITY_URI + "Association_source_" + relationFullName);
                     sourceProperty.addDomain(associationClass);
@@ -208,7 +213,7 @@ public class OntologyToOWLModelConverter {
                     targetProperty.addRange(targetClass);
                     addCardinalityRestriction(model, associationClass, targetProperty, OWL.cardinality, 1);
                 }, () -> sourceClass.addComment("Reference '" + getDisplayName(reference.getName(), referenceId)
-                        + "' is not exported because its target entity cannot be resolved.", "en"));
+                        + "' is not exported because its target entity cannot be resolved.", LABEL_LANGUAGE));
     }
 
     private static void addCardinalityRestriction(OntModel model, OntClass cls, Property prop, Property cardinalityProperty, int cardinality) {
@@ -278,7 +283,7 @@ public class OntologyToOWLModelConverter {
     private void addAnnotationComment(OntClass entityClass, Annotation annotation) {
         String comment = toComment(annotation);
         if (!comment.isBlank()) {
-            entityClass.addComment(comment, "en");
+            entityClass.addComment(comment, LABEL_LANGUAGE);
         }
     }
 

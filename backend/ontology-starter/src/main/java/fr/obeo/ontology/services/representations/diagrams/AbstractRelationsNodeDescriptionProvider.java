@@ -45,9 +45,9 @@ public abstract class AbstractRelationsNodeDescriptionProvider extends AbstractD
 
     public static final String ATTRIBUTE_CONTAINER_NODE = "AttributeContainerNode";
 
-    private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
-
     protected final ViewBuilders viewBuilderHelper = new ViewBuilders();
+
+    private final DiagramBuilders diagramBuilderHelper = new DiagramBuilders();
 
     protected NodePaletteBuilder createEntityNodePaletteBuilder() {
         return this.diagramBuilderHelper.newNodePalette()

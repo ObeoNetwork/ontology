@@ -54,26 +54,26 @@ public class OntologyDiagramDescriptionProvider implements IEditingContextProces
     }
 
     private View createView() {
-        View view = new ViewBuilder()
+        View createdView = new ViewBuilder()
                 .build();
-        view.getDescriptions().add(new ViewDiagramDescriptionProvider().create(new DefaultColorProvider(view)));
+        createdView.getDescriptions().add(new ViewDiagramDescriptionProvider().create(new DefaultColorProvider(createdView)));
 //        new ViewDiagramDescriptionFactory(view).addRepresentationDescription();
-        this.diagramDescription = view.getDescriptions().stream()
+        this.diagramDescription = createdView.getDescriptions().stream()
                 .filter(representationDescription -> representationDescription.getName().equals(ViewDiagramDescriptionProvider.ONTOLOGY_DIAGRAM_NAME))
                 .map(DiagramDescription.class::cast)
                 .findFirst()
                 .get();
 
-        view.eAllContents().forEachRemaining(eObject -> {
+        createdView.eAllContents().forEachRemaining(eObject -> {
             eObject.eAdapters().add(new IDAdapter(UUID.nameUUIDFromBytes(EcoreUtil.getURI(eObject).toString().getBytes())));
         });
 
         String resourcePath = UUID.nameUUIDFromBytes("OntologyDiagramDescription".getBytes()).toString();
         JsonResource resource = new JSONResourceFactory().createResourceFromPath(resourcePath);
         resource.eAdapters().add(new ResourceMetadataAdapter("OntologyDiagramDescription"));
-        resource.getContents().add(view);
+        resource.getContents().add(createdView);
 
-        return view;
+        return createdView;
     }
 
     @Override

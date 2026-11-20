@@ -16,6 +16,11 @@ import org.eclipse.sirius.web.application.views.explorer.services.api.IExplorerL
 import org.obeonetwork.dsl.entity.Entity;
 import org.springframework.stereotype.Service;
 
+/**
+ * Provides labels for ontology explorer items.
+ *
+ * @author ntinsalhi
+ */
 @Service
 public class OntologyExplorerLabelServiceDelegate implements IExplorerLabelServiceDelegate {
 

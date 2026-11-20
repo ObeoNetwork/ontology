@@ -71,6 +71,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class WidgetDescriptionCreationService {
 
+    private static final String REFERENCE_UPDATE_ERROR = "Something went wrong while setting the reference value.";
+
     private final IPropertiesConfigurerService propertiesConfigurerService;
 
     private final IIdentityService identityService;
@@ -127,7 +129,7 @@ public class WidgetDescriptionCreationService {
                         return new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
                     })
                     .map(IStatus.class::cast)
-                    .orElse(this.createErrorStatus("Something went wrong while setting the reference value."));
+                    .orElse(this.createErrorStatus(REFERENCE_UPDATE_ERROR));
         };
 
         return this.createMultiSelectWidgetDescription("entity.dataSource", "Data Sources", valuesProvider, optionsProvider, newHandlerProvider);
@@ -188,7 +190,7 @@ public class WidgetDescriptionCreationService {
                         return new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
                     })
                     .map(IStatus.class::cast)
-                    .orElse(this.createErrorStatus("Something went wrong while setting the reference value."));
+                    .orElse(this.createErrorStatus(REFERENCE_UPDATE_ERROR));
         };
 
         return createSelectWidgetDescription("entity.dataOwner", "Data Owner", false, optionsProvider, valueProvider, newHandlerProvider);
@@ -205,13 +207,13 @@ public class WidgetDescriptionCreationService {
                     .map(OrganizationInformation.class::cast)
                     .flatMap(oi -> oi.getBusinessDomains().stream())
                     .toList();
-                };
+        };
         Function<VariableManager, String> valueProvider = variableManager -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
                     .flatMap(entity -> entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class))
                     .map(identityService::getId)
                     .orElse(null);
-                };
+        };
 
         BiFunction<VariableManager, String, IStatus> newHandlerProvider = (variableManager, newValue) -> {
             return variableManager.get(VariableManager.SELF, Entity.class)
@@ -227,7 +229,7 @@ public class WidgetDescriptionCreationService {
                         return new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
                     })
                     .map(IStatus.class::cast)
-                    .orElse(this.createErrorStatus("Something went wrong while setting the reference value."));
+                    .orElse(this.createErrorStatus(REFERENCE_UPDATE_ERROR));
         };
 
         return createSelectWidgetDescription("entity.businessDomain", "Functional Area", false, optionsProvider, valueProvider, newHandlerProvider);
@@ -290,7 +292,7 @@ public class WidgetDescriptionCreationService {
                             referenceOwner.eUnset(feature);
                             return (IStatus) new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
                         })
-                        .orElseGet(() -> this.createErrorStatus("Something went wrong while setting the reference value."));
+                        .orElseGet(() -> this.createErrorStatus(REFERENCE_UPDATE_ERROR));
             }
 
             return variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
@@ -301,9 +303,9 @@ public class WidgetDescriptionCreationService {
                                     referenceOwner.eSet(feature, newObjectValue);
                                     return (IStatus) new Success(ChangeKind.SEMANTIC_CHANGE, Map.of(), this.feedbackMessageService.getFeedbackMessages());
                                 })
-                                .orElseGet(() -> this.createErrorStatus("Something went wrong while setting the reference value."));
+                                .orElseGet(() -> this.createErrorStatus(REFERENCE_UPDATE_ERROR));
                     })
-                    .orElseGet(() -> this.createErrorStatus("Something went wrong while setting the reference value."));
+                    .orElseGet(() -> this.createErrorStatus(REFERENCE_UPDATE_ERROR));
         };
     }
 

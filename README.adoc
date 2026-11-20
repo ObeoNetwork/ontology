@@ -227,6 +227,10 @@ The set up of the Github token is required for setting up back end and front (se
 ----
 backend/releng/resources/checkstyle/CheckstyleConfiguration.xml
 ----
++
+Maven uses Checkstyle 14.3.0 through `maven-checkstyle-plugin` 3.6.0.
+Select Checkstyle 14.3.0 explicitly in your IDE instead of `latest`.
+Maven skips Checkstyle for `ontology-model` and `ontology-model-edit`.
 
 ** Editor configurations
 +

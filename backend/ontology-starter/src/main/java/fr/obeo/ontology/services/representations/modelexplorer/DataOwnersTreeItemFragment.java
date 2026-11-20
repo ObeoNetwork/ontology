@@ -28,11 +28,11 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class DataOwnersTreeItemFragment implements TreeItemFragment {
 
+    static final String TYPE = "DataOwnersTreeItemFragment";
+
     private final OrganizationInformation organizationInformation;
 
     private final IIdentityService identityService;
-
-    static final String TYPE = "DataOwnersTreeItemFragment";
 
     public DataOwnersTreeItemFragment(OrganizationInformation organizationInformation, IIdentityService identityService) {
         this.organizationInformation = Objects.requireNonNull(organizationInformation);

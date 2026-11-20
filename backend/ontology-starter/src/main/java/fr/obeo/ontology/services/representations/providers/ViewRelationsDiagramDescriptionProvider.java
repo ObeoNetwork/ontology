@@ -46,8 +46,8 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
     private final DiagramToolbarBuilder diagramToolbarBuilder = new DiagramToolbarBuilder();
 
     @Override
-    public RepresentationDescription create(IColorProvider colorProvider) {
-        this.colorProvider = colorProvider;
+    public RepresentationDescription create(IColorProvider diagramColorProvider) {
+        this.colorProvider = diagramColorProvider;
         return this.createRelationsDiagramDescription();
     }
 
@@ -79,11 +79,11 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
         return diagramDescription;
     }
 
-    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider colorProvider) {
+    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider diagramColorProvider) {
         var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
-        diagramElementDescriptionProviders.add(new EntitySynchronizedNodeDescriptionProvider(colorProvider));
-        diagramElementDescriptionProviders.add(new ReferenceEdgeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new EntitySynchronizedNodeDescriptionProvider(diagramColorProvider));
+        diagramElementDescriptionProviders.add(new ReferenceEdgeDescriptionProvider(diagramColorProvider));
 
         return diagramElementDescriptionProviders;
     }

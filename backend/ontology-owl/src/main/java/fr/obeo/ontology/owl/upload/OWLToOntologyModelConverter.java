@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
  * @author lfasani
  */
 @Service
+@SuppressWarnings("checkstyle:ReturnCount")
 public class OWLToOntologyModelConverter {
 
     private static final String BOOLEAN_TYPE = "Boolean";
@@ -66,8 +67,6 @@ public class OWLToOntologyModelConverter {
 
     private static final String DATE_TYPE = "Date";
 
-    private final Map<String, PrimitiveType> nameToDataType = new HashMap<>();
-
     private static final String BASE_ENTITY_URI = "http://ontology/entity#";
 
     private static final String BASE_ENTITY_NAME = "BaseEntity";
@@ -75,6 +74,8 @@ public class OWLToOntologyModelConverter {
     private static final String ASSOCIATION_PREFIX = "Association_";
 
     private static final String SUPER_CLASS_PREFIX = "SuperClass_";
+
+    private final Map<String, PrimitiveType> nameToDataType = new HashMap<>();
 
     private final EntityOWLModelService entityOWLModelService;
 
@@ -170,10 +171,14 @@ public class OWLToOntologyModelConverter {
     private boolean isExportedEntityClass(Resource resource) {
         String localName = resource.getLocalName();
         return resource.getURI().startsWith(BASE_ENTITY_URI)
-                && !resource.getURI().equals(BASE_ENTITY_URI + BASE_ENTITY_NAME)
-                && !BASE_ENTITY_NAME.equals(localName)
-                && !resource.getURI().startsWith(BASE_ENTITY_URI + ASSOCIATION_PREFIX)
-                && !localName.startsWith(ASSOCIATION_PREFIX);
+                && !this.isTechnicalEntityClass(resource, localName);
+    }
+
+    private boolean isTechnicalEntityClass(Resource resource, String localName) {
+        return resource.getURI().equals(BASE_ENTITY_URI + BASE_ENTITY_NAME)
+                || BASE_ENTITY_NAME.equals(localName)
+                || resource.getURI().startsWith(BASE_ENTITY_URI + ASSOCIATION_PREFIX)
+                || localName.startsWith(ASSOCIATION_PREFIX);
     }
 
     private boolean isAssociationClass(Resource resource) {
