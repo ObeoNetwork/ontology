@@ -100,6 +100,11 @@ The Entity Details view contains the following fields
 * *Data Owner*: dropdown list allowing the selection of a data owner
 * *Data Sources*: multi-select dropdown allowing the selection of one or more data sources
 
+The *References* group lists the entity's directly owned relationships in model order, excluding inherited relationships.
+Each row shows the reference name and a single *Referenced Type* column with its target type's name.
+Click the row name to select the reference, or the target name to select its type and display its details when the Details view is synchronized.
+The table is read-only. References without a target have an empty cell, and entities without references have an empty table.
+
 === Ontology Diagram
 
 Ontology diagrams can only be created on **"core entities"**.
