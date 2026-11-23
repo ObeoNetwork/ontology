@@ -13,7 +13,9 @@
 package fr.obeo.ontology.services.representations.providers;
 
 import fr.obeo.ontology.services.representations.diagrams.relations.RelationsDiagramPaletteProvider;
+import fr.obeo.ontology.services.representations.diagrams.relations.edges.InheritedReferenceEdgeDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.edges.ReferenceEdgeDescriptionProvider;
+import fr.obeo.ontology.services.representations.diagrams.relations.edges.SuperEntityEdgeDescriptionProvider;
 import fr.obeo.ontology.services.representations.diagrams.relations.nodes.EntitySynchronizedNodeDescriptionProvider;
 
 import java.util.ArrayList;
@@ -41,17 +43,14 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
 
     public static final String RELATIONS_DIAGRAM_NAME = "Relations Diagram";
 
-    private IColorProvider colorProvider;
-
     private final DiagramToolbarBuilder diagramToolbarBuilder = new DiagramToolbarBuilder();
 
     @Override
-    public RepresentationDescription create(IColorProvider diagramColorProvider) {
-        this.colorProvider = diagramColorProvider;
-        return this.createRelationsDiagramDescription();
+    public RepresentationDescription create(IColorProvider colorProvider) {
+        return this.createRelationsDiagramDescription(colorProvider);
     }
 
-    private DiagramDescription createRelationsDiagramDescription() {
+    private DiagramDescription createRelationsDiagramDescription(IColorProvider colorProvider) {
         var diagramDescription = new DiagramBuilders().newDiagramDescription()
                 .name(RELATIONS_DIAGRAM_NAME)
                 .domainType("entity::Entity")
@@ -64,7 +63,7 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
                 .build();
 
         var cache = new DefaultViewDiagramElementFinder();
-        var diagramElementDescriptionProviders = this.createDiagramElementDescriptionProviders(this.colorProvider);
+        var diagramElementDescriptionProviders = this.createDiagramElementDescriptionProviders(colorProvider);
 
         diagramElementDescriptionProviders.forEach(provider -> {
             var diagramElementDescription = provider.create();
@@ -79,11 +78,13 @@ public class ViewRelationsDiagramDescriptionProvider implements IRepresentationD
         return diagramDescription;
     }
 
-    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider diagramColorProvider) {
+    private List<IDiagramElementDescriptionProvider<?>> createDiagramElementDescriptionProviders(IColorProvider colorProvider) {
         var diagramElementDescriptionProviders = new ArrayList<IDiagramElementDescriptionProvider<?>>();
 
-        diagramElementDescriptionProviders.add(new EntitySynchronizedNodeDescriptionProvider(diagramColorProvider));
-        diagramElementDescriptionProviders.add(new ReferenceEdgeDescriptionProvider(diagramColorProvider));
+        diagramElementDescriptionProviders.add(new EntitySynchronizedNodeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new ReferenceEdgeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new InheritedReferenceEdgeDescriptionProvider(colorProvider));
+        diagramElementDescriptionProviders.add(new SuperEntityEdgeDescriptionProvider(colorProvider));
 
         return diagramElementDescriptionProviders;
     }

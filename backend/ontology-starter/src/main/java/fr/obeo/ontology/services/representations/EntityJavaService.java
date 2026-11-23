@@ -18,6 +18,7 @@ import fr.obeo.ontology.ontologymm.DataSource;
 import fr.obeo.ontology.ontologymm.OntologyPackage;
 import fr.obeo.ontology.services.representations.diagrams.relationsoverview.nodes.EntityUnsynchronizedNodeDescriptionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -296,10 +297,10 @@ public class EntityJavaService {
         return !isMainEntity;
     }
 
-    public List<Entity> getRelationsSemanticCandidates(Entity entity) {
+    public List<Entity> getEntitiesRelatedToEntityReferences(Entity entity) {
         return Stream.concat(
                         Stream.of(entity),
-                        entity.getOwnedReferences().stream()
+                        entity.getReferences().stream()
                                 .map(Reference::getReferencedType)
                                 .filter(Entity.class::isInstance)
                                 .map(Entity.class::cast))
@@ -318,21 +319,17 @@ public class EntityJavaService {
         return entity.getOwnedReferences();
     }
 
+    public List<Reference> getInheritedReferences(Entity entity) {
+        List<Reference> references = new ArrayList<>(entity.getReferences());
+        references.removeAll(entity.getOwnedReferences());
+        return references;
+    }
+
     public Entity getReferenceContainingType(Reference reference) {
         if (reference.getContainingType() instanceof Entity entity) {
             return entity;
         }
         return null;
-    }
-
-    public List<Entity> getEntities(Entity entity) {
-        return Optional.of(entity)
-                .map(EObject::eContainer)
-                .filter(Namespace.class::isInstance)
-                .map(Namespace.class::cast).stream()
-                .flatMap(namespace -> namespace.getTypes().stream())
-                .filter(Entity.class::isInstance).map(Entity.class::cast)
-                .toList();
     }
 
     public Object dropIntoDiagramFromExplorer(Object droppedElement, Object selectedNode, IEditingContext editingContext, DiagramContext diagramContext,

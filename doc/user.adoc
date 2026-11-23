@@ -100,6 +100,9 @@ The Entity Details view contains the following fields
 * *Data Owner*: dropdown list allowing the selection of a data owner
 * *Data Sources*: multi-select dropdown allowing the selection of one or more data sources
 
+The *References* group contains two read-only tables: *Direct References* for the entity's owned relationships, and *Inherited References* for the relationships inherited from its supertypes.
+Each row shows the reference name and a single *Referenced Type* column with its target type's name.
+
 === Ontology Diagram
 
 Ontology diagrams can only be created on **"core entities"**.

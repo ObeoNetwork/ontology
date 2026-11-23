@@ -49,7 +49,7 @@ public class EntitySynchronizedNodeDescriptionProvider extends AbstractRelations
         return this.diagramBuilderHelper.newNodeDescription()
                 .name(ENTITY_SYNCHRONIZED_NODE_NAME)
                 .domainType(ENTITY_ENTITY)
-                .semanticCandidatesExpression("aql:self.getRelationsSemanticCandidates()")
+                .semanticCandidatesExpression("aql:self.getEntitiesRelatedToEntityReferences()")
                 .synchronizationPolicy(SynchronizationPolicy.SYNCHRONIZED)
                 .style(this.entityRectangularNodeStyleDescription(this.colorProvider))
                 .insideLabel(this.entityInsideLabelDescription())

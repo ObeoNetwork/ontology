@@ -77,13 +77,17 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
 
     private final WidgetDescriptionCreationService widgetDescriptionCreationService;
 
+    private final EntityReferencesTableDescriptionProvider entityReferencesTableDescriptionProvider;
+
     public OntologyPropertiesDescriptionRegistryConfigurer(IPropertiesConfigurerService propertiesConfigurerService,
             IPropertiesWidgetCreationService propertiesWidgetCreationService, List<ComposedAdapterFactory.Descriptor> composedAdapterFactoryDescriptors,
-            RadioDescriptionProvider radioDescriptionProvider, WidgetDescriptionCreationService widgetDescriptionCreationService) {
+            RadioDescriptionProvider radioDescriptionProvider, WidgetDescriptionCreationService widgetDescriptionCreationService,
+            EntityReferencesTableDescriptionProvider entityReferencesTableDescriptionProvider) {
         this.propertiesWidgetCreationService = Objects.requireNonNull(propertiesWidgetCreationService);
         this.composedAdapterFactoryDescriptors = Objects.requireNonNull(composedAdapterFactoryDescriptors);
         this.radioDescriptionProvider = Objects.requireNonNull(radioDescriptionProvider);
         this.widgetDescriptionCreationService = Objects.requireNonNull(widgetDescriptionCreationService);
+        this.entityReferencesTableDescriptionProvider = Objects.requireNonNull(entityReferencesTableDescriptionProvider);
     }
 
     @Override
@@ -104,7 +108,10 @@ public class OntologyPropertiesDescriptionRegistryConfigurer implements IPropert
         Predicate<VariableManager> canCreatePagePredicate = variableManager -> variableManager.get(VariableManager.SELF, Object.class).filter(Entity.class::isInstance).isPresent();
         GroupDescription generalGroupDescription = this.widgetDescriptionCreationService.createSimpleGroupDescription("general", "General", this.createEntityGeneralControls());
         GroupDescription organizationGroupDescription = this.widgetDescriptionCreationService.createSimpleGroupDescription("organization", "Organization", this.createEntityOrganizationControls());
-        return this.widgetDescriptionCreationService.createSimplePageDescription(formDescriptionId, List.of(generalGroupDescription, organizationGroupDescription), canCreatePagePredicate);
+        GroupDescription referencesGroupDescription = this.widgetDescriptionCreationService.createSimpleGroupDescription("references", "References",
+                List.of(this.entityReferencesTableDescriptionProvider.createOwnedReferencesWidget(), this.entityReferencesTableDescriptionProvider.createInheritedReferencesWidget()));
+        return this.widgetDescriptionCreationService.createSimplePageDescription(formDescriptionId,
+                List.of(generalGroupDescription, organizationGroupDescription, referencesGroupDescription), canCreatePagePredicate);
     }
 
     private PageDescription createNamespacePageDescription() {

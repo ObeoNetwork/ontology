@@ -9,6 +9,8 @@
 
 === New features
 
+* [details] Display direct and inherited references and their target types in separate tables in Entity details.
+
 === Improvements
 
 * Run the shared Checkstyle configuration on main and test Java sources during Maven's verify phase.
