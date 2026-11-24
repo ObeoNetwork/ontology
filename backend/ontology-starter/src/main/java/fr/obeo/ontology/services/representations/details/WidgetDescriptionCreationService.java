@@ -37,7 +37,7 @@ import org.eclipse.sirius.components.core.api.IFeedbackMessageService;
 import org.eclipse.sirius.components.core.api.IIdentityService;
 import org.eclipse.sirius.components.core.api.ILabelService;
 import org.eclipse.sirius.components.core.api.IObjectSearchService;
-import org.eclipse.sirius.components.core.api.variables.CommonVariables;
+import org.eclipse.sirius.components.core.api.variables.CoreVariables;
 import org.eclipse.sirius.components.forms.MultiSelectStyle;
 import org.eclipse.sirius.components.forms.SelectStyle;
 import org.eclipse.sirius.components.forms.WidgetIdProvider;
@@ -121,7 +121,7 @@ public class WidgetDescriptionCreationService {
                         entityJavaService.objectsReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataSource_Entities(), DataSource.class)
                                 .forEach(ds -> ds.getEntities().remove(entity));
 
-                        variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class).stream()
+                        variableManager.get(CoreVariables.EDITING_CONTEXT.name(), IEditingContext.class).stream()
                                 .flatMap(iEditingContext -> newValues.stream().flatMap(newValue -> this.objectSearchService.getObject(iEditingContext, newValue).stream()))
                                 .filter(DataSource.class::isInstance)
                                 .map(DataSource.class::cast)
@@ -182,7 +182,7 @@ public class WidgetDescriptionCreationService {
                         entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getDataOwner_Entities(), DataOwner.class)
                                 .ifPresent(dataOwner -> dataOwner.getEntities().remove(entity));
 
-                        variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
+                        variableManager.get(CoreVariables.EDITING_CONTEXT.name(), IEditingContext.class)
                                 .flatMap(iEditingContext -> objectSearchService.getObject(iEditingContext, newValue))
                                 .filter(DataOwner.class::isInstance)
                                 .map(DataOwner.class::cast)
@@ -221,7 +221,7 @@ public class WidgetDescriptionCreationService {
                         entityJavaService.objectReferencingEntity(entity, OntologyPackage.eINSTANCE.getBusinessDomain_Entities(), BusinessDomain.class)
                                 .ifPresent(bd -> bd.getEntities().remove(entity));
 
-                        variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
+                        variableManager.get(CoreVariables.EDITING_CONTEXT.name(), IEditingContext.class)
                                 .flatMap(iEditingContext -> objectSearchService.getObject(iEditingContext, newValue))
                                 .filter(BusinessDomain.class::isInstance)
                                 .map(BusinessDomain.class::cast)
@@ -295,7 +295,7 @@ public class WidgetDescriptionCreationService {
                         .orElseGet(() -> this.createErrorStatus(REFERENCE_UPDATE_ERROR));
             }
 
-            return variableManager.get(CommonVariables.EDITING_CONTEXT.name(), IEditingContext.class)
+            return variableManager.get(CoreVariables.EDITING_CONTEXT.name(), IEditingContext.class)
                     .flatMap(iEditingContext -> objectSearchService.getObject(iEditingContext, newValue))
                     .map(newObjectValue -> {
                         return variableManager.get(VariableManager.SELF, EObject.class)

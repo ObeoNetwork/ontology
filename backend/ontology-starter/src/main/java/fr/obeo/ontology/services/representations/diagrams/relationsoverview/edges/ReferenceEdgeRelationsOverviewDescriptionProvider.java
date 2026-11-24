@@ -55,7 +55,7 @@ public class ReferenceEdgeRelationsOverviewDescriptionProvider extends AbstractD
                 .isDomainBasedEdge(true)
                 .synchronizationPolicy(SynchronizationPolicy.SYNCHRONIZED)
                 .domainType(ENVIRONMENT_REFERENCE)
-                .semanticCandidatesExpression("aql:self.getReferences()")
+                .semanticCandidatesExpression("aql:self.getAllReferencesInNamespace()")
                 .sourceExpression("aql:self.getReferenceContainingType()")
                 .targetExpression("aql:self.getReferenceReferencedType()")
                 .style(edgeStyle)

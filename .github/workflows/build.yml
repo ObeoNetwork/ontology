@@ -48,10 +48,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node SDK
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: 22.16
+          node-version: "24.20.0"
           registry-url: https://npm.pkg.github.com/
+          scope: "@eclipse-sirius"
 
       - name: Setup Java SDK
         uses: actions/setup-java@v4

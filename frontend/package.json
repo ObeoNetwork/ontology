@@ -14,10 +14,10 @@
     "ontology-web"
   ],
   "engines": {
-    "node": "22.16.0",
-    "npm": "10.9.2"
+    "node": "24.20.0",
+    "npm": "11.19.0"
   },
-  "packageManager": "npm@10.9.2",
+  "packageManager": "npm@11.19.0",
   "scripts": {
     "build": "turbo run build",
     "start": "turbo run start",
@@ -25,6 +25,10 @@
     "format-lint": "prettier --list-different \"*/src/**/*.{js,ts,tsx,css}\""
   },
   "devDependencies": {
-    "turbo": "2.10.5"
+    "turbo": "2.10.12"
+  },
+  "allowScripts": {
+    "core-js-pure@3.51.0": true,
+    "esbuild@0.28.2": true
   }
 }

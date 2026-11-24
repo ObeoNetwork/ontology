@@ -71,7 +71,7 @@ public class CoreEntityNodeDescriptionProvider extends AbstractNodeDescriptionPr
     @Override
     public void link(DiagramDescription diagramDescription, IViewDiagramElementFinder cache) {
         cache.getNodeDescription(CORE_ENTITY_NODE_NAME).ifPresent(nodeDescription -> {
-            nodeDescription.getPalette().getEdgeTools().add(this.createEdgeTool(cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + 1).get()));
+            nodeDescription.getEdgeTools().add(this.createEdgeTool(cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + 1).get()));
             diagramDescription.getNodeDescriptions().add(nodeDescription);
         });
     }
