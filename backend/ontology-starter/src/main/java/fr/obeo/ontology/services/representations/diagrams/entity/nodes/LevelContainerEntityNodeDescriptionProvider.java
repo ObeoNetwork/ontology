@@ -102,7 +102,7 @@ public class LevelContainerEntityNodeDescriptionProvider extends AbstractNodeDes
     public void link(DiagramDescription diagramDescription, IViewDiagramElementFinder cache) {
         cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + this.level).ifPresent(containerNodeDescription -> {
             if (this.level < NB_LEVEL) {
-                containerNodeDescription.getChildrenDescriptions().get(0).getPalette().getEdgeTools()
+                containerNodeDescription.getChildrenDescriptions().get(0).getEdgeTools()
                         .add(this.createEdgeTool(cache.getNodeDescription(CONTAINER_NODE_LEVEL_NAME + (this.level + 1)).get()));
             }
 

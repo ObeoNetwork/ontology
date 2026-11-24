@@ -70,6 +70,7 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
                     diagramDescription.getNodeDescriptions().add(nodeDescription);
 
                     nodeDescription.setPalette(this.createNodePalette(cache));
+                    nodeDescription.getEdgeTools().add(this.createEdgeToolRelation(cache));
                 });
 
     }
@@ -77,7 +78,6 @@ public class EntityUnsynchronizedNodeDescriptionProvider extends AbstractRelatio
     private NodePalette createNodePalette(IViewDiagramElementFinder cache) {
         return this.createEntityNodePaletteBuilder()
                 .quickAccessTools(this.getDeleteFromDiagramTool())
-                .edgeTools(this.createEdgeToolRelation(cache))
                 .build();
     }
 
