@@ -9,6 +9,8 @@
 
 === New features
 
+* Enable the Validation view with the existing ontology business rules, shared with OWL export.
+
 === Improvements
 
 * Display diagrams and tables of the project in Views view.
