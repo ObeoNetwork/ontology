@@ -34,7 +34,6 @@
     "@eclipse-sirius/sirius-components-widget-reference": "2026.11.2",
     "@eclipse-sirius/sirius-components-widget-table": "2026.11.2",
     "@eclipse-sirius/sirius-web-application": "2026.11.2",
-    "@eclipse-sirius/sirius-web-view-fork": "2026.11.2",
     "@fontsource/roboto": "5.2.10",
     "@lexical/code-core": "0.42.0",
     "@lexical/extension": "0.42.0",
