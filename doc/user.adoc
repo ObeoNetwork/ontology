@@ -207,6 +207,17 @@ Different types of filters are also available, allowing users to filter the info
 
 image:table-ontology-row-filters.png[Ontology Table Row Filters]
 
+== Validation
+
+The **Validation** view displays the validation results for all ontology models in the current project.
+Open the view from the workbench sidebar.
+
+Messages are classified as **errors**, **warnings**, or **information** and are refreshed automatically after model changes.
+The view combines the standard EMF validation with the ontology business rules, including missing or duplicate names, missing types or reference targets, and incomplete annotations.
+
+The same ontology business rules are used by **Download OWL**: errors prevent OWL export and produce a validation report.
+Warnings and information messages do not prevent export.
+
 == Upload and download a model
 
 You can download an Ontology model in **EMF XML** format by clicking `Download` in the model contextual menu.

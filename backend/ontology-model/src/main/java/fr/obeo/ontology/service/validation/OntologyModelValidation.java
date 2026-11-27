@@ -12,6 +12,8 @@
  *******************************************************************************/
 package fr.obeo.ontology.service.validation;
 
+import fr.obeo.ontology.service.validation.api.IOntologyModelValidation;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -39,7 +41,7 @@ import org.springframework.stereotype.Service;
  * @author lfasani
  */
 @Service
-public class OntologyModelValidation {
+public class OntologyModelValidation implements IOntologyModelValidation {
 
     public enum Severity {
         ERROR,
@@ -55,6 +57,7 @@ public class OntologyModelValidation {
         }
     }
 
+    @Override
     public List<ValidationStatus> validate(Root root) {
         List<ValidationStatus> statuses = new ArrayList<>();
 
