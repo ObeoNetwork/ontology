@@ -44,6 +44,16 @@ Each `Entity` can contain the following information:
 
 Ontology representations allow you to **visualize and edit the model**.
 
+=== Views
+
+The **Views** panel lists existing representations, grouped by family and type.
+Tables appear first, under **Table > Entities Table**.
+Under **Diagram**, categories appear in this order: **Ontology Diagram**, **Relations Overview Diagram**, then **Relations Diagram**.
+Empty categories are hidden.
+
+Tables, ontology diagrams and relations overview diagrams display their saved names.
+Relations diagrams display the inheritance path of their target entity, from the root to the entity, for example **Root > Parent > Child**.
+
 === Model Explorer
 
 The **Model Explorer** displays the model as a tree structure.
