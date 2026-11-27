@@ -11,6 +11,7 @@
 
 === Improvements
 
+* Display diagrams and tables of the project in Views view.
 * Run the shared Checkstyle configuration on main and test Java sources during Maven's verify phase.
 * Exclude `ontology-model` and `ontology-model-edit` from Maven Checkstyle checks.
 
